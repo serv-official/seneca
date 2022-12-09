@@ -3929,13 +3929,14 @@ dependencies = [
 
 [[package]]
 name = "pallet-did"
-version = "2.0.0"
-source = "git+https://github.com/serv-official/pallet-serv-did#2f6670969ee12a3bd74241c6c4fbb9d02e4539f6"
+version = "2.0.1"
+source = "git+https://github.com/serv-official/pallet-serv-did#31ea239079f44d85c8eeefe12220630ad8b89bd7"
 dependencies = [
  "frame-support",
  "frame-system",
  "pallet-timestamp",
  "parity-scale-codec",
+ "scale-info",
  "serde",
  "sp-core",
  "sp-io",
