@@ -278,6 +278,13 @@ impl pallet_template::Config for Runtime {
 	type RuntimeEvent = RuntimeEvent;
 }
 
+impl pallet_did::Config for Runtime {
+	type Event = Event;
+	type Public = sp_runtime::MultiSigner;
+	type Signature = Signature;
+	type Time = pallet_timestamp::Module<Runtime>;
+}
+
 // Create the runtime by composing the FRAME pallets that were previously configured.
 construct_runtime!(
 	pub struct Runtime
@@ -296,6 +303,7 @@ construct_runtime!(
 		Sudo: pallet_sudo,
 		// Include the custom logic from the pallet-template in the runtime.
 		TemplateModule: pallet_template,
+		PalletDID: pallet_did
 	}
 );
 
