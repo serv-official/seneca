@@ -4,8 +4,9 @@ use frame_system as system;
 use sp_core::H256;
 use sp_runtime::{
 	testing::Header,
-	traits::{BlakeTwo256, IdentityLookup},
+	traits::{BlakeTwo256, IdentityLookup, Verify, IdentifyAccount},
 };
+use sp_runtime::MultiSigner;
 
 type UncheckedExtrinsic = frame_system::mocking::MockUncheckedExtrinsic<Test>;
 type Block = frame_system::mocking::MockBlock<Test>;
@@ -19,6 +20,7 @@ frame_support::construct_runtime!(
 	{
 		System: frame_system,
 		TemplateModule: pallet_template,
+		MultiSig: pallet_multisig,
 	}
 );
 
@@ -49,9 +51,22 @@ impl system::Config for Test {
 	type MaxConsumers = frame_support::traits::ConstU32<16>;
 }
 
+impl pallet_multisig::Config for Test {
+	type RuntimeEvent = RuntimeEvent;
+	type RuntimeCall = RuntimeCall;
+	type MaxSignatories = ConstU16<16>;
+	type WeightInfo = ();
+	type Currency= () ;
+	type DepositBase = ();
+	type DepositFactor = ();
+}
+
 impl pallet_template::Config for Test {
 	type RuntimeEvent = RuntimeEvent;
+	type MultiSig = Verify + IdentifyAccount<AccountId = u64>;
 }
+
+
 
 // Build genesis storage according to the mock runtime.
 pub fn new_test_ext() -> sp_io::TestExternalities {

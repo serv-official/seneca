@@ -1,14 +1,13 @@
 #![cfg_attr(not(feature = "std"), no_std)]
-/// Edit this file to define custom logic or remove it if it is not needed.
-/// Learn more about FRAME and the core library of Substrate FRAME pallets:
-/// <https://docs.substrate.io/reference/frame-pallets/>
 
 #[cfg(test)]
 mod mock;
 
 #[cfg(test)]
 mod tests;
+mod types;
 
+pub use pallet::*;
 #[cfg(feature = "runtime-benchmarks")]
 mod benchmarking;
 
@@ -19,6 +18,7 @@ pub mod pallet {
 	use frame_system::pallet_prelude::*;
 	use sp_core::crypto::KeyTypeId;
 	use sp_runtime::traits::{IdentifyAccount, Verify};
+	use crate::types::DIDData;
 
 	#[pallet::pallet]
 	#[pallet::without_storage_info]
@@ -40,10 +40,11 @@ pub mod pallet {
 	// Learn more about declaring storage items:
 	// https://docs.substrate.io/main-docs/build/runtime-storage/#declaring-storage-items
 	pub type Something<T> = StorageValue<_, u32>;
+
 	#[pallet::storage]
-	#[pallet::getter(fn did)]
-	pub type AttributeNonce<T: Config> =
-		StorageMap<_, Blake2_128Concat, Vec<u8>, DIDData<T>, OptionQuery>;
+	#[pallet::getter(fn store_did)]
+	pub type DIDs<T: Config> =
+		StorageMap<_, Blake2_128Concat, Vec<u8>, DIDData, OptionQuery>;
 
 	// Pallets use events to inform users when important changes are made.
 	// https://docs.substrate.io/main-docs/build/events-errors/
@@ -56,12 +57,12 @@ pub mod pallet {
 			something: u32,
 			who: T::AccountId,
 		},
-		RuntimeUpgraded(AccountId),
-		Created(AccountId, Vec<u8>),
+		RuntimeUpgraded(T::AccountId),
+		Created(T::AccountId, Vec<u8>),
 		// Event is emitted when an existing DID is updated
-		Updated(AccountId, Vec<u8>),
+		Updated(T::AccountId, Vec<u8>),
 		// Event is emitted when an existing DID is deleted
-		Deleted(AccountId, Vec<u8>),
+		Deleted(T::AccountId, Vec<u8>),
 	}
 
 	// Errors inform users that something went wrong.
@@ -97,13 +98,13 @@ pub mod pallet {
 		}
 		#[pallet::weight(10_000 + T::DbWeight::get().writes(1).ref_time())]
 		pub fn upgrade_runtime(origin: OriginFor<T>) -> DispatchResult {
-			let who = ensure_signed(origin)?;
-			ensure_origin(Origin::Root)?;
+			let who = ensure_signed(origin.clone())?;
+			ensure_root(origin)?;
 			Self::deposit_event(Event::RuntimeUpgraded(who));
 			Ok(())
 		}
 		#[pallet::weight(10_000 + T::DbWeight::get().writes(1).ref_time())]
-		pub fn create(origin: OriginFor<T>, did: Vec<u8>, data: DIDData<T>) -> DispatchResult {
+		pub fn create(origin: OriginFor<T>, did: Vec<u8>, data: DIDData) -> DispatchResult {
 			// Ensure that the caller of the function is signed
 			let sender = ensure_signed(origin)?;
 			// Ensure that the DID does not already exist
@@ -116,7 +117,7 @@ pub mod pallet {
 		}
 		// Function to update an existing DID
 		#[pallet::weight(10_000 + T::DbWeight::get().writes(1).ref_time())]
-		pub fn update(origin: OriginFor<T>, did: Vec<u8>, data: DIDData<T>) -> DispatchResult {
+		pub fn update(origin: OriginFor<T>, did: Vec<u8>, data: DIDData) -> DispatchResult {
 			// Ensure that the caller of the function is signed
 			let sender = ensure_signed(origin)?;
 			// Ensure that the DID already exists
