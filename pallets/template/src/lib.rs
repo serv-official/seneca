@@ -99,20 +99,13 @@ pub mod pallet {
 		/// An example dispatchable that takes a singles value as a parameter, writes the value to
 		/// storage and emits an event. This function must be dispatched by a signed extrinsic.
 		#[pallet::weight(10_000 + T::DbWeight::get().writes(1).ref_time())]
-		pub fn upgrade_runtime(origin: OriginFor<T>) -> DispatchResult {
-			let who = ensure_signed(origin.clone())?;
-			ensure_root(origin)?;
-			Self::deposit_event(Event::RuntimeUpgraded(who));
-			Ok(())
-		}
-		#[pallet::weight(10_000 + T::DbWeight::get().writes(1).ref_time())]
 		pub fn create(origin: OriginFor<T>, did: Vec<u8>, data: DIDData) -> DispatchResult {
 			// Ensure that the caller of the function is signed
 			let sender = ensure_signed(origin)?;
 			// Ensure that the DID does not already exist
 			ensure!(!DIDs::<T>::contains_key(&did), "DID already exists");
 			// Save the DID data in storage
-			DIDs::<T>::insert(&did, data);
+			DIDs::<T>::insert(&did, &data);
 			// Emit an event to indicate that the DID was created
 			Self::deposit_event(Event::Created(sender, did));
 			Ok(())
@@ -125,7 +118,7 @@ pub mod pallet {
 			// Ensure that the DID already exists
 			ensure!(DIDs::<T>::contains_key(&did), "DID does not exist");
 			// Update the DID data in storage
-			DIDs::<T>::insert(&did, data);
+			DIDs::<T>::insert(&did, &data);
 			// Emit an event to indicate that the DID was updated
 			Self::deposit_event(Event::Updated(sender, did));
 			Ok(())
@@ -135,7 +128,7 @@ pub mod pallet {
         pub fn create_did(origin: OriginFor<T>, key: Vec<u8>, metadata: Vec<u8>) -> DispatchResult {
             let sender = ensure_signed(origin)?;
             let did = H256::from_slice(&metadata);
-            <DidToKey<T>>::insert(&did, key);
+            <DidToKey<T>>::insert(&did, &key);
             <DidToOwner<T>>::insert(&did, &sender);
             <DidToMetadata<T>>::insert(&did, &metadata);
             Self::deposit_event(Event::DidCreated(sender, did));
