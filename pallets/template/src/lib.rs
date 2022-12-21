@@ -134,10 +134,10 @@ pub mod pallet {
 		#[pallet::weight(10_000 + T::DbWeight::get().reads_writes(1,1).ref_time())]
         pub fn create_did(origin: OriginFor<T>, key: Vec<u8>, metadata: Vec<u8>) -> DispatchResult {
             let sender = ensure_signed(origin)?;
-            let did = H256::random();
-            <DidToKey<T>>::insert(did, key);
-            <DidToOwner<T>>::insert(did, &sender);
-            <DidToMetadata<T>>::insert(did, metadata);
+            let did = H256::from_slice(&metadata);
+            <DidToKey<T>>::insert(&did, key);
+            <DidToOwner<T>>::insert(&did, &sender);
+            <DidToMetadata<T>>::insert(&did, &metadata);
             Self::deposit_event(Event::DidCreated(sender, did));
             Ok(())
         }
@@ -145,9 +145,9 @@ pub mod pallet {
 		#[pallet::weight(10_000 + T::DbWeight::get().reads_writes(1,1).ref_time())]
         pub fn update_did(origin: OriginFor<T>, did: H256, key: Vec<u8>, metadata: Vec<u8>) -> DispatchResult {
             let sender = ensure_signed(origin)?;
-            ensure!(<DidToOwner<T>>::contains_key(did), "Did does not exist");
-            <DidToKey<T>>::insert(did, key);
-            <DidToMetadata<T>>::insert(did, metadata);
+            ensure!(<DidToOwner<T>>::contains_key(&did), "Did does not exist");
+            <DidToKey<T>>::insert(&did, &key);
+            <DidToMetadata<T>>::insert(&did, &metadata);
             Self::deposit_event(Event::DidUpdated(sender, did));
             Ok(())
         }
@@ -155,10 +155,10 @@ pub mod pallet {
 		#[pallet::weight(10_000 + T::DbWeight::get().reads_writes(1,1).ref_time())]
         pub fn delete_did(origin: OriginFor<T>, did: H256) -> DispatchResult {
             let sender = ensure_signed(origin)?;
-            ensure!(<DidToOwner<T>>::contains_key(did), "Did does not exist");
-            <DidToKey<T>>::remove(did);
-            <DidToOwner<T>>::remove(did);
-            <DidToMetadata<T>>::remove(did);
+            ensure!(<DidToOwner<T>>::contains_key(&did), "Did does not exist");
+            <DidToKey<T>>::remove(&did);
+            <DidToOwner<T>>::remove(&did);
+            <DidToMetadata<T>>::remove(&did);
             Self::deposit_event(Event::DidDeleted(sender, did));
             Ok(())
         }
