@@ -16,9 +16,8 @@ pub mod pallet {
 
 	use frame_support::pallet_prelude::*;
 	use frame_system::pallet_prelude::*;
-	use sp_core::crypto::KeyTypeId;
-	use sp_runtime::traits::{IdentifyAccount, Verify};
 	use crate::types::DIDData;
+	use sp_core::H256;
 
 	#[pallet::pallet]
 	#[pallet::without_storage_info]
@@ -30,7 +29,7 @@ pub mod pallet {
 	pub trait Config: frame_system::Config {
 		/// Because this pallet emits events, it depends on the runtime's definition of an event.
 		type RuntimeEvent: From<Event<Self>> + IsType<<Self as frame_system::Config>::RuntimeEvent>;
-		type MultiSig: Verify + IdentifyAccount;
+		
 	}
 
 	// The pallet's runtime storage items.
@@ -45,6 +44,21 @@ pub mod pallet {
 	#[pallet::getter(fn store_did)]
 	pub type DIDs<T: Config> =
 		StorageMap<_, Blake2_128Concat, Vec<u8>, DIDData, OptionQuery>;
+
+	#[pallet::storage]
+	#[pallet::getter(fn did_to_key)]
+	pub type DidToKey<T: Config> =
+		StorageMap<_, Blake2_128Concat, H256, Vec<u8>, OptionQuery>;
+
+	#[pallet::storage]
+	#[pallet::getter(fn did_to_owner)]
+	pub type DidToOwner<T: Config> =
+		StorageMap<_, Blake2_128Concat, H256, T::AccountId, OptionQuery>;
+
+	#[pallet::storage]
+	#[pallet::getter(fn did_to_metadata)]
+	pub type DidToMetadata<T: Config> =
+		StorageMap<_, Blake2_128Concat, H256, Vec<u8>, OptionQuery>;
 
 	// Pallets use events to inform users when important changes are made.
 	// https://docs.substrate.io/main-docs/build/events-errors/
@@ -63,6 +77,9 @@ pub mod pallet {
 		Updated(T::AccountId, Vec<u8>),
 		// Event is emitted when an existing DID is deleted
 		Deleted(T::AccountId, Vec<u8>),
+		DidCreated(T::AccountId, H256),
+        DidUpdated(T::AccountId, H256),
+        DidDeleted(T::AccountId, H256),
 	}
 
 	// Errors inform users that something went wrong.
@@ -81,21 +98,6 @@ pub mod pallet {
 	impl<T: Config> Pallet<T> {
 		/// An example dispatchable that takes a singles value as a parameter, writes the value to
 		/// storage and emits an event. This function must be dispatched by a signed extrinsic.
-		#[pallet::weight(10_000 + T::DbWeight::get().writes(1).ref_time())]
-		pub fn do_something(origin: OriginFor<T>, something: u32) -> DispatchResult {
-			// Check that the extrinsic was signed and get the signer.
-			// This function will return an error if the extrinsic is not signed.
-			// https://docs.substrate.io/main-docs/build/origins/
-			let who = ensure_signed(origin)?;
-
-			// Update storage.
-			<Something<T>>::put(something);
-
-			// Emit an event.
-			Self::deposit_event(Event::SomethingStored { something, who });
-			// Return a successful DispatchResultWithPostInfo
-			Ok(())
-		}
 		#[pallet::weight(10_000 + T::DbWeight::get().writes(1).ref_time())]
 		pub fn upgrade_runtime(origin: OriginFor<T>) -> DispatchResult {
 			let who = ensure_signed(origin.clone())?;
@@ -129,23 +131,36 @@ pub mod pallet {
 			Ok(())
 		}
 
-		/// An example dispatchable that may throw a custom error.
 		#[pallet::weight(10_000 + T::DbWeight::get().reads_writes(1,1).ref_time())]
-		pub fn cause_error(origin: OriginFor<T>) -> DispatchResult {
-			let _who = ensure_signed(origin)?;
+        pub fn create_did(origin: OriginFor<T>, key: Vec<u8>, metadata: Vec<u8>) -> DispatchResult {
+            let sender = ensure_signed(origin)?;
+            let did = H256::random();
+            <DidToKey<T>>::insert(did, key);
+            <DidToOwner<T>>::insert(did, &sender);
+            <DidToMetadata<T>>::insert(did, metadata);
+            Self::deposit_event(Event::DidCreated(sender, did));
+            Ok(())
+        }
 
-			// Read a value from storage.
-			match <Something<T>>::get() {
-				// Return an error if the value has not been set.
-				None => return Err(Error::<T>::NoneValue.into()),
-				Some(old) => {
-					// Increment the value read from storage; will error in the event of overflow.
-					let new = old.checked_add(1).ok_or(Error::<T>::StorageOverflow)?;
-					// Update the value in storage with the incremented result.
-					<Something<T>>::put(new);
-					Ok(())
-				},
-			}
-		}
+		#[pallet::weight(10_000 + T::DbWeight::get().reads_writes(1,1).ref_time())]
+        pub fn update_did(origin: OriginFor<T>, did: H256, key: Vec<u8>, metadata: Vec<u8>) -> DispatchResult {
+            let sender = ensure_signed(origin)?;
+            ensure!(<DidToOwner<T>>::contains_key(did), "Did does not exist");
+            <DidToKey<T>>::insert(did, key);
+            <DidToMetadata<T>>::insert(did, metadata);
+            Self::deposit_event(Event::DidUpdated(sender, did));
+            Ok(())
+        }
+
+		#[pallet::weight(10_000 + T::DbWeight::get().reads_writes(1,1).ref_time())]
+        pub fn delete_did(origin: OriginFor<T>, did: H256) -> DispatchResult {
+            let sender = ensure_signed(origin)?;
+            ensure!(<DidToOwner<T>>::contains_key(did), "Did does not exist");
+            <DidToKey<T>>::remove(did);
+            <DidToOwner<T>>::remove(did);
+            <DidToMetadata<T>>::remove(did);
+            Self::deposit_event(Event::DidDeleted(sender, did));
+            Ok(())
+        }
 	}
 }
