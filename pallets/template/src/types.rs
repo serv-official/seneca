@@ -1,7 +1,8 @@
 use chrono::prelude::*;
 use codec::{Decode, Encode};
 use scale_info::TypeInfo;
-// use sp_core::sr25519::*;
+use scale_info::prelude::vec::Vec;
+
 //DIDData types
 
 #[derive(PartialEq, Eq, TypeInfo, Clone, Encode, Decode, Debug)]

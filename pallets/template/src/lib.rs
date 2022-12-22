@@ -18,6 +18,7 @@ pub mod pallet {
 	use frame_system::pallet_prelude::*;
 	use crate::types::DIDData;
 	use sp_core::H256;
+	use scale_info::prelude::vec::Vec;
 
 	#[pallet::pallet]
 	#[pallet::without_storage_info]
