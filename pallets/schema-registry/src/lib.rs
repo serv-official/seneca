@@ -46,11 +46,11 @@ pub mod pallet {
 		/// Event documentation should end with an array that provides descriptive names for event
 		/// parameters. [something, who]
 		// Event is emitted when an existing Registry item is created
-		Created(Registry),
+		SchemaCreated(T::Hash, Registry),
 		// Event is emitted when an existing Registry item is updated
-		Updated(T::Hash, Registry),
+		SchemaUpdated(T::Hash, Registry),
 		// Event is emitted when an existing Registry item is deleted
-		Deleted(T::Hash),
+		SchemaDeleted(T::Hash),
 
 	}
 
@@ -85,7 +85,7 @@ pub mod pallet {
 			// Save the DID data in storage
 			RegistryStore::<T>::insert(&key, &data);
 			// Emit an event to indicate that the DID was created
-			Self::deposit_event(Event::Created(data));
+			Self::deposit_event(Event::SchemaCreated(key, data));
 			Ok(())
 		}
 		// Function to update an existing schema
@@ -96,7 +96,7 @@ pub mod pallet {
 			ensure!(schema_data != new_data, Error::<T>::SchemaAlreadyExists);
 			// Update the schema data
 			RegistryStore::<T>::insert(&key, &new_data);
-			Self::deposit_event(Event::Updated(key, new_data));
+			Self::deposit_event(Event::SchemaUpdated(key, new_data));
 			Ok(())
 		}
 
@@ -106,7 +106,7 @@ pub mod pallet {
             let _ = ensure_root(origin)?;
             ensure!(<RegistryStore<T>>::contains_key(&key), Error::<T>::SchemaNotFound);
             <RegistryStore<T>>::remove(&key);
-            Self::deposit_event(Event::Deleted(key));
+            Self::deposit_event(Event::SchemaDeleted(key));
             Ok(())
         }
 	}
