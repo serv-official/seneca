@@ -2,6 +2,7 @@ use codec::{Decode, Encode};
 use scale_info::TypeInfo;
 use frame_support::RuntimeDebug;
 use sp_core::sr25519;
+use scale_info::prelude::vec::Vec;
 
 /// schema registry structure
 #[derive(PartialEq, Eq, TypeInfo, Clone, Encode, Decode, RuntimeDebug)]

@@ -45,7 +45,7 @@ fn it_works_for_create_schema() {
 			data,
 		};
 		// Dispatch a signed create schema extrinsic.
-		assert_ok!(SchemaRegistry::create(RawOrigin::Root.into(), hash, registry.clone()));
+		assert_ok!(SchemaRegistry::create_schema(RawOrigin::Root.into(), hash, registry.clone()));
 		// Read pallet storage and assert an expected result.
 		assert_eq!(SchemaRegistry::store_regisrty(hash), Some(registry.clone()));
 	});
@@ -119,8 +119,8 @@ fn it_works_for_update_schema() {
 			data,
 		};
 		// Dispatch a signed extrinsic.
-		assert_ok!(SchemaRegistry::create(RawOrigin::Root.into(), hash, old_registry.clone()));
-		assert_ok!(SchemaRegistry::update(RawOrigin::Root.into(), hash, old_registry, registry.clone()));
+		assert_ok!(SchemaRegistry::create_schema(RawOrigin::Root.into(), hash, old_registry.clone()));
+		assert_ok!(SchemaRegistry::update_schema(RawOrigin::Root.into(), hash, registry.clone()));
 		// Read pallet storage and assert an expected result.
 		assert_eq!(SchemaRegistry::store_regisrty(hash), Some(registry.clone()));
 	});
@@ -164,9 +164,9 @@ fn it_works_for_delete_schema() {
 			data,
 		};
 		// Dispatch a signed create schema extrinsic.
-		assert_ok!(SchemaRegistry::create(RawOrigin::Root.into(), hash, registry.clone()));
+		assert_ok!(SchemaRegistry::create_schema(RawOrigin::Root.into(), hash, registry.clone()));
 		// Dispatch a signed extrinsic.
-		assert_ok!(SchemaRegistry::delete(RawOrigin::Root.into(), hash.clone()));
+		assert_ok!(SchemaRegistry::delete_schema(RawOrigin::Root.into(), hash.clone()));
 		// Read pallet storage and assert an expected result.
 		assert_eq!(SchemaRegistry::store_regisrty(hash), None);
 	});

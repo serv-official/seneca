@@ -14,9 +14,8 @@ mod benchmarking;
 #[frame_support::pallet]
 pub mod pallet {
 
-	use frame_support::pallet_prelude::*;
+	use frame_support::{pallet_prelude::*, ensure};
 	use frame_system::pallet_prelude::*;
-use sp_core::H256;
 	use crate::types::Registry;
 
 	#[pallet::pallet]
@@ -36,7 +35,7 @@ use sp_core::H256;
 	#[pallet::storage]
 	#[pallet::getter(fn store_regisrty)]
 	pub type RegistryStore<T: Config> =
-		StorageMap<_, Blake2_128Concat, H256, Registry, OptionQuery>;
+		StorageMap<_, Blake2_128Concat, T::Hash, Registry, OptionQuery>;
 
 
 	// Pallets use events to inform users when important changes are made.
@@ -49,9 +48,9 @@ use sp_core::H256;
 		// Event is emitted when an existing Registry item is created
 		Created(Registry),
 		// Event is emitted when an existing Registry item is updated
-		Updated(Registry),
+		Updated(T::Hash, Registry),
 		// Event is emitted when an existing Registry item is deleted
-		Deleted(H256),
+		Deleted(T::Hash),
 
 	}
 
@@ -77,8 +76,8 @@ use sp_core::H256;
 	impl<T: Config> Pallet<T> {
 		/// An example dispatchable that takes a singles value as a parameter, writes the value to
 		/// storage and emits an event. This function must be dispatched by a signed extrinsic.
-		#[pallet::weight(10_000 + T::DbWeight::get().writes(1).ref_time())]
-		pub fn create(origin: OriginFor<T>, key: H256, data: Registry) -> DispatchResult {
+		#[pallet::weight(0 + T::DbWeight::get().writes(1).ref_time())]
+		pub fn create_schema(origin: OriginFor<T>, key: T::Hash, data: Registry) -> DispatchResult {
 			// Ensure that the caller of the function is signed
 			let _ = ensure_root(origin)?;
 			// Ensure that the DID does not already exist
@@ -90,21 +89,20 @@ use sp_core::H256;
 			Ok(())
 		}
 		// Function to update an existing schema
-		#[pallet::weight(10_000 + T::DbWeight::get().writes(1).ref_time())]
-		pub fn update(origin: OriginFor<T>, key: H256, old_data: Registry, new_data: Registry) -> DispatchResult {
+		#[pallet::weight(0 + T::DbWeight::get().writes(1).ref_time())]
+		pub fn update_schema(origin: OriginFor<T>, key: T::Hash, new_data: Registry) -> DispatchResult {
 			let _ = ensure_root(origin)?;
-			let mut onchain_data = RegistryStore::<T>::get(key.clone()).ok_or(Error::<T>::UnknownSchema)?;
-			ensure!(&old_data == &onchain_data, Error::<T>::SchemaNotFound);
-			onchain_data = new_data.clone();
-			// Save the updated schema vector in the storage
-			RegistryStore::<T>::insert(&key, onchain_data);
-			Self::deposit_event(Event::Updated(new_data));
+			let schema_data = RegistryStore::<T>::get(key.clone()).ok_or(Error::<T>::UnknownSchema)?;
+			ensure!(schema_data != new_data, Error::<T>::SchemaAlreadyExists);
+			// Update the schema data
+			RegistryStore::<T>::insert(&key, &new_data);
+			Self::deposit_event(Event::Updated(key, new_data));
 			Ok(())
 		}
 
 		// Function to delete an existing schema
-		#[pallet::weight(10_000 + T::DbWeight::get().reads_writes(1,1).ref_time())]
-        pub fn delete(origin: OriginFor<T>, key: H256) -> DispatchResult {
+		#[pallet::weight(0 + T::DbWeight::get().reads_writes(1,1).ref_time())]
+        pub fn delete_schema(origin: OriginFor<T>, key: T::Hash) -> DispatchResult {
             let _ = ensure_root(origin)?;
             ensure!(<RegistryStore<T>>::contains_key(&key), Error::<T>::SchemaNotFound);
             <RegistryStore<T>>::remove(&key);
