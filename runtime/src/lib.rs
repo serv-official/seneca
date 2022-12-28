@@ -210,8 +210,8 @@ pub fn native_version() -> NativeVersion {
 
 const NORMAL_DISPATCH_RATIO: Perbill = Perbill::from_percent(75);
 
-/// We allow for 2 seconds of compute with a 6 second average block time.
-const MAXIMUM_BLOCK_WEIGHT: Weight = WEIGHT_PER_SECOND.saturating_mul(2);
+/// We allow for 2 seconds of compute with a 6 second average block time, with maximum proof size.
+const MAXIMUM_BLOCK_WEIGHT: Weight = WEIGHT_PER_SECOND.saturating_mul(2).set_proof_size(u64::MAX);
 const AVERAGE_ON_INITIALIZE_RATIO: Perbill = Perbill::from_percent(10);
 
 parameter_types! {
