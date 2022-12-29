@@ -33,6 +33,7 @@ pallet-bags-list = { version = "4.0.0-dev", default-features = false, git = "htt
 pallet-session = { version = "4.0.0-dev", default-features = false, features = [ "historical" ], git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.32" }
 pallet-nomination-pools = { version = "1.0.0", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.32" }
 pallet-staking = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.32" }
+pallet-multisig = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.32" }
 pallet-staking-reward-curve = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.32" }
 pallet-election-provider-multi-phase = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.32" }
 frame-election-provider-support = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.32" }
@@ -124,6 +125,7 @@ std = [
 	"pallet-staking/std",
 	"pallet-offences/std",
 	"pallet-election-provider-multi-phase/std",
+	"pallet-multisig/std",
 	"pallet-utility/std",
 	"pallet-im-online/std",
 	"pallet-uniques/std",
@@ -158,6 +160,7 @@ runtime-benchmarks = [
 	"pallet-contracts/runtime-benchmarks",
 	"pallet-offences-benchmarking",
 	"sp-runtime/runtime-benchmarks",
+	"pallet-multisig/runtime-benchmarks",
 	"pallet-scheduler/runtime-benchmarks",
 	"pallet-treasury/runtime-benchmarks",
 	"pallet-collective/runtime-benchmarks",
@@ -175,6 +178,7 @@ try-runtime = [
 	"frame-support/try-runtime",
 	"pallet-babe/try-runtime",
 	"pallet-balances/try-runtime",
+	"pallet-multisig/try-runtime",
 	"pallet-grandpa/try-runtime",
 	"pallet-randomness-collective-flip/try-runtime",
 	"pallet-sudo/try-runtime",

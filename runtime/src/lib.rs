@@ -751,6 +751,23 @@ impl pallet_offences::Config for Runtime {
 }
 
 parameter_types! {
+	// One storage item; key size is 32; value is size 4+4+16+32 bytes = 56 bytes.
+	pub const DepositBase: Balance = deposit(1, 88);
+	// Additional storage item size of 32 bytes.
+	pub const DepositFactor: Balance = deposit(0, 32);
+}
+
+impl pallet_multisig::Config for Runtime {
+	type RuntimeEvent = RuntimeEvent;
+	type RuntimeCall = RuntimeCall;
+	type Currency = Balances;
+	type DepositBase = DepositBase;
+	type DepositFactor = DepositFactor;
+	type MaxSignatories = ConstU16<100>;
+	type WeightInfo = pallet_multisig::weights::SubstrateWeight<Runtime>;
+}
+
+parameter_types! {
 	pub const ImOnlineUnsignedPriority: TransactionPriority = TransactionPriority::max_value();
 	/// We prioritize im-online heartbeats over election solution submission.
 	pub const StakingUnsignedPriority: TransactionPriority = TransactionPriority::max_value() / 2;
@@ -1146,6 +1163,7 @@ construct_runtime!(
 		TransactionPayment: pallet_transaction_payment,
 		Uniques: pallet_uniques,
 		Assets: pallet_assets,
+		Multisig: pallet_multisig,
 		//smart contract support
 		Contracts: pallet_contracts,
 		// Governance
@@ -1227,6 +1245,7 @@ mod benches {
 		[pallet_uniques, Uniques]
 		[pallet_assets, Assets]
 		[pallet_contracts, Contracts]
+		[pallet_multisig, Multisig]
 	);
 }
 

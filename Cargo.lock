@@ -4206,6 +4206,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "pallet-multisig"
+version = "4.0.0-dev"
+source = "git+https://github.com/paritytech/substrate.git?branch=polkadot-v0.9.32#5ea6d95309aaccfa399c5f72e5a14a4b7c6c4ca1"
+dependencies = [
+ "frame-benchmarking",
+ "frame-support",
+ "frame-system",
+ "log",
+ "parity-scale-codec",
+ "scale-info",
+ "sp-io",
+ "sp-runtime",
+ "sp-std",
+]
+
+[[package]]
 name = "pallet-nomination-pools"
 version = "1.0.0"
 source = "git+https://github.com/paritytech/substrate.git?branch=polkadot-v0.9.32#5ea6d95309aaccfa399c5f72e5a14a4b7c6c4ca1"
@@ -6840,6 +6856,7 @@ dependencies = [
  "pallet-grandpa",
  "pallet-im-online",
  "pallet-membership",
+ "pallet-multisig",
  "pallet-nomination-pools",
  "pallet-offences",
  "pallet-offences-benchmarking",
