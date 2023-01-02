@@ -28,7 +28,7 @@ use sp_runtime::{
 	impl_opaque_keys,
 	traits::{
 		self, AccountIdLookup, BlakeTwo256, Block as BlockT, NumberFor, OpaqueKeys,
-		SaturatedConversion, StaticLookup, Convert, Bounded,
+		SaturatedConversion, StaticLookup, Convert, Bounded, Verify,
 	},
 	transaction_validity::{TransactionPriority, TransactionSource, TransactionValidity},
 	ApplyExtrinsicResult, FixedPointNumber, FixedU128, Perbill, Percent, Permill, Perquintill,
@@ -1135,6 +1135,15 @@ impl pallet_uniques::Config for Runtime {
 	type Locker = ();
 }
 
+// pallet did configurations
+impl pallet_did::Config for Runtime {
+	type RuntimeEvent = RuntimeEvent;
+	type Public = <Signature as Verify>::Signer;
+	type Moment = Moment;
+	type Signature = Signature;
+	type Timestamp = pallet_timestamp::Pallet<Runtime>;
+}
+
 // Create the runtime by composing the FRAME pallets that were previously configured.
 construct_runtime!(
 	pub enum Runtime where
@@ -1176,6 +1185,7 @@ construct_runtime!(
 		TechnicalMembership: pallet_membership::<Instance1>,
 		Preimage: pallet_preimage,
 		Sudo: pallet_sudo,
+		DID: pallet_did,
 
 	}
 );
