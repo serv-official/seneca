@@ -15,10 +15,10 @@ mod benchmarking;
 pub mod pallet {
 
 	use crate::types::Registry;
-	use frame_support::pallet_prelude::*;
+	use frame_support::{pallet_prelude::*, sp_core_hashing_proc_macro::blake2b_256};
 	use frame_system::pallet_prelude::*;
 	use sp_core::H256;
-use types::VerifiableCredenialSchema;
+	use types::VerifiableCredenialSchema;
 
 	#[pallet::pallet]
 	#[pallet::without_storage_info]
@@ -34,10 +34,16 @@ use types::VerifiableCredenialSchema;
 
 	// The pallet's runtime storage items.
 	#[pallet::storage]
+	// pub type T::AccountId => VerifiableCredential;
 	#[pallet::getter(fn store_regisrty)]
 	pub type RegistryStore<T: Config> =
 		StorageMap<_, Blake2_128Concat, H256, Registry, OptionQuery>;
+	
+    	
 
+      
+    
+    
 	// Pallets use events to inform users when important changes are made.
 	// https://docs.substrate.io/main-docs/build/events-errors/
 	#[pallet::event]
@@ -149,6 +155,21 @@ use types::VerifiableCredenialSchema;
 			let extrinsic = client.create_signed_extrinsic(call, None)?;
 			let hash = client.submit_extrinsic(extrinsic).await?;
 			println!("Data record with ID {} deleted", hash);
+		}
+
+		pub fn set_verifiable_credential(
+			origin: T::Origin,
+			verifiable_credential: VerifiableCredential,
+		) -> Result {
+			ensure_signed(origin)?;
+
+			let account_id = ensure_signed(origin)?;
+			<VerifiableCredentials<T>>::insert(account_id, verifiable_credential);
+
+			Ok(())
+		}
+		pub fn get_verifiable_credential(account_id: T::AccountId) -> Option<VerifiableCredential> {
+			Self::verifiable_credentials(account_id)
 		}
 	}
 }
