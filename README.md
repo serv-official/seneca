@@ -1,3 +1,5 @@
+# Serv Network &middot; [![GitHub license](https://img.shields.io/badge/license-GPL3%2FApache2-blue)](#LICENSE) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](docs/CONTRIBUTING.adoc)
+[![Substrate](https://img.shields.io/badge/v.4-Substrate-blue)](https://substrate.io/)
 <div align="center">
   <h1><code>Serv Network</code></h1>
   <p align="center">
@@ -6,7 +8,7 @@
   <strong>Implementation of the serv network node <a href="https://joinserv.com">joinserv.com</a>. Built using <a href="https://github.com/paritytech/substrate">Substrate Framework</a>.</strong> 🚀
 
   <h3>
-    <a href="https://substrate.io/">Docs</a> 📚
+    <a href="https://docs.substrate.io">Docs</a> 📚
     <span> | </span>
     <a href="https://discord.gg/H8AZxzh7sx">Chat</a> 💬
   </h3>
