@@ -1,7 +1,5 @@
-# Serv Network &middot; [![GitHub license](https://img.shields.io/badge/license-GPL3%2FApache2-blue)](#LICENSE) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](docs/CONTRIBUTING.adoc)
-[![Substrate](https://img.shields.io/badge/v.4-Substrate-blue)](https://substrate.io/)
+# Serv Network &middot; [![GitHub license](https://img.shields.io/badge/license-GPL3%2FApache2-blue)](#LICENSE) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](docs/CONTRIBUTING.adoc)[![Substrate](https://img.shields.io/badge/v.4-Substrate-blue)](https://substrate.io/)
 <div align="center">
-  <h1><code>Serv Network</code></h1>
   <p align="center">
     <img src="/docs/media/serv.png">
   </p>
