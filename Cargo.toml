@@ -2,7 +2,6 @@
 members = [
     "node",
     "pallets/template",
-    "pallets/pallet-did",
     "pallets/schema-registry",
     "runtime",
 ]

@@ -4093,6 +4093,7 @@ dependencies = [
 [[package]]
 name = "pallet-did"
 version = "4.0.0"
+source = "git+https://github.com/ArnoldTumukunde/pallet-did.git?branch=master#4200922e463d8f269d92991eb0aa63f57663eb3b"
 dependencies = [
  "frame-benchmarking",
  "frame-support",

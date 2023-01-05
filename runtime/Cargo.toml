@@ -87,7 +87,7 @@ frame-system-benchmarking = { version = "4.0.0-dev", default-features = false, g
 hex-literal = { version = "0.3.1", optional = true }
 
 # Local Dependencies
-pallet-did = { version = "4.0.0-dev", default-features = false, path ="../pallets/pallet-did"}
+pallet-did = { version = "4.0.0-dev", default-features = false, git ="https://github.com/ArnoldTumukunde/pallet-did.git", branch="master"}
 pallet-schema-registry = { version = "4.0.0-dev", default-features = false, path = "../pallets/schema-registry" }
 
 [build-dependencies]
