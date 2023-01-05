@@ -4343,6 +4343,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "pallet-schema-registry"
+version = "4.0.0-dev"
+dependencies = [
+ "frame-benchmarking",
+ "frame-support",
+ "frame-system",
+ "parity-scale-codec",
+ "scale-info",
+ "serde",
+ "serde_json",
+ "sp-core",
+ "sp-io",
+ "sp-runtime",
+]
+
+[[package]]
 name = "pallet-session"
 version = "4.0.0-dev"
 source = "git+https://github.com/paritytech/substrate.git?branch=polkadot-v0.9.32#5ea6d95309aaccfa399c5f72e5a14a4b7c6c4ca1"
@@ -6881,6 +6897,7 @@ dependencies = [
  "pallet-preimage",
  "pallet-randomness-collective-flip",
  "pallet-scheduler",
+ "pallet-schema-registry",
  "pallet-session",
  "pallet-staking",
  "pallet-staking-reward-curve",

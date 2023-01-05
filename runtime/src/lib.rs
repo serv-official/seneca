@@ -65,6 +65,7 @@ pub use pallet_timestamp::Call as TimestampCall;
 use pallet_transaction_payment::{CurrencyAdapter, Multiplier, TargetedFeeAdjustment};
 #[cfg(any(feature = "std", test))]
 pub use sp_runtime::BuildStorage;
+pub use pallet_schema_registry;
 
 pub mod constants;
 use constants::currency::*;
@@ -1144,6 +1145,10 @@ impl pallet_did::Config for Runtime {
 	type Timestamp = pallet_timestamp::Pallet<Runtime>;
 }
 
+impl pallet_schema_registry::Config for Runtime {
+	type RuntimeEvent = RuntimeEvent;
+}
+
 // Create the runtime by composing the FRAME pallets that were previously configured.
 construct_runtime!(
 	pub enum Runtime where
@@ -1186,6 +1191,7 @@ construct_runtime!(
 		Preimage: pallet_preimage,
 		Sudo: pallet_sudo,
 		DID: pallet_did,
+		SchemaRegistry: pallet_schema_registry,
 
 	}
 );
@@ -1256,6 +1262,7 @@ mod benches {
 		[pallet_assets, Assets]
 		[pallet_contracts, Contracts]
 		[pallet_multisig, Multisig]
+		[pallet_schema_registry, SchemaRegistry]
 	);
 }
 
