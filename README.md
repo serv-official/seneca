@@ -3,7 +3,7 @@
   <p align="center">
     <img src="/docs/media/serv.png">
   </p>
-  <strong>Implementation of the serv network node <a href="https://joinserv.com">https://joinserv.com</a>. Built using <a href="https://github.com/paritytech/substrate">Substrate Framework</a>.</strong> 🚀
+  <strong>Implementation of the serv network node <a href="joinserv.com">https://joinserv.com</a>. Built using <a href="https://github.com/paritytech/substrate">Substrate Framework</a>.</strong> 🚀
 
   <h3>
     <a href="https://substrate.io/">Docs</a> 📚
