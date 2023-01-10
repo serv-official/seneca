@@ -1,5 +1,4 @@
 #![cfg_attr(not(feature = "std"), no_std)]
-
 #[cfg(test)]
 mod mock;
 
@@ -8,15 +7,28 @@ mod tests;
 mod types;
 
 pub use pallet::*;
+use sp_core::sr25519::Signature;
+use std::time::{SystemTime, UNIX_EPOCH};
 #[cfg(feature = "runtime-benchmarks")]
 mod benchmarking;
 
+#[derive(PartialEq, Eq, TypeInfo, Clone, Encode, Decode, RuntimeDebug)]
+pub struct VerifiableCredential {
+	context: String,
+	schema: String,
+	issuer: String,
+	issuance_date: SystemTime,
+	expiration_date: SystemTime,
+	subject: String,
+	credential_holder: String,
+	signature: Signature,
+}
 #[frame_support::pallet]
 pub mod pallet {
 
-	use frame_support::{pallet_prelude::*, ensure};
-	use frame_system::pallet_prelude::*;
 	use crate::types::Registry;
+	use frame_support::{ensure, pallet_prelude::*};
+	use frame_system::pallet_prelude::*;
 
 	#[pallet::pallet]
 	#[pallet::without_storage_info]
@@ -28,7 +40,6 @@ pub mod pallet {
 	pub trait Config: frame_system::Config {
 		/// Because this pallet emits events, it depends on the runtime's definition of an event.
 		type RuntimeEvent: From<Event<Self>> + IsType<<Self as frame_system::Config>::RuntimeEvent>;
-		
 	}
 
 	// The pallet's runtime storage items.
@@ -36,7 +47,6 @@ pub mod pallet {
 	#[pallet::getter(fn store_regisrty)]
 	pub type RegistryStore<T: Config> =
 		StorageMap<_, Blake2_128Concat, T::Hash, Registry, OptionQuery>;
-
 
 	// Pallets use events to inform users when important changes are made.
 	// https://docs.substrate.io/main-docs/build/events-errors/
@@ -51,7 +61,6 @@ pub mod pallet {
 		Updated(T::Hash, Registry),
 		// Event is emitted when an existing Registry item is deleted
 		Deleted(T::Hash),
-
 	}
 
 	// Errors inform users that something went wrong.
@@ -66,7 +75,9 @@ pub mod pallet {
 		///Error emitted when schema is unknown
 		UnknownSchema,
 		///Error emitted when schema is unknown
-		SchemaNotFound
+		SchemaNotFound,
+		///Error emitted when schema values do not fit format
+		SchemaFormatNotFollowed,
 	}
 
 	// Dispatchable functions allows users to interact with the pallet and invoke state changes.
@@ -77,22 +88,35 @@ pub mod pallet {
 		/// An example dispatchable that takes a singles value as a parameter, writes the value to
 		/// storage and emits an event. This function must be dispatched by a signed extrinsic.
 		#[pallet::weight(0 + T::DbWeight::get().writes(1).ref_time())]
-		pub fn create_schema(origin: OriginFor<T>, key: T::Hash, data: Registry) -> DispatchResult {
+		pub fn create_schema(
+			origin: OriginFor<T>,
+			key: T::Hash,
+			credential: crate::types::VerifiableCredential,
+		) -> DispatchResult {
 			// Ensure that the caller of the function is signed
 			let _ = ensure_root(origin)?;
 			// Ensure that the DID does not already exist
 			ensure!(!RegistryStore::<T>::contains_key(&key), "Schema already exists");
 			// Save the DID data in storage
-			RegistryStore::<T>::insert(&key, &data);
+
+			
+			let json_vec: Vec<u8> = serde_json::to_vec(&credential).unwrap();
+
+			RegistryStore::<T>::insert(&key, &json_vec);
 			// Emit an event to indicate that the DID was created
-			Self::deposit_event(Event::Created(data));
+			Self::deposit_event(Event::Created(json_vec));
 			Ok(())
 		}
 		// Function to update an existing schema
 		#[pallet::weight(0 + T::DbWeight::get().writes(1).ref_time())]
-		pub fn update_schema(origin: OriginFor<T>, key: T::Hash, new_data: Registry) -> DispatchResult {
+		pub fn update_schema(
+			origin: OriginFor<T>,
+			key: T::Hash,
+			new_data: Registry,
+		) -> DispatchResult {
 			let _ = ensure_root(origin)?;
-			let schema_data = RegistryStore::<T>::get(key.clone()).ok_or(Error::<T>::UnknownSchema)?;
+			let schema_data =
+				RegistryStore::<T>::get(key.clone()).ok_or(Error::<T>::UnknownSchema)?;
 			ensure!(schema_data != new_data, Error::<T>::SchemaAlreadyExists);
 			// Update the schema data
 			RegistryStore::<T>::insert(&key, &new_data);
@@ -102,12 +126,12 @@ pub mod pallet {
 
 		// Function to delete an existing schema
 		#[pallet::weight(0 + T::DbWeight::get().reads_writes(1,1).ref_time())]
-        pub fn delete_schema(origin: OriginFor<T>, key: T::Hash) -> DispatchResult {
-            let _ = ensure_root(origin)?;
-            ensure!(<RegistryStore<T>>::contains_key(&key), Error::<T>::SchemaNotFound);
-            <RegistryStore<T>>::remove(&key);
-            Self::deposit_event(Event::Deleted(key));
-            Ok(())
-        }
+		pub fn delete_schema(origin: OriginFor<T>, key: T::Hash) -> DispatchResult {
+			let _ = ensure_root(origin)?;
+			ensure!(<RegistryStore<T>>::contains_key(&key), Error::<T>::SchemaNotFound);
+			<RegistryStore<T>>::remove(&key);
+			Self::deposit_event(Event::Deleted(key));
+			Ok(())
+		}
 	}
 }
