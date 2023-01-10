@@ -6,6 +6,10 @@ mod mock;
 mod tests;
 mod types;
 
+use serde::{Deserialize, Serialize};
+use serde_json::{from_str, to_string};
+use std::time::{SystemTime, UNIX_EPOCH, Duration};
+use uuid::Uuid;
 pub use pallet::*;
 use sp_core::sr25519::Signature;
 use std::time::{SystemTime, UNIX_EPOCH};
@@ -14,6 +18,18 @@ mod benchmarking;
 
 #[derive(PartialEq, Eq, TypeInfo, Clone, Encode, Decode, RuntimeDebug)]
 pub struct VerifiableCredential {
+	id: u64,
+	context: String,
+	schema: String,
+	issuer: String,
+	issuance_date: SystemTime,
+	expiration_date: SystemTime,
+	subject: String,
+	credential_holder: String,
+	signature: Signature,
+}
+pub struct FinalVerifiableCredential {
+	id: u64,
 	context: String,
 	schema: String,
 	issuer: String,
@@ -26,6 +42,18 @@ pub struct VerifiableCredential {
 #[frame_support::pallet]
 pub mod pallet {
 
+	
+	struct VerifiableCredential {
+		id: u64,
+		context: String,
+		schema: String,
+		issuer: String,
+		issuance_date: SystemTime,
+		expiration_date: SystemTime,
+		subject: String,
+		credential_holder: String,
+		signature: String,
+	}
 	use crate::types::Registry;
 	use frame_support::{ensure, pallet_prelude::*};
 	use frame_system::pallet_prelude::*;
@@ -80,6 +108,29 @@ pub mod pallet {
 		SchemaFormatNotFollowed,
 	}
 
+	fn process_json(json_string: String) -> Vec<u8> {
+    let mut credential: VerifiableCredential = match from_str(&json_string) {
+        Ok(c) => c,
+        Err(_) => return Vec::new(),
+    };
+
+    // Generate a new ID
+		credential.id = Uuid::new_v4().as_u128() as u64;
+
+		// Set the issuance date to the current time
+		credential.issuance_date = SystemTime::now();
+
+		// Set the expiration date to January 1, 3030
+		let january_1_3030 = UNIX_EPOCH + Duration::from_secs(2524608000);
+		credential.expiration_date = january_1_3030;
+
+		// Serialize the modified struct into JSON data
+		let modified_json = to_string(&credential).unwrap();
+
+		// Turn the JSON data into a vector of bytes
+		modified_json.as_bytes().to_vec()
+	}
+
 	// Dispatchable functions allows users to interact with the pallet and invoke state changes.
 	// These functions materialize as "extrinsics", which are often compared to transactions.
 	// Dispatchable functions must be annotated with a weight and must return a DispatchResult.
@@ -91,15 +142,18 @@ pub mod pallet {
 		pub fn create_schema(
 			origin: OriginFor<T>,
 			key: T::Hash,
-			credential: crate::types::VerifiableCredential,
+			credential: String,
 		) -> DispatchResult {
 			// Ensure that the caller of the function is signed
 			let _ = ensure_root(origin)?;
 			// Ensure that the DID does not already exist
 			ensure!(!RegistryStore::<T>::contains_key(&key), "Schema already exists");
-			// Save the DID data in storage
-
 			
+			let VerifiedCredential = 
+			// Save the DID data in storage
+			credential.id = Uuid::new_v4();
+			credential.issuance_date = SystemTime::now();
+
 			let json_vec: Vec<u8> = serde_json::to_vec(&credential).unwrap();
 
 			RegistryStore::<T>::insert(&key, &json_vec);
