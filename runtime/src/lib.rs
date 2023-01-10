@@ -9,7 +9,7 @@ use frame_election_provider_support::{
 };
 use frame_system::{
 	limits::{BlockLength, BlockWeights},
-	EnsureRoot, EnsureSigned
+	EnsureRoot
 };
 pub use node_primitives::Signature;
 use node_primitives::{AccountId, Balance, BlockNumber, Hash, Index, Moment};
@@ -1089,51 +1089,11 @@ parameter_types! {
 	pub const MetadataDepositPerByte: Balance = 1 * SERV;
 }
 
-impl pallet_assets::Config for Runtime {
-	type RuntimeEvent = RuntimeEvent;
-	type Balance = u128;
-	type AssetId = u32;
-	type Currency = Balances;
-	type ForceOrigin = EnsureRoot<AccountId>;
-	type AssetDeposit = AssetDeposit;
-	type AssetAccountDeposit = ConstU128<SERV>;
-	type MetadataDepositBase = MetadataDepositBase;
-	type MetadataDepositPerByte = MetadataDepositPerByte;
-	type ApprovalDeposit = ApprovalDeposit;
-	type StringLimit = StringLimit;
-	type Freezer = ();
-	type Extra = ();
-	type WeightInfo = pallet_assets::weights::SubstrateWeight<Runtime>;
-	#[cfg(feature = "runtime-benchmarks")]
-	type BenchmarkHelper = ();
-}
-
 parameter_types! {
 	pub const CollectionDeposit: Balance = 100 * SERV;
 	pub const ItemDeposit: Balance = 1 * SERV;
 	pub const KeyLimit: u32 = 32;
 	pub const ValueLimit: u32 = 256;
-}
-
-impl pallet_uniques::Config for Runtime {
-	type RuntimeEvent = RuntimeEvent;
-	type CollectionId = u32;
-	type ItemId = u32;
-	type Currency = Balances;
-	type ForceOrigin = frame_system::EnsureRoot<AccountId>;
-	type CollectionDeposit = CollectionDeposit;
-	type ItemDeposit = ItemDeposit;
-	type MetadataDepositBase = MetadataDepositBase;
-	type AttributeDepositBase = MetadataDepositBase;
-	type DepositPerByte = MetadataDepositPerByte;
-	type StringLimit = StringLimit;
-	type KeyLimit = KeyLimit;
-	type ValueLimit = ValueLimit;
-	type WeightInfo = pallet_uniques::weights::SubstrateWeight<Runtime>;
-	#[cfg(feature = "runtime-benchmarks")]
-	type Helper = ();
-	type CreateOrigin = AsEnsureOriginWithArg<EnsureSigned<AccountId>>;
-	type Locker = ();
 }
 
 // pallet did configurations
@@ -1147,6 +1107,8 @@ impl pallet_did::Config for Runtime {
 
 impl pallet_schema_registry::Config for Runtime {
 	type RuntimeEvent = RuntimeEvent;
+	type Public = <Signature as Verify>::Signer;
+	type Signature = Signature;
 }
 
 // Create the runtime by composing the FRAME pallets that were previously configured.
@@ -1175,8 +1137,6 @@ construct_runtime!(
 		Offences: pallet_offences,
 		ImOnline: pallet_im_online,
 		TransactionPayment: pallet_transaction_payment,
-		Uniques: pallet_uniques,
-		Assets: pallet_assets,
 		Multisig: pallet_multisig,
 		//smart contract support
 		Contracts: pallet_contracts,
@@ -1258,8 +1218,6 @@ mod benches {
 		[pallet_membership, TechnicalMembership]
 		[pallet_elections_phragmen, Elections]
 		[pallet_preimage, Preimage]
-		[pallet_uniques, Uniques]
-		[pallet_assets, Assets]
 		[pallet_contracts, Contracts]
 		[pallet_multisig, Multisig]
 		[pallet_schema_registry, SchemaRegistry]

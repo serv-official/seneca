@@ -118,7 +118,7 @@ pub fn local_testnet_config() -> Result<ChainSpec, String> {
 				vec![authority_keys_from_seed("Alice"), authority_keys_from_seed("Bob")],
 				vec![],
 				// Sudo account
-				get_account_id_from_seed::<sr25519::Public>("5F8xghQeZTU6QLEwqxnEsNzpUjznAoa1AFJiPyYE396f6mJv"),
+				get_account_id_from_seed::<sr25519::Public>("Alice"),
 				// Pre-funded accounts
 				vec![
 					get_account_id_from_seed::<sr25519::Public>("Alice"),
@@ -334,7 +334,6 @@ fn testnet_genesis(
 				.map(|member| (member, STASH))
 				.collect(),
 		},
-		assets: Default::default(),
 		council: CouncilConfig::default(),
 		technical_committee: TechnicalCommitteeConfig {
 			members: endowed_accounts

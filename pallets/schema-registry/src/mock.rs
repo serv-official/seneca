@@ -1,14 +1,20 @@
 use crate as pallet_schema_registry;
+use frame_support::traits::OnTimestampSet;
 use frame_support::traits::{ConstU16, ConstU64};
 use frame_system as system;
 use sp_core::H256;
+use sp_core::Pair;
+use sp_core::sr25519;
+use sp_core::sr25519::Signature;
 use sp_runtime::{
 	testing::Header,
-	traits::{BlakeTwo256, IdentityLookup},
+	traits::{BlakeTwo256, IdentifyAccount,IdentityLookup, Verify},
 };
+use sp_std::cell::RefCell;
 
 type UncheckedExtrinsic = frame_system::mocking::MockUncheckedExtrinsic<Test>;
 type Block = frame_system::mocking::MockBlock<Test>;
+type Moment = u64;
 
 // Configure a mock runtime to test the pallet.
 frame_support::construct_runtime!(
@@ -19,6 +25,7 @@ frame_support::construct_runtime!(
 	{
 		System: frame_system,
 		SchemaRegistry: pallet_schema_registry,
+		Timestamp: pallet_timestamp,
 	}
 );
 
@@ -49,11 +56,41 @@ impl system::Config for Test {
 	type MaxConsumers = frame_support::traits::ConstU32<16>;
 }
 
-impl pallet_schema_registry::Config for Test {
-	type RuntimeEvent = RuntimeEvent;
+thread_local! {
+	pub static CAPTURED_MOMENT: RefCell<Option<Moment>> = RefCell::new(None);
 }
 
+pub struct MockOnTimestampSet;
+impl OnTimestampSet<Moment> for MockOnTimestampSet {
+	fn on_timestamp_set(moment: Moment) {
+		CAPTURED_MOMENT.with(|x| *x.borrow_mut() = Some(moment));
+	}
+}
+
+impl pallet_timestamp::Config for Test {
+	type Moment = Moment;
+	type OnTimestampSet = MockOnTimestampSet;
+	type MinimumPeriod = ConstU64<5>;
+	type WeightInfo = ();
+}
+
+impl pallet_schema_registry::Config for Test {
+	type RuntimeEvent = RuntimeEvent;
+    type Public = <<Signature as Verify>::Signer as IdentifyAccount>::AccountId;
+    type Signature = sr25519::Signature;
+    type Moment = Moment;
+    type Timestamp = Timestamp;
+}
 // Build genesis storage according to the mock runtime.
 pub fn new_test_ext() -> sp_io::TestExternalities {
-	system::GenesisConfig::default().build_storage::<Test>().unwrap().into()
+    system::GenesisConfig::default()
+        .build_storage::<Test>()
+        .unwrap()
+        .into()
 }
+
+pub fn account_pair(s: &str) -> sr25519::Pair {
+    sr25519::Pair::from_string(&format!("//{}", s), None).expect("static values are valid; qed")
+}
+
+

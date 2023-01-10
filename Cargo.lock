@@ -3917,20 +3917,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "pallet-assets"
-version = "4.0.0-dev"
-source = "git+https://github.com/paritytech/substrate.git?branch=polkadot-v0.9.32#5ea6d95309aaccfa399c5f72e5a14a4b7c6c4ca1"
-dependencies = [
- "frame-benchmarking",
- "frame-support",
- "frame-system",
- "parity-scale-codec",
- "scale-info",
- "sp-runtime",
- "sp-std",
-]
-
-[[package]]
 name = "pallet-authorship"
 version = "4.0.0-dev"
 source = "git+https://github.com/paritytech/substrate.git?branch=polkadot-v0.9.32#5ea6d95309aaccfa399c5f72e5a14a4b7c6c4ca1"
@@ -4350,13 +4336,16 @@ dependencies = [
  "frame-benchmarking",
  "frame-support",
  "frame-system",
+ "pallet-timestamp",
  "parity-scale-codec",
  "scale-info",
- "serde",
- "serde_json",
+ "sp-arithmetic",
  "sp-core",
  "sp-io",
+ "sp-keyring",
  "sp-runtime",
+ "sp-std",
+ "uuid",
 ]
 
 [[package]]
@@ -4425,20 +4414,6 @@ dependencies = [
  "sp-io",
  "sp-runtime",
  "sp-std",
-]
-
-[[package]]
-name = "pallet-template"
-version = "4.0.0-dev"
-dependencies = [
- "frame-benchmarking",
- "frame-support",
- "frame-system",
- "parity-scale-codec",
- "scale-info",
- "sp-core",
- "sp-io",
- "sp-runtime",
 ]
 
 [[package]]
@@ -4516,21 +4491,6 @@ dependencies = [
  "parity-scale-codec",
  "scale-info",
  "serde",
- "sp-runtime",
- "sp-std",
-]
-
-[[package]]
-name = "pallet-uniques"
-version = "4.0.0-dev"
-source = "git+https://github.com/paritytech/substrate.git?branch=polkadot-v0.9.32#5ea6d95309aaccfa399c5f72e5a14a4b7c6c4ca1"
-dependencies = [
- "frame-benchmarking",
- "frame-support",
- "frame-system",
- "log",
- "parity-scale-codec",
- "scale-info",
  "sp-runtime",
  "sp-std",
 ]
@@ -6876,7 +6836,6 @@ dependencies = [
  "hex-literal",
  "log",
  "node-primitives",
- "pallet-assets",
  "pallet-authorship",
  "pallet-babe",
  "pallet-bags-list",
@@ -6907,7 +6866,6 @@ dependencies = [
  "pallet-transaction-payment",
  "pallet-transaction-payment-rpc-runtime-api",
  "pallet-treasury",
- "pallet-uniques",
  "pallet-utility",
  "parity-scale-codec",
  "scale-info",
@@ -8549,6 +8507,28 @@ dependencies = [
  "form_urlencoded",
  "idna 0.3.0",
  "percent-encoding",
+]
+
+[[package]]
+name = "uuid"
+version = "1.2.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "422ee0de9031b5b948b97a8fc04e3aa35230001a722ddd27943e0be31564ce4c"
+dependencies = [
+ "getrandom 0.2.8",
+ "rand 0.8.5",
+ "uuid-macro-internal",
+]
+
+[[package]]
+name = "uuid-macro-internal"
+version = "1.2.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "73bc89f2894593e665241e0052c3791999e6787b7c4831daa0a5c2e637e276d8"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
 ]
 
 [[package]]
