@@ -40,7 +40,7 @@ impl system::Config for Test {
 	type BlockNumber = u64;
 	type Hash = H256;
 	type Hashing = BlakeTwo256;
-	type AccountId = u64;
+	type AccountId = sp_core::sr25519::Public;
 	type Lookup = IdentityLookup<Self::AccountId>;
 	type Header = Header;
 	type RuntimeEvent = RuntimeEvent;
@@ -77,16 +77,15 @@ impl pallet_timestamp::Config for Test {
 impl pallet_schema_registry::Config for Test {
 	type RuntimeEvent = RuntimeEvent;
     type Public = <<Signature as Verify>::Signer as IdentifyAccount>::AccountId;
+	type SchemaId = u32;
     type Signature = sr25519::Signature;
     type Moment = Moment;
     type Timestamp = Timestamp;
 }
 // Build genesis storage according to the mock runtime.
+// Build genesis storage according to the mock runtime.
 pub fn new_test_ext() -> sp_io::TestExternalities {
-    system::GenesisConfig::default()
-        .build_storage::<Test>()
-        .unwrap()
-        .into()
+	system::GenesisConfig::default().build_storage::<Test>().unwrap().into()
 }
 
 pub fn account_pair(s: &str) -> sr25519::Pair {

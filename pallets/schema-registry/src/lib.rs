@@ -17,8 +17,9 @@ pub mod pallet {
 	use frame_support::{
 		pallet_prelude::*, ensure,traits::{Time, IsType},
 		sp_runtime::traits::{Scale, IdentifyAccount, Member, Verify},
+		dispatch::HasCompact,
 	};
-	use uuid::Uuid;
+	use scale_info::prelude::vec::Vec;
 	use scale_info::StaticTypeInfo;
 	use frame_system::pallet_prelude::*;
 	use crate::types::*;
@@ -35,6 +36,14 @@ pub mod pallet {
 		type RuntimeEvent: From<Event<Self>> + IsType<<Self as frame_system::Config>::RuntimeEvent>;
 		type Public: IdentifyAccount<AccountId = Self::AccountId>;
 		type Signature: Verify<Signer = Self::Public> + Member + Decode + Encode + TypeInfo;
+		type SchemaId: Member
+		+ Parameter
+		+ Default
+		+ Copy
+		+ HasCompact
+		+ MaybeSerializeDeserialize
+		+ MaxEncodedLen
+		+ TypeInfo;
 		type Moment: Parameter
 		+ Default
 		+ Scale<Self::BlockNumber, Output = Self::Moment>
@@ -49,12 +58,12 @@ pub mod pallet {
 	#[pallet::storage]
 	#[pallet::getter(fn schema_registry)]
 	pub type SchemaStore<T: Config> =
-		StorageMap<_, Blake2_128Concat, T::Hash, VerifiableCredentialSchema<T::Moment, T::Signature>,  OptionQuery>;
+		StorageMap<_, Blake2_128Concat, T::Hash, VerifiableCredentialSchema<T::SchemaId, T::Moment, T::Signature>,  OptionQuery>;
 
 	#[pallet::storage]
 	#[pallet::getter(fn credential_registry)]
 	pub type CredentialStore<T: Config> =
-		StorageMap<_, Blake2_128Concat, T::Hash, VerifiableCredential<T::AccountId, T::Moment, T::Signature>,  OptionQuery>;
+		StorageMap<_, Blake2_128Concat, T::Hash, VerifiableCredential<T::SchemaId, T::AccountId, T::Moment, T::Signature>,  OptionQuery>;
 	
 	#[pallet::storage]
 	#[pallet::getter(fn get_nonce)]
@@ -68,13 +77,13 @@ pub mod pallet {
 		/// Event documentation should end with an array that provides descriptive names for event
 		/// parameters. [something, who]
 		// Event is emitted when a Schema item is created
-		SchemaCreated(T::Hash, VerifiableCredentialSchema<T::Moment, T::Signature>),
+		SchemaCreated(T::Hash, VerifiableCredentialSchema<T::SchemaId, T::Moment, T::Signature>),
 		// Event is emitted when a Credential item is created
-		CredentialCreated(T::Hash, VerifiableCredential<T::AccountId, T::Moment, T::Signature>),
+		CredentialCreated(T::Hash, VerifiableCredential<T::SchemaId, T::AccountId, T::Moment, T::Signature>),
 		// Event is emitted when an existing Schema item is updated
-		SchemaUpdated(T::Hash, VerifiableCredentialSchema<T::Moment, T::Signature>),
+		SchemaUpdated(T::Hash, VerifiableCredentialSchema<T::SchemaId, T::Moment, T::Signature>),
 		// Event is emitted when an existing credential item is updated
-		CredentialUpdated(T::Hash, VerifiableCredential<T::AccountId, T::Moment, T::Signature>),
+		CredentialUpdated(T::Hash, VerifiableCredential<T::SchemaId, T::AccountId, T::Moment, T::Signature>),
 		// Event is emitted when an existing Schema item is deleted
 		SchemaDeleted(T::Hash),
 		// Event is emitted when an existing Credential item is deleted
@@ -105,8 +114,9 @@ pub mod pallet {
 		/// Create a new schema item
 		#[pallet::weight(0 + T::DbWeight::get().writes(1).ref_time())]
 		pub fn create_schema(origin: OriginFor<T>,
+			#[pallet::compact] id: T::SchemaId,
 			key: T::Hash, 
-			name: String, 
+			name: Vec<u8>, 
 			creator: Vec<u8>,
 			mandatory_fields: Attribute,
 			expiration_date: Option<T::Moment>,
@@ -118,10 +128,9 @@ pub mod pallet {
 			// Ensure that the caller of the function is signed
 			let _ = ensure_signed_or_root(origin)?;
 			let nonce = Self::get_nonce();
-			let id = Uuid::new_v4();
 
 			let verifiable_credential_schema = VerifiableCredentialSchema {
-				id: id.as_u128(),
+				id,
 				name,
 				creator,
 				creation_date: T::Timestamp::now(),
@@ -146,21 +155,21 @@ pub mod pallet {
 		/// Create a new credential item
 		#[pallet::weight(0 + T::DbWeight::get().writes(1).ref_time())]
 		pub fn create_credential(origin: OriginFor<T>,
+			#[pallet::compact] id: T::SchemaId,
 			key: T::Hash, 
 			context: Vec<u8>,
-			schema: VerifiableCredentialSchema<T::Moment, T::Signature>,
+			schema: VerifiableCredentialSchema<T::SchemaId, T::Moment, T::Signature>,
 			issuer: Option<T::AccountId>,
 			expiration_date: Option<T::Moment>,
-			subject: String,
+			subject: Vec<u8>,
 			credential_holder: Vec<u8>,
 			signature: T::Signature,
 			) -> DispatchResult {
 
 			// Ensure that the caller of the function is signed
 			let _ = ensure_signed_or_root(origin)?;
-			let id = Uuid::new_v4();
 			let verifiable_credential = VerifiableCredential {
-				id: id.as_u128(),
+				id,
 				context,
 				schema,
 				issuer,
@@ -182,7 +191,7 @@ pub mod pallet {
 
 		// Function to update an existing schema
 		#[pallet::weight(0 + T::DbWeight::get().writes(1).ref_time())]
-		pub fn update_schema(origin: OriginFor<T>, key: T::Hash, new_data: VerifiableCredentialSchema<T::Moment, T::Signature>) -> DispatchResult {
+		pub fn update_schema(origin: OriginFor<T>, key: T::Hash, new_data: VerifiableCredentialSchema<T::SchemaId, T::Moment, T::Signature>) -> DispatchResult {
 			let _ = ensure_signed_or_root(origin)?;
 			let schema_data = SchemaStore::<T>::get(key.clone()).ok_or(Error::<T>::UnknownSchema)?;
 			ensure!(schema_data != new_data, Error::<T>::SchemaAlreadyExists);
@@ -195,7 +204,7 @@ pub mod pallet {
 
 		// Function to update an existing credential
 		#[pallet::weight(0 + T::DbWeight::get().writes(1).ref_time())]
-		pub fn update_credential(origin: OriginFor<T>, key: T::Hash, new_data: VerifiableCredential<T::AccountId, T::Moment, T::Signature>) -> DispatchResult {
+		pub fn update_credential(origin: OriginFor<T>, key: T::Hash, new_data: VerifiableCredential<T::SchemaId, T::AccountId, T::Moment, T::Signature>) -> DispatchResult {
 			let _ = ensure_signed_or_root(origin)?;
 			let credential_data = CredentialStore::<T>::get(key.clone()).ok_or(Error::<T>::UnknownCredential)?;
 			ensure!(credential_data != new_data, Error::<T>::CredentialAlreadyExists);

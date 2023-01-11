@@ -1107,8 +1107,11 @@ impl pallet_did::Config for Runtime {
 
 impl pallet_schema_registry::Config for Runtime {
 	type RuntimeEvent = RuntimeEvent;
+	type SchemaId = u32;
 	type Public = <Signature as Verify>::Signer;
+	type Moment = Moment;
 	type Signature = Signature;
+	type Timestamp = pallet_timestamp::Pallet<Runtime>;
 }
 
 // Create the runtime by composing the FRAME pallets that were previously configured.

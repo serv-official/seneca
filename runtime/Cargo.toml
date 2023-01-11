@@ -140,6 +140,7 @@ std = [
 	"sp-staking/std",
 	"sp-npos-elections/std",
 	"sp-std/std",
+	"sp-io/std",
 	"sp-transaction-pool/std",
 	"sp-version/std",
 	"node-primitives/std",

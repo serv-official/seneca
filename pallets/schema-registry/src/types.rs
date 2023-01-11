@@ -7,28 +7,28 @@ use sp_arithmetic::fixed_point::*;
 
 
 #[derive(PartialEq, Eq, TypeInfo, Clone, Encode, Decode, RuntimeDebug)]
-pub struct VerifiableCredentialObject<AccountId, Moment, Signature>{
-    pub verifiable_credential: VerifiableCredential<AccountId, Moment, Signature>,
+pub struct VerifiableCredentialObject<SchemaId, AccountId, Moment, Signature>{
+    pub verifiable_credential: VerifiableCredential<SchemaId, AccountId, Moment, Signature>,
     pub registrar: AccountId,
     pub registration_date : Moment,
 }
 #[derive(PartialEq, Eq, TypeInfo, Clone, Encode, Decode, RuntimeDebug)]
-pub struct VerifiableCredential<AccountId, Moment, Signature> {
-    pub id: u128,
+pub struct VerifiableCredential<SchemaId, AccountId, Moment, Signature> {
+    pub id: SchemaId,
     pub context: Vec<u8>,
-    pub schema: VerifiableCredentialSchema<Moment, Signature>,
+    pub schema: VerifiableCredentialSchema<SchemaId, Moment, Signature>,
     pub issuer: Option<AccountId>,
     pub issuance_date: Moment,
     pub expiration_date: Option<Moment>,
-    pub subject: String,
+    pub subject: Vec<u8>,
     pub credential_holder: Vec<u8>,
     pub signature: Signature,
 }
 
 #[derive(PartialEq, Eq, TypeInfo, Clone, Encode, Decode, RuntimeDebug)]
-pub struct VerifiableCredentialSchema<Moment, Signature> {
-	pub id: u128,
-	pub name: String,
+pub struct VerifiableCredentialSchema<SchemaId, Moment, Signature> {
+	pub id: SchemaId,
+	pub name: Vec<u8>,
 	pub creator: Vec<u8>,
 	pub creation_date: Moment,
 	pub expiration_date: Option<Moment>,
@@ -57,7 +57,7 @@ pub enum ClaimType {
 
 #[derive(PartialEq, Eq, TypeInfo, Clone, Encode, Decode, RuntimeDebug)]
 pub struct Attribute {
-    pub name: String,
+    pub name: Vec<u8>,
     pub attribute_type: AttributeType,
 }
 
@@ -66,7 +66,7 @@ pub enum AttributeType {
     Int(i8, i16, i32, i64, i128),
     Uint(u8, u16, u32, u64, u128),
     Float(FixedI64, FixedI128, FixedU128, FixedU64),
-    Hex(String),
-    DateType(String),
-    Base64(String),
+    Hex(Vec<u8>),
+    DateType(Vec<u8>),
+    Base64(Vec<u8>),
 }
