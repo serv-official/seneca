@@ -92,4 +92,10 @@ pub fn account_pair(s: &str) -> sr25519::Pair {
     sr25519::Pair::from_string(&format!("//{}", s), None).expect("static values are valid; qed")
 }
 
+pub fn account_key(s: &str) -> sr25519::Public {
+    sr25519::Pair::from_string(&format!("//{}", s), None)
+        .expect("static values are valid; qed")
+        .public()
+}
+
 
