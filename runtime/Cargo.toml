@@ -42,7 +42,12 @@ pallet-utility = { version = "4.0.0-dev", default-features = false, git = "https
 pallet-offences = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.32" }
 pallet-offences-benchmarking = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.32", optional = true }
 pallet-im-online = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.32" }
-
+pallet-scheduler = { 
+  version = "4.0.0-dev", 
+  default-features = false, 
+  git = "https://github.com/paritytech/substrate.git", 
+  branch = "polkadot-v0.9.35" 
+}
 #smart-contracts
 pallet-contracts = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.32" }
 pallet-contracts-primitives = { version = "6.0.0", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.32" }
@@ -145,6 +150,7 @@ std = [
 	"sp-version/std",
 	"node-primitives/std",
 	"pallet-did/std",
+	"pallet-scheduler/std"
 ]
 runtime-benchmarks = [
 	"frame-benchmarking/runtime-benchmarks",
