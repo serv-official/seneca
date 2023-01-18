@@ -25,9 +25,9 @@ fn it_works_for_create_schema() {
 			schema_id: None,
 			claim_type: ClaimType::IssuerClaim,
 		};
-		let insuance_req = InsuanceRequirement{
+		let issuance_req = IssuanceRequirement{
 			name: b"insuance".to_vec(),
-			insuance_type: InsuanceType::Int,
+			insuance_type: IssuanceType::Int,
 		};
 		let account_pair = account_pair("Alice");
 		let account_id = account_key("Alice");
@@ -42,7 +42,7 @@ fn it_works_for_create_schema() {
 			issuer_claims: vec![claim.clone()],
 			subject_claims: vec![claim.clone()],
 			credential_claims: vec![claim.clone()],
-			insuance_req: insuance_req.clone(),
+			issuance_req: issuance_req.clone(),
 			metadata: b"metadata".to_vec(),
 			nonce: 2,
 		};
@@ -50,7 +50,7 @@ fn it_works_for_create_schema() {
 		// Dispatch a signed create schema extrinsic.
 		assert_ok!(SchemaRegistry::create_schema(RawOrigin::Signed(account_id).into(), name.clone(), creator.clone(), false,  
 												vec![mandatory_fields.clone()], Some(expiration_date), vec![claim.clone()], 
-												vec![claim.clone()], vec![claim.clone()], insuance_req, b"metadata".to_vec(), data_sig.clone()));
+												vec![claim.clone()], vec![claim.clone()], issuance_req, b"metadata".to_vec(), data_sig.clone()));
 
 	});
 
@@ -112,9 +112,9 @@ fn it_works_for_update_schema() {
 			schema_id: None,
 			claim_type: ClaimType::IssuerClaim,
 		};
-		let insuance_req = InsuanceRequirement{
+		let issuance_req = IssuanceRequirement{
 			name: b"insuance".to_vec(),
-			insuance_type: InsuanceType::Int,
+			insuance_type: IssuanceType::Int,
 		};
 		let account_pair = account_pair("Alice");
 		let account_pub = account_key("Alice");
@@ -129,7 +129,7 @@ fn it_works_for_update_schema() {
 			issuer_claims: vec![claim.clone()],
 			subject_claims: vec![claim.clone()],
 			credential_claims: vec![claim.clone()],
-			insuance_req: insuance_req.clone(),
+			issuance_req: issuance_req.clone(),
 			metadata: b"metadata".to_vec(),
 			nonce: 2,
 		};
@@ -137,7 +137,7 @@ fn it_works_for_update_schema() {
 		// Dispatch a signed extrinsic.
 		assert_ok!(SchemaRegistry::create_schema(RawOrigin::Signed(account_pub).into(), name, creator, false,
 												vec![mandatory_fields], Some(expiration_date), vec![claim.clone()], 
-												vec![claim.clone()], vec![claim.clone()], insuance_req, b"metadata".to_vec(), data_sig.clone()));
+												vec![claim.clone()], vec![claim.clone()], issuance_req, b"metadata".to_vec(), data_sig.clone()));
 		assert_ok!(SchemaRegistry::update_schema(RawOrigin::Root.into(), data_sig.clone(), schema.clone()));
 		assert_eq!(SchemaRegistry::schema_registry(data_sig.clone()), Some(schema));
 
@@ -202,9 +202,9 @@ fn it_works_for_delete_schema() {
 			schema_id: None,
 			claim_type: ClaimType::CredentialClaim,
 		};
-		let insuance_req = InsuanceRequirement{
-			name: b"insuance_req".to_vec(),
-			insuance_type: InsuanceType::String,
+		let issuance_req = IssuanceRequirement{
+			name: b"issuance_req".to_vec(),
+			insuance_type: IssuanceType::String,
 		};
 		let account_pair = account_pair("Alice");
 		let account_pub = account_key("Alice");
@@ -218,7 +218,7 @@ fn it_works_for_delete_schema() {
 			issuer_claims: vec![claim.clone()],
 			subject_claims: vec![claim.clone()],
 			credential_claims: vec![claim.clone()],
-			insuance_req: insuance_req.clone(),
+			issuance_req: issuance_req.clone(),
 			metadata: b"metadata".to_vec(),
 			nonce: 1,
 		};
@@ -226,7 +226,7 @@ fn it_works_for_delete_schema() {
 		// Dispatch a signed create schema extrinsic.
 		assert_ok!(SchemaRegistry::create_schema(RawOrigin::Signed(account_pub).into(), name, creator, false, 
 												vec![mandatory_fields], Some(expiration_date), vec![claim.clone()], 
-												vec![claim.clone()], vec![claim.clone()], insuance_req.clone(), b"metadata".to_vec(), data_sig.clone()));
+												vec![claim.clone()], vec![claim.clone()], issuance_req.clone(), b"metadata".to_vec(), data_sig.clone()));
 		// Dispatch a signed extrinsic.
 		assert_ok!(SchemaRegistry::delete_schema(RawOrigin::Signed(account_pub).into(), data_sig.clone()));
 		// Read pallet storage and assert an expected result.

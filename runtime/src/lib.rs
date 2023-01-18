@@ -1220,6 +1220,7 @@ mod benches {
 		[pallet_treasury, Treasury]
 		[pallet_democracy, Democracy]
 		[pallet_collective, Council]
+		[pallet_nomination_pools, NominationPoolsBench::<Runtime>]
 		[pallet_membership, TechnicalMembership]
 		[pallet_elections_phragmen, Elections]
 		[pallet_preimage, Preimage]
@@ -1477,7 +1478,6 @@ impl_runtime_apis! {
 
 			use frame_system_benchmarking::Pallet as SystemBench;
 			use baseline::Pallet as BaselineBench;
-			use frame_support::traits::StorageInfoTrait;
 			// Trying to add benchmarks directly to the offences Pallet caused cyclic dependency
 			// issues. To get around that, we separated the Session benchmarks into its own crate,
 			// which is why we need these two lines below.

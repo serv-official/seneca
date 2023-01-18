@@ -33,7 +33,7 @@ sp-application-crypto = { version = "6.0.0", default-features = false, git = "ht
 default = ["std"]
 std = [
 	"codec/std",
-	"frame-benchmarking?/std",
+	"frame-benchmarking/std",
 	"frame-support/std",
 	"frame-system/std",
 	"scale-info/std",
