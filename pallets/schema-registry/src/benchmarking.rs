@@ -56,7 +56,8 @@ benchmarks! {
 			vec![mandatory_fields.clone()], Some(expiration_date), claim.clone(), 
 			claim.clone(), claim.clone(), sig.clone() )
 	verify {
-		assert_eq!(SchemaStore::<T>::get(sig.clone()), Some(schema));
+		//assert that the schema stored is different from the one created since the nonce is different.
+		assert_ne!(SchemaStore::<T>::get(sig.clone()), Some(schema));
 	}
 	update_schema{
 		let s in 0 .. 100;
@@ -89,7 +90,9 @@ benchmarks! {
 		};
 		let public = account_pair("Alice");
 		let sig: T::Signature = public.sign(&schema.encode()).into();
-
+		assert_ok!(SchemaRegistry::<T>::create_schema(RawOrigin::Signed(caller.clone()).into(), name, creator, false,
+									vec![mandatory_fields], Some(expiration_date), claim.clone(), 
+									claim.clone(), claim.clone(), sig.clone()));
 	}:  _(RawOrigin::Signed(caller), sig.clone(), schema.clone())
 	verify {
 		assert_eq!(SchemaStore::<T>::get(sig.clone()), Some(schema.clone()));
