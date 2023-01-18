@@ -15,7 +15,7 @@
   "properties": {
     "ss58format": 42,
     "tokenDecimals": 18,
-    "tokenSymbol": "SERV"
+    "tokenSymbol": "ZNO"
   },
   "codeSubstitutes": {},
   "genesis": {

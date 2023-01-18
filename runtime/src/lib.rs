@@ -460,8 +460,8 @@ parameter_types! {
 	pub const UnsignedPhase: u32 = EPOCH_DURATION_IN_BLOCKS / 4;
 
 	// signed config
-	pub const SignedRewardBase: Balance = 1 * SERV;
-	pub const SignedDepositBase: Balance = 1 * SERV;
+	pub const SignedRewardBase: Balance = 1 * ZNO;
+	pub const SignedDepositBase: Balance = 1 * ZNO;
 	pub const SignedDepositByte: Balance = 1 * SER;
 
 	pub BetterUnsignedThreshold: Perbill = Perbill::from_rational(1u32, 10_000);
@@ -847,23 +847,23 @@ impl pallet_im_online::Config for Runtime {
 
 parameter_types! {
 	pub const ProposalBond: Permill = Permill::from_percent(5);
-	pub const ProposalBondMinimum: Balance = 1 * SERV;
+	pub const ProposalBondMinimum: Balance = 1 * ZNO;
 	pub const SpendPeriod: BlockNumber = 1 * DAYS;
 	pub const Burn: Permill = Permill::from_percent(50);
 	pub const TipCountdown: BlockNumber = 1 * DAYS;
 	pub const TipFindersFee: Percent = Percent::from_percent(20);
-	pub const TipReportDepositBase: Balance = 1 * SERV;
+	pub const TipReportDepositBase: Balance = 1 * ZNO;
 	pub const DataDepositPerByte: Balance = 1 * SER;
-	pub const BountyDepositBase: Balance = 1 * SERV;
+	pub const BountyDepositBase: Balance = 1 * ZNO;
 	pub const BountyDepositPayoutDelay: BlockNumber = 1 * DAYS;
 	pub const TreasuryPalletId: PalletId = PalletId(*b"py/trsry");
 	pub const BountyUpdatePeriod: BlockNumber = 14 * DAYS;
 	pub const MaximumReasonLength: u32 = 300;
 	pub const BountyCuratorDeposit: Permill = Permill::from_percent(50);
-	pub const BountyValueMinimum: Balance = 5 * SERV;
+	pub const BountyValueMinimum: Balance = 5 * ZNO;
 	pub const MaxApprovals: u32 = 100;
 	pub const MaxActiveChildBountyCount: u32 = 5;
-	pub const ChildBountyValueMinimum: Balance = 1 * SERV;
+	pub const ChildBountyValueMinimum: Balance = 1 * ZNO;
 	pub const ChildBountyCuratorDepositBase: Permill = Permill::from_percent(10);
 }
 
@@ -929,7 +929,7 @@ impl pallet_collective::Config<TechnicalCollective> for Runtime {
 }
 
 parameter_types! {
-	pub const CandidacyBond: Balance = 10 * SERV;
+	pub const CandidacyBond: Balance = 10 * ZNO;
 	// 1 storage item created, key size is 32 bytes, value size is 16+16.
 	pub const VotingBondBase: Balance = deposit(1, 64);
 	// additional data per vote is 32 bytes (account id).
@@ -988,7 +988,7 @@ parameter_types! {
 	pub const LaunchPeriod: BlockNumber = 28 * 24 * 60 * MINUTES;
 	pub const VotingPeriod: BlockNumber = 28 * 24 * 60 * MINUTES;
 	pub const FastTrackVotingPeriod: BlockNumber = 3 * 24 * 60 * MINUTES;
-	pub const MinimumDeposit: Balance = 100 * SERV;
+	pub const MinimumDeposit: Balance = 100 * ZNO;
 	pub const EnactmentPeriod: BlockNumber = 30 * 24 * 60 * MINUTES;
 	pub const CooloffPeriod: BlockNumber = 28 * 24 * 60 * MINUTES;
 	pub const MaxProposals: u32 = 100;
@@ -1067,7 +1067,7 @@ impl pallet_scheduler::Config for Runtime {
 
 parameter_types! {
 	pub const PreimageMaxSize: u32 = 4096 * 1024;
-	pub const PreimageBaseDeposit: Balance = 1 * SERV;
+	pub const PreimageBaseDeposit: Balance = 1 * ZNO;
 	// One cent: $10,000 / MB
 	pub const PreimageByteDeposit: Balance = 1 * SER;
 }
@@ -1082,16 +1082,16 @@ impl pallet_preimage::Config for Runtime {
 }
 
 parameter_types! {
-	pub const AssetDeposit: Balance = 100 * SERV;
-	pub const ApprovalDeposit: Balance = 1 * SERV;
+	pub const AssetDeposit: Balance = 100 * ZNO;
+	pub const ApprovalDeposit: Balance = 1 * ZNO;
 	pub const StringLimit: u32 = 50;
-	pub const MetadataDepositBase: Balance = 10 * SERV;
-	pub const MetadataDepositPerByte: Balance = 1 * SERV;
+	pub const MetadataDepositBase: Balance = 10 * ZNO;
+	pub const MetadataDepositPerByte: Balance = 1 * ZNO;
 }
 
 parameter_types! {
-	pub const CollectionDeposit: Balance = 100 * SERV;
-	pub const ItemDeposit: Balance = 1 * SERV;
+	pub const CollectionDeposit: Balance = 100 * ZNO;
+	pub const ItemDeposit: Balance = 1 * ZNO;
 	pub const KeyLimit: u32 = 32;
 	pub const ValueLimit: u32 = 256;
 }

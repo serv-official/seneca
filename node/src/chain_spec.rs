@@ -62,8 +62,8 @@ pub fn authority_keys_from_seed(s: &str) -> (AccountId, AccountId, BabeId, Grand
 pub fn serv_properties() -> Properties {
 	let mut p = Properties::new();
 	p.insert("ss58format".into(), 42.into());
-	p.insert("tokenDecimals".into(), 18.into());
-	p.insert("tokenSymbol".into(), "SERV".into());
+	p.insert("tokenDecimals".into(), 6.into());
+	p.insert("tokenSymbol".into(), "ZNO".into());
 	p
 }
 pub fn development_config() -> Result<ChainSpec, String> {
@@ -274,7 +274,7 @@ fn testnet_genesis(
 		});
 
 	// stakers: all validators and nominators.
-	const ENDOWMENT: Balance = 10_000_000 * SERV;
+	const ENDOWMENT: Balance = 10_000_000 * ZNO;
 	const STASH: Balance = ENDOWMENT / 1000;
 	let mut rng = rand::thread_rng();
 	let stakers = initial_authorities
@@ -351,8 +351,8 @@ fn testnet_genesis(
 		},
 		transaction_payment: Default::default(),
 		nomination_pools: NominationPoolsConfig {
-			min_create_bond: 10 * SERV,
-			min_join_bond: 1 * SERV,
+			min_create_bond: 10 * ZNO,
+			min_join_bond: 1 * ZNO,
 			..Default::default()
 		},
 	}

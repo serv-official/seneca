@@ -5,7 +5,6 @@ use frame_system as system;
 use sp_core::H256;
 use sp_core::Pair;
 use sp_core::sr25519;
-use sp_core::sr25519::Signature;
 use sp_runtime::{
 	testing::Header,
 	traits::{BlakeTwo256, IdentifyAccount,IdentityLookup, Verify},
@@ -76,9 +75,8 @@ impl pallet_timestamp::Config for Test {
 
 impl pallet_schema_registry::Config for Test {
 	type RuntimeEvent = RuntimeEvent;
-    type Public = <<Signature as Verify>::Signer as IdentifyAccount>::AccountId;
-	type SchemaId = u32;
-    type Signature = sr25519::Signature;
+    type Public = <<sp_core::sr25519::Signature as Verify>::Signer as IdentifyAccount>::AccountId;
+    type Signature = sp_core::sr25519::Signature;
     type Moment = Moment;
     type Timestamp = Timestamp;
 }

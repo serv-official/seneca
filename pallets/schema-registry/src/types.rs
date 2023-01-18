@@ -6,43 +6,41 @@ use scale_info::prelude::vec::Vec;
 
 
 #[derive(PartialEq, Eq, TypeInfo, Clone, Encode, Decode, RuntimeDebug)]
-pub struct VerifiableCredentialObject<SchemaId, AccountId, Moment, Signature>{
-    pub verifiable_credential: VerifiableCredential<SchemaId, AccountId, Moment, Signature>,
+pub struct VerifiableCredentialObject<AccountId, Moment>{
+    pub verifiable_credential: VerifiableCredential<AccountId, Moment>,
     pub registrar: AccountId,
     pub registration_date : Moment,
 }
 #[derive(PartialEq, Eq, TypeInfo, Clone, Encode, Decode, RuntimeDebug)]
-pub struct VerifiableCredential<SchemaId, AccountId, Moment, Signature> {
-    pub id: SchemaId,
+pub struct VerifiableCredential<AccountId, Moment> {
     pub context: Vec<u8>,
-    pub schema: VerifiableCredentialSchema<SchemaId, Moment, Signature>,
+    pub schema: Vec<u8>,
     pub issuer: Option<AccountId>,
+    pub claim: Claim,
     pub issuance_date: Moment,
     pub expiration_date: Option<Moment>,
     pub subject: Vec<u8>,
-    pub credential_holder: Vec<u8>,
-    pub signature: Signature,
+    pub credential_holder: Vec<u8>
 }
 
 #[derive(PartialEq, Eq, TypeInfo, Clone, Encode, Decode, RuntimeDebug)]
-pub struct VerifiableCredentialSchema<SchemaId, Moment, Signature> {
-	pub id: SchemaId,
+pub struct VerifiableCredentialSchema<Moment> {
 	pub name: Vec<u8>,
 	pub creator: Vec<u8>,
+    pub public: bool,
 	pub creation_date: Moment,
 	pub expiration_date: Option<Moment>,
 	pub mandatory_fields: Vec<Attribute>,
 	pub issuer_claims: Claim,
 	pub subject_claims: Claim,
 	pub credential_claims: Claim,
-	pub signature: Signature,
     pub nonce: u64,
 }
 #[derive(PartialEq, Eq, TypeInfo, Clone, Encode, Decode, RuntimeDebug)]
 pub struct Claim{
 	pub property: Vec<u8>,
 	pub value: Vec<u8>,
-	pub schema_id: Option<i32>,
+	pub schema_id: Option<Vec<u8>>,
     pub claim_type: ClaimType,
 }
 
@@ -68,4 +66,5 @@ pub enum AttributeType {
     Hex,
     DateType,
     Base64,
+    String,
 }
