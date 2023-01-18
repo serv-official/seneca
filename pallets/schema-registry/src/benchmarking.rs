@@ -43,9 +43,9 @@ benchmarks! {
 			creation_date: Default::default(),
 			expiration_date: Some(expiration_date),
 			mandatory_fields: vec![mandatory_fields.clone()],
-			issuer_claims: claim.clone(),
-			subject_claims: claim.clone(),
-			credential_claims: claim.clone(),
+			issuer_claims: vec![claim.clone()],
+			subject_claims: vec![claim.clone()],
+			credential_claims: vec![claim.clone()],
 			nonce: 2,
 		};
 		// sign the schema.
@@ -53,8 +53,8 @@ benchmarks! {
 		let sig: T::Signature = account_pub.sign(&schema.encode()).into();
 		// Encode and sign the schema message.
 	}:  _(RawOrigin::Signed(caller), name.clone(), creator.clone(), false,
-			vec![mandatory_fields.clone()], Some(expiration_date), claim.clone(), 
-			claim.clone(), claim.clone(), sig.clone() )
+			vec![mandatory_fields.clone()], Some(expiration_date), vec![claim.clone()], 
+			vec![claim.clone()], vec![claim.clone()], sig.clone() )
 	verify {
 		//assert that the schema stored is different from the one created since the nonce is different.
 		assert_ne!(SchemaStore::<T>::get(sig.clone()), Some(schema));
@@ -83,16 +83,16 @@ benchmarks! {
 			creation_date: Default::default(),
 			expiration_date: Some(expiration_date),
 			mandatory_fields: vec![mandatory_fields.clone()],
-			issuer_claims: claim.clone(),
-			subject_claims: claim.clone(),
-			credential_claims: claim.clone(),
+			issuer_claims: vec![claim.clone()],
+			subject_claims: vec![claim.clone()],
+			credential_claims: vec![claim.clone()],
 			nonce: 2,
 		};
 		let public = account_pair("Alice");
 		let sig: T::Signature = public.sign(&schema.encode()).into();
 		assert_ok!(SchemaRegistry::<T>::create_schema(RawOrigin::Signed(caller.clone()).into(), name, creator, false,
-									vec![mandatory_fields], Some(expiration_date), claim.clone(), 
-									claim.clone(), claim.clone(), sig.clone()));
+									vec![mandatory_fields], Some(expiration_date), vec![claim.clone()], 
+									vec![claim.clone()], vec![claim.clone()], sig.clone()));
 	}:  _(RawOrigin::Signed(caller), sig.clone(), schema.clone())
 	verify {
 		assert_eq!(SchemaStore::<T>::get(sig.clone()), Some(schema.clone()));
@@ -122,16 +122,16 @@ benchmarks! {
 			creation_date: Default::default(),
 			expiration_date: Some(expiration_date),
 			mandatory_fields: vec![mandatory_fields.clone()],
-			issuer_claims: claim.clone(),
-			subject_claims: claim.clone(),
-			credential_claims: claim.clone(),
+			issuer_claims: vec![claim.clone()],
+			subject_claims: vec![claim.clone()],
+			credential_claims: vec![claim.clone()],
 			nonce: 2,
 		};
 		let public = account_pair("Alice");
 		let sig: T::Signature = public.sign(&schema.encode()).into();
 		assert_ok!(SchemaRegistry::<T>::create_schema(RawOrigin::Signed(caller.clone()).into(), name, creator, false,
-									vec![mandatory_fields], Some(expiration_date), claim.clone(), 
-									claim.clone(), claim.clone(), sig.clone()));
+									vec![mandatory_fields], Some(expiration_date), vec![claim.clone()], 
+									vec![claim.clone()], vec![claim.clone()], sig.clone()));
 	}:  _(RawOrigin::Signed(caller.clone()), sig.clone())
 	verify {
 		assert_eq!(SchemaStore::<T>::get(sig.clone()), None);
@@ -170,7 +170,7 @@ benchmarks! {
 			context: context.clone(),
 			schema: schema.clone(),
 			issuer: Some(caller.clone()),
-			claim: claim.clone(),
+			claim: vec![claim.clone()],
 			issuance_date: Default::default(),
 			expiration_date: Some(expiration_date),
 			subject: subject.clone(),
@@ -181,7 +181,7 @@ benchmarks! {
 		let sig: T::Signature = account_pub.sign(&credential.encode()).into();
 		// Encode and sign the schema message.
 	}:  _(RawOrigin::Signed(caller.clone()), context.clone(), schema.clone(), 
-				Some(caller.clone()), claim.clone(),  Some(expiration_date), 
+				Some(caller.clone()), vec![claim.clone()],  Some(expiration_date), 
 				subject.clone(), credential_holder.clone(),sig.clone() )
 	verify {
 		assert_eq!(CredentialStore::<T>::get(sig.clone()), Some(credential.clone()));
@@ -221,7 +221,7 @@ benchmarks! {
 			context: context.clone(),
 			schema: schema.clone(),
 			issuer: Some(caller.clone()),
-			claim: claim.clone(),
+			claim: vec![claim.clone()],
 			issuance_date: Default::default(),
 			expiration_date: Some(expiration_date),
 			subject: subject.clone(),
@@ -231,7 +231,7 @@ benchmarks! {
 		// must be same type as T::Signature
 		let sig: T::Signature = account_pub.sign(&credential.encode()).into();
 		assert_ok!(SchemaRegistry::<T>::create_credential(RawOrigin::Signed(caller.clone()).into(), context.clone(), schema.clone(), 
-				Some(caller.clone()), claim.clone(),  Some(expiration_date), 
+				Some(caller.clone()), vec![claim.clone()],  Some(expiration_date), 
 				subject.clone(), credential_holder2.clone(),sig.clone()));
 		// Encode and sign the schema message.
 	}:  _(RawOrigin::Signed(caller.clone()), sig.clone(), credential.clone())

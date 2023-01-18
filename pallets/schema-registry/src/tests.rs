@@ -35,16 +35,16 @@ fn it_works_for_create_schema() {
 			creation_date: Timestamp::now(),
 			expiration_date: Some(expiration_date),
 			mandatory_fields: vec![mandatory_fields.clone()],
-			issuer_claims: claim.clone(),
-			subject_claims: claim.clone(),
-			credential_claims: claim.clone(),
+			issuer_claims: vec![claim.clone()],
+			subject_claims: vec![claim.clone()],
+			credential_claims: vec![claim.clone()],
 			nonce: 2,
 		};
 		let data_sig = account_pair.sign(&schema.encode());
 		// Dispatch a signed create schema extrinsic.
 		assert_ok!(SchemaRegistry::create_schema(RawOrigin::Signed(account_id).into(), name.clone(), creator.clone(), false,  
-												vec![mandatory_fields.clone()], Some(expiration_date), claim.clone(), 
-												claim.clone(), claim.clone(), data_sig.clone()));
+												vec![mandatory_fields.clone()], Some(expiration_date), vec![claim.clone()], 
+												vec![claim.clone()], vec![claim.clone()], data_sig.clone()));
 
 	});
 
@@ -73,7 +73,7 @@ fn it_works_for_create_credential() {
 			context: context.clone(),
 			schema: schema.clone(),
 			issuer: Some(account_id),
-			claim: claim.clone(),
+			claim: vec![claim.clone()],
 			issuance_date: Timestamp::now(),
 			expiration_date: Some(1702379816u64),
 			subject: subject.clone(),
@@ -82,7 +82,7 @@ fn it_works_for_create_credential() {
 		let data_sig = account_pair.sign(&credential.encode());
 		// Dispatch a signed create schema extrinsic.
 		assert_ok!(SchemaRegistry::create_credential(RawOrigin::Signed(account_pub).into(), context.clone(), schema.clone(), 
-													Some(account_id), claim.clone(),  Some(1702379816u64), 
+													Some(account_id), vec![claim.clone()],  Some(1702379816u64), 
 													subject.clone(), credential_holder.clone(),data_sig.clone()));
 
 	});
@@ -116,16 +116,16 @@ fn it_works_for_update_schema() {
 			creation_date: Timestamp::now(),
 			expiration_date: Some(expiration_date),
 			mandatory_fields: vec![mandatory_fields.clone()],
-			issuer_claims: claim.clone(),
-			subject_claims: claim.clone(),
-			credential_claims: claim.clone(),
+			issuer_claims: vec![claim.clone()],
+			subject_claims: vec![claim.clone()],
+			credential_claims: vec![claim.clone()],
 			nonce: 2,
 		};
 		let data_sig = account_pair.sign(&schema.encode());
 		// Dispatch a signed extrinsic.
 		assert_ok!(SchemaRegistry::create_schema(RawOrigin::Signed(account_pub).into(), name, creator, false,
-												vec![mandatory_fields], Some(expiration_date), claim.clone(), 
-												claim.clone(), claim.clone(), data_sig.clone()));
+												vec![mandatory_fields], Some(expiration_date), vec![claim.clone()], 
+												vec![claim.clone()], vec![claim.clone()], data_sig.clone()));
 		assert_ok!(SchemaRegistry::update_schema(RawOrigin::Root.into(), data_sig.clone(), schema.clone()));
 		assert_eq!(SchemaRegistry::schema_registry(data_sig.clone()), Some(schema));
 
@@ -156,7 +156,7 @@ fn it_works_for_update_credential() {
 				context: context.clone(),
 				schema: schema.clone(),
 				issuer: Some(account_id),
-				claim: claim.clone(),
+				claim: vec![claim.clone()],
 				issuance_date: Timestamp::now(),
 				expiration_date: Some(1702379816u64),
 				subject: subject.clone(),
@@ -165,7 +165,7 @@ fn it_works_for_update_credential() {
 		let data_sig = account_pair.sign(&credential.encode());
 		// Dispatch a signed create schema extrinsic.
 		assert_ok!(SchemaRegistry::create_credential(RawOrigin::Signed(account_pub).into(), context.clone(), schema.clone(), 
-													Some(account_id), claim.clone(), Some(1702479816u64), 
+													Some(account_id), vec![claim.clone()], Some(1702479816u64), 
 													subject.clone(), credential_holder.clone(),data_sig.clone()));
 		assert_ok!(SchemaRegistry::update_credential(RawOrigin::Signed(account_pub).into(), data_sig.clone(), credential.clone()));
 		assert_eq!(SchemaRegistry::credential_registry(data_sig.clone()), Some(credential));
@@ -199,16 +199,16 @@ fn it_works_for_delete_schema() {
 			creation_date: Timestamp::now(),
 			expiration_date: Some(expiration_date),
 			mandatory_fields: vec![mandatory_fields.clone()],
-			issuer_claims: claim.clone(),
-			subject_claims: claim.clone(),
-			credential_claims: claim.clone(),
+			issuer_claims: vec![claim.clone()],
+			subject_claims: vec![claim.clone()],
+			credential_claims: vec![claim.clone()],
 			nonce: 1,
 		};
 		let data_sig = account_pair.sign(&schema.encode());
 		// Dispatch a signed create schema extrinsic.
 		assert_ok!(SchemaRegistry::create_schema(RawOrigin::Signed(account_pub).into(), name, creator, false, 
-												vec![mandatory_fields], Some(expiration_date), claim.clone(), 
-												claim.clone(), claim.clone(), data_sig.clone()));
+												vec![mandatory_fields], Some(expiration_date), vec![claim.clone()], 
+												vec![claim.clone()], vec![claim.clone()], data_sig.clone()));
 		// Dispatch a signed extrinsic.
 		assert_ok!(SchemaRegistry::delete_schema(RawOrigin::Signed(account_pub).into(), data_sig.clone()));
 		// Read pallet storage and assert an expected result.
@@ -239,7 +239,7 @@ fn it_works_for_delete_credential() {
 			context: context.clone(),
 			schema: schema.clone(),
 			issuer: Some(account_id),
-			claim: claim.clone(),
+			claim: vec![claim.clone()],
 			issuance_date: Timestamp::now(),
 			expiration_date: Some(1702379816u64),
 			subject: subject.clone(),
@@ -248,7 +248,7 @@ fn it_works_for_delete_credential() {
 	let data_sig = account_pair.sign(&credential.encode());
 		// Dispatch a signed create schema extrinsic.
 		assert_ok!(SchemaRegistry::create_credential(RawOrigin::Signed(account_pub).into(),context.clone(), schema.clone(), 
-													Some(account_id), claim, Some(1702379816u64), 
+													Some(account_id), vec![claim], Some(1702379816u64), 
 													subject.clone(), credential_holder.clone(),data_sig.clone()));
 		// Dispatch a signed extrinsic.
 		assert_ok!(SchemaRegistry::delete_credential(RawOrigin::Signed(account_pub).into(), data_sig.clone()));

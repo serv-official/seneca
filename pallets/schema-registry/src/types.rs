@@ -16,7 +16,7 @@ pub struct VerifiableCredential<AccountId, Moment> {
     pub context: Vec<u8>,
     pub schema: Vec<u8>,
     pub issuer: Option<AccountId>,
-    pub claim: Claim,
+    pub claim: Vec<Claim>,
     pub issuance_date: Moment,
     pub expiration_date: Option<Moment>,
     pub subject: Vec<u8>,
@@ -31,9 +31,9 @@ pub struct VerifiableCredentialSchema<Moment> {
 	pub creation_date: Moment,
 	pub expiration_date: Option<Moment>,
 	pub mandatory_fields: Vec<Attribute>,
-	pub issuer_claims: Claim,
-	pub subject_claims: Claim,
-	pub credential_claims: Claim,
+	pub issuer_claims: Vec<Claim>,
+	pub subject_claims: Vec<Claim>,
+	pub credential_claims: Vec<Claim>,
     pub nonce: u64,
 }
 #[derive(PartialEq, Eq, TypeInfo, Clone, Encode, Decode, RuntimeDebug)]

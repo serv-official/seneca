@@ -111,9 +111,9 @@ pub mod pallet {
 			public: bool,
 			mandatory_fields: Vec<Attribute>,
 			expiration_date: Option<T::Moment>,
-			issuer_claims: Claim,
-			subject_claims: Claim,
-			credential_claims: Claim,
+			issuer_claims: Vec<Claim>,
+			subject_claims: Vec<Claim>,
+			credential_claims: Vec<Claim>,
 			signature: T::Signature,
 			) -> DispatchResult {
 			// Ensure that the caller of the function is signed
@@ -150,7 +150,7 @@ pub mod pallet {
 			context: Vec<u8>,
 			schema: Vec<u8>,
 			issuer: Option<T::AccountId>,
-			claim: Claim,
+			claim: Vec<Claim>,
 			expiration_date: Option<T::Moment>,
 			subject: Vec<u8>,
 			credential_holder: Vec<u8>,
