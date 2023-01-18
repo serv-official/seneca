@@ -34,6 +34,8 @@ pub struct VerifiableCredentialSchema<Moment> {
 	pub issuer_claims: Vec<Claim>,
 	pub subject_claims: Vec<Claim>,
 	pub credential_claims: Vec<Claim>,
+    pub insuance_req: InsuanceRequirement,
+    pub metadata: Vec<u8>,
     pub nonce: u64,
 }
 #[derive(PartialEq, Eq, TypeInfo, Clone, Encode, Decode, RuntimeDebug)]
@@ -60,6 +62,23 @@ pub struct Attribute {
 
 #[derive(PartialEq, Eq, TypeInfo, Clone, Encode, Decode, RuntimeDebug)]
 pub enum AttributeType {
+    Int,
+    Uint,
+    Float,
+    Hex,
+    DateType,
+    Base64,
+    String,
+}
+
+#[derive(PartialEq, Eq, TypeInfo, Clone, Encode, Decode, RuntimeDebug)]
+pub struct InsuanceRequirement {
+    pub name: Vec<u8>,
+    pub insuance_type: InsuanceType,
+}
+
+#[derive(PartialEq, Eq, TypeInfo, Clone, Encode, Decode, RuntimeDebug)]
+pub enum InsuanceType {
     Int,
     Uint,
     Float,

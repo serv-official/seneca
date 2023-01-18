@@ -114,6 +114,8 @@ pub mod pallet {
 			issuer_claims: Vec<Claim>,
 			subject_claims: Vec<Claim>,
 			credential_claims: Vec<Claim>,
+			insuance_req: InsuanceRequirement,
+			metadata: Vec<u8>,
 			signature: T::Signature,
 			) -> DispatchResult {
 			// Ensure that the caller of the function is signed
@@ -130,6 +132,8 @@ pub mod pallet {
 				issuer_claims,
 				subject_claims,
 				credential_claims,
+				insuance_req,
+				metadata,
 				nonce,
 			};
 			// sign the schema

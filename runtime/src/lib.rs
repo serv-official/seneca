@@ -602,12 +602,15 @@ parameter_types! {
 	pub const BagThresholds: &'static [u64] = &voter_bags::THRESHOLDS;
 }
 
-impl pallet_bags_list::Config for Runtime {
+type VoterBagsListInstance = pallet_bags_list::Instance1;
+impl pallet_bags_list::Config<VoterBagsListInstance> for Runtime {
 	type RuntimeEvent = RuntimeEvent;
+	/// The voter bags-list is loosely kept up to date, and the real source of truth for the score
+	/// of each node is the staking pallet.
 	type ScoreProvider = Staking;
-	type WeightInfo = pallet_bags_list::weights::SubstrateWeight<Runtime>;
 	type BagThresholds = BagThresholds;
 	type Score = VoteWeight;
+	type WeightInfo = pallet_bags_list::weights::SubstrateWeight<Runtime>;
 }
 
 impl pallet_session::Config for Runtime {
@@ -720,7 +723,7 @@ impl pallet_staking::Config for Runtime {
 	type GenesisElectionProvider = onchain::UnboundedExecution<OnChainSeqPhragmen>;
 	// This a placeholder, to be introduced in the next PR as an instance of bags-list
 	type TargetList = pallet_staking::UseValidatorsMap<Self>;
-	type VoterList = BagsList;
+	type VoterList = VoterList;
 	type MaxUnlockingChunks = ConstU32<32>;
 	type OnStakerSlash = NominationPools;
 	type WeightInfo = pallet_staking::weights::SubstrateWeight<Runtime>;
@@ -1107,7 +1110,6 @@ impl pallet_did::Config for Runtime {
 
 impl pallet_schema_registry::Config for Runtime {
 	type RuntimeEvent = RuntimeEvent;
-	type SchemaId = u32;
 	type Public = <Signature as Verify>::Signer;
 	type Moment = Moment;
 	type Signature = Signature;
@@ -1135,7 +1137,7 @@ construct_runtime!(
 		NominationPools: pallet_nomination_pools,
 		Staking: pallet_staking,
 		Session: pallet_session,
-		BagsList: pallet_bags_list,
+		VoterList: pallet_bags_list::<Instance1>,
 		Historical: pallet_session::historical::{Pallet},
 		Offences: pallet_offences,
 		ImOnline: pallet_im_online,
@@ -1207,7 +1209,7 @@ mod benches {
 		[frame_benchmarking, BaselineBench::<Runtime>]
 		[frame_system, SystemBench::<Runtime>]
 		[pallet_babe, Babe]
-		[pallet_bags_list, BagsList]
+		[pallet_bags_list, VoterList]
 		[pallet_balances, Balances]
 		[pallet_timestamp, Timestamp]
 		[pallet_utility, Utility]
@@ -1475,7 +1477,7 @@ impl_runtime_apis! {
 
 			use frame_system_benchmarking::Pallet as SystemBench;
 			use baseline::Pallet as BaselineBench;
-
+			use frame_support::traits::StorageInfoTrait;
 			// Trying to add benchmarks directly to the offences Pallet caused cyclic dependency
 			// issues. To get around that, we separated the Session benchmarks into its own crate,
 			// which is why we need these two lines below.
