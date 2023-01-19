@@ -89,7 +89,7 @@ pub fn development_config() -> Result<ChainSpec, String> {
 					get_account_id_from_seed::<sr25519::Public>("Alice//stash"),
 					get_account_id_from_seed::<sr25519::Public>("Bob//stash"),
 					get_account_id_from_seed::<sr25519::Public>("Charlie"),
-					"5HSvEGhVpScsvFYSgLT6ShydBGoV2LeoEAQyeip8MLvUygDK".parse()
+					"5DRVZN78VKbgNny4bHf2MpmHq6SVhrT6g23ciTYHi36woLMT".parse()
 					.unwrap(),
 					"5CDrkPqy6KQDYNXNXiK5NMij1p7gNQuR2WB9My8y1fYvAspA".parse()
 					.unwrap(),
@@ -356,7 +356,7 @@ fn testnet_genesis(
 		},
 		transaction_payment: Default::default(),
 		nomination_pools: NominationPoolsConfig {
-			min_create_bond: 10 * ZNO,
+			min_create_bond: 1 * ZNO,
 			min_join_bond: 1 * ZNO,
 			..Default::default()
 		},
