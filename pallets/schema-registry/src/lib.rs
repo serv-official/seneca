@@ -104,7 +104,7 @@ pub mod pallet {
 	#[pallet::call]
 	impl<T: Config> Pallet<T> {
 		/// Create a new schema item
-		#[pallet::weight(10 + T::DbWeight::get().writes(1).ref_time())]
+		#[pallet::weight(0 + T::DbWeight::get().writes(1).ref_time())]
 		pub fn create_schema(origin: OriginFor<T>, 
 			name: Vec<u8>, 
 			creator: Vec<u8>,
@@ -147,7 +147,7 @@ pub mod pallet {
 		}
 
 		/// Create a new credential item
-		#[pallet::weight(10 + T::DbWeight::get().writes(1).ref_time())]
+		#[pallet::weight(0 + T::DbWeight::get().writes(1).ref_time())]
 		pub fn create_credential(origin: OriginFor<T>, 
 			context: Vec<u8>,
 			schema: Vec<u8>,
@@ -182,7 +182,7 @@ pub mod pallet {
 		}
 
 		// Function to update an existing schema
-		#[pallet::weight(10 + T::DbWeight::get().writes(1).ref_time())]
+		#[pallet::weight(0 + T::DbWeight::get().writes(1).ref_time())]
 		pub fn update_schema(origin: OriginFor<T>, old_schema_key:T::Signature, new_data: VerifiableCredentialSchema<T::Moment>) -> DispatchResult {
 			let _ = ensure_signed_or_root(origin)?;
 			let schema_data = SchemaStore::<T>::get(&old_schema_key).ok_or(Error::<T>::UnknownSchema)?;
@@ -195,7 +195,7 @@ pub mod pallet {
 		}
 
 		// Function to update an existing credential
-		#[pallet::weight(10 + T::DbWeight::get().writes(1).ref_time())]
+		#[pallet::weight(0 + T::DbWeight::get().writes(1).ref_time())]
 		pub fn update_credential(origin: OriginFor<T>, old_credential_sig: T::Signature, new_data: VerifiableCredential<T::AccountId, T::Moment>) -> DispatchResult {
 			let _ = ensure_signed_or_root(origin)?;
 			let credential_data = CredentialStore::<T>::get(&old_credential_sig).ok_or(Error::<T>::UnknownCredential)?;

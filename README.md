@@ -46,20 +46,20 @@ cargo build --release
 * Start your bootnodes, node key can be generate with command `./target/release/serv-node key generate-node-key`. The network supports 4 initial validators.
   ```shell
   ./target/release/serv-node \
-       --node-key <your-node-key> \
-       --base-path /tmp/bootnode1 \
-       --chain serv-network-staging-raw.json \
-       --name bootnode1
+  --node-key <your-node-key> \
+  --base-path /tmp/bootnode1 \
+  --chain serv-network-staging-raw.json \
+  --name bootnode1
   ```
 * Start your initial validators,
   ```shell
   ./target/release/serv-node \
-      --base-path  /tmp/validator1 \
-      --chain   serv-network-staging-raw.json \
-      --bootnodes  /ip4/<your-bootnode-ip>/tcp/30333/p2p/<your-bootnode-peerid> \
-	    --port 30336 \
-	    --ws-port 9947 \
-	    --rpc-port 9936 \
-      --name  validator1 \
-      --validator
+  --base-path  /tmp/validator1 \
+  --chain   serv-network-staging-raw.json \
+  --bootnodes  /ip4/<your-bootnode-ip>/tcp/30333/p2p/<your-bootnode-peerid> \
+	--port 30336 \
+	--ws-port 9947 \
+	--rpc-port 9936 \
+  --name  validator1 \
+  --validator
   ```
