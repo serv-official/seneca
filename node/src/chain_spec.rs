@@ -89,8 +89,10 @@ pub fn development_config() -> Result<ChainSpec, String> {
 					get_account_id_from_seed::<sr25519::Public>("Alice//stash"),
 					get_account_id_from_seed::<sr25519::Public>("Bob//stash"),
 					get_account_id_from_seed::<sr25519::Public>("Charlie"),
-					get_account_id_from_seed::<sr25519::Public>("5HSvEGhVpScsvFYSgLT6ShydBGoV2LeoEAQyeip8MLvUygDK"),
-					get_account_id_from_seed::<sr25519::Public>("5CDrkPqy6KQDYNXNXiK5NMij1p7gNQuR2WB9My8y1fYvAspA"),
+					"5HSvEGhVpScsvFYSgLT6ShydBGoV2LeoEAQyeip8MLvUygDK".parse()
+					.unwrap(),
+					"5CDrkPqy6KQDYNXNXiK5NMij1p7gNQuR2WB9My8y1fYvAspA".parse()
+					.unwrap(),
 				],
 			)
 		},
