@@ -31,6 +31,7 @@ pallet-timestamp = { version = "4.0.0-dev", default-features = false, git = "htt
 pallet-transaction-payment = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.32" }
 pallet-bags-list = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.32" }
 pallet-session = { version = "4.0.0-dev", default-features = false, features = [ "historical" ], git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.32" }
+pallet-session-benchmarking = { version = "4.0.0-dev", default-features = false, optional = true, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.32"}
 pallet-nomination-pools = { version = "1.0.0", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.32" }
 pallet-nomination-pools-benchmarking = { version = "1.0.0", default-features = false, optional=true, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.32"}
 pallet-nomination-pools-runtime-api = { version = "1.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.32"}
@@ -123,6 +124,7 @@ std = [
 	"pallet-transaction-payment/std",
 	"pallet-bags-list/std",
 	"pallet-session/std",
+	"pallet-session-benchmarking?/std",
 	"pallet-nomination-pools/std",
 	"pallet-nomination-pools-runtime-api/std",
 	"pallet-nomination-pools-benchmarking/std",
@@ -162,6 +164,7 @@ runtime-benchmarks = [
 	"pallet-timestamp/runtime-benchmarks",
 	"pallet-utility/runtime-benchmarks",
 	"pallet-im-online/runtime-benchmarks",
+	"pallet-session-benchmarking/runtime-benchmarks",
 	"pallet-contracts/runtime-benchmarks",
 	"pallet-nomination-pools-benchmarking/runtime-benchmarks",
 	"pallet-offences-benchmarking/runtime-benchmarks",
