@@ -113,8 +113,7 @@ pub mod pallet {
 			expiration_date: Option<T::Moment>,
 			issuer_claims: Vec<Claim>,
 			subject_claims: Vec<Claim>,
-			credential_claims: Vec<Claim>,
-			issuance_req: IssuanceRequirement,
+			credential_claims: Vec<Claim>,			
 			metadata: Vec<u8>,
 			signature: T::Signature,
 			) -> DispatchResult {
@@ -132,7 +131,6 @@ pub mod pallet {
 				issuer_claims,
 				subject_claims,
 				credential_claims,
-				issuance_req,
 				metadata,
 				nonce,
 			};

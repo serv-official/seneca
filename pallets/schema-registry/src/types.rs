@@ -34,7 +34,6 @@ pub struct VerifiableCredentialSchema<Moment> {
 	pub issuer_claims: Vec<Claim>,
 	pub subject_claims: Vec<Claim>,
 	pub credential_claims: Vec<Claim>,
-    pub issuance_req: IssuanceRequirement,
     pub metadata: Vec<u8>,
     pub nonce: u64,
 }
@@ -44,6 +43,7 @@ pub struct Claim{
 	pub value: Vec<u8>,
 	pub schema_id: Option<Vec<u8>>,
     pub claim_type: ClaimType,
+    pub issuance_requirement: Option<IssuanceRequirement>,
 }
 
 

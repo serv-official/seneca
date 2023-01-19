@@ -19,15 +19,16 @@ fn it_works_for_create_schema() {
 			name: b"name".to_vec(),
 			attribute_type: AttributeType::Hex,
 		};
+		let issuance_req = IssuanceRequirement{
+			name: b"insuance".to_vec(),
+			insuance_type: IssuanceType::Int,
+		};
 		let claim = Claim{
 			property: b"property".to_vec(),
 			value: b"value".to_vec(),
 			schema_id: None,
 			claim_type: ClaimType::IssuerClaim,
-		};
-		let issuance_req = IssuanceRequirement{
-			name: b"insuance".to_vec(),
-			insuance_type: IssuanceType::Int,
+			issuance_requirement: Some(issuance_req.clone()),
 		};
 		let account_pair = account_pair("Alice");
 		let account_id = account_key("Alice");
@@ -42,7 +43,6 @@ fn it_works_for_create_schema() {
 			issuer_claims: vec![claim.clone()],
 			subject_claims: vec![claim.clone()],
 			credential_claims: vec![claim.clone()],
-			issuance_req: issuance_req.clone(),
 			metadata: b"metadata".to_vec(),
 			nonce: 2,
 		};
@@ -50,7 +50,7 @@ fn it_works_for_create_schema() {
 		// Dispatch a signed create schema extrinsic.
 		assert_ok!(SchemaRegistry::create_schema(RawOrigin::Signed(account_id).into(), name.clone(), creator.clone(), false,  
 												vec![mandatory_fields.clone()], Some(expiration_date), vec![claim.clone()], 
-												vec![claim.clone()], vec![claim.clone()], issuance_req, b"metadata".to_vec(), data_sig.clone()));
+												vec![claim.clone()], vec![claim.clone()], b"metadata".to_vec(), data_sig.clone()));
 
 	});
 
@@ -66,6 +66,7 @@ fn it_works_for_create_credential() {
 			value: b"value".to_vec(),
 			schema_id: None,
 			claim_type: ClaimType::CredentialClaim,
+			issuance_requirement: None,
 		};
 		let account_pair = account_pair("Alice");
 		let account_pub = account_key("Alice");
@@ -106,15 +107,16 @@ fn it_works_for_update_schema() {
 			name: b"name".to_vec(),
 			attribute_type: AttributeType::Hex,
 		};
+		let issuance_req = IssuanceRequirement{
+			name: b"insuance".to_vec(),
+			insuance_type: IssuanceType::Int,
+		};
 		let claim = Claim{
 			property: b"property".to_vec(),
 			value: b"value".to_vec(),
 			schema_id: None,
 			claim_type: ClaimType::IssuerClaim,
-		};
-		let issuance_req = IssuanceRequirement{
-			name: b"insuance".to_vec(),
-			insuance_type: IssuanceType::Int,
+			issuance_requirement: Some(issuance_req.clone()),
 		};
 		let account_pair = account_pair("Alice");
 		let account_pub = account_key("Alice");
@@ -129,7 +131,6 @@ fn it_works_for_update_schema() {
 			issuer_claims: vec![claim.clone()],
 			subject_claims: vec![claim.clone()],
 			credential_claims: vec![claim.clone()],
-			issuance_req: issuance_req.clone(),
 			metadata: b"metadata".to_vec(),
 			nonce: 2,
 		};
@@ -137,7 +138,7 @@ fn it_works_for_update_schema() {
 		// Dispatch a signed extrinsic.
 		assert_ok!(SchemaRegistry::create_schema(RawOrigin::Signed(account_pub).into(), name, creator, false,
 												vec![mandatory_fields], Some(expiration_date), vec![claim.clone()], 
-												vec![claim.clone()], vec![claim.clone()], issuance_req, b"metadata".to_vec(), data_sig.clone()));
+												vec![claim.clone()], vec![claim.clone()], b"metadata".to_vec(), data_sig.clone()));
 		assert_ok!(SchemaRegistry::update_schema(RawOrigin::Root.into(), data_sig.clone(), schema.clone()));
 		assert_eq!(SchemaRegistry::schema_registry(data_sig.clone()), Some(schema));
 
@@ -154,6 +155,7 @@ fn it_works_for_update_credential() {
 			value: b"value".to_vec(),
 			schema_id: None,
 			claim_type: ClaimType::CredentialClaim,
+			issuance_requirement: None,
 		};
 		let account_pair = account_pair("Alice");
 		let account_pub = account_key("Alice");
@@ -196,15 +198,16 @@ fn it_works_for_delete_schema() {
 			name: b"name".to_vec(),
 			attribute_type: AttributeType::Hex,
 		};
+		let issuance_req = IssuanceRequirement{
+			name: b"issuance_req".to_vec(),
+			insuance_type: IssuanceType::String,
+		};
 		let claim = Claim{
 			property: b"property".to_vec(),
 			value: b"value".to_vec(),
 			schema_id: None,
 			claim_type: ClaimType::CredentialClaim,
-		};
-		let issuance_req = IssuanceRequirement{
-			name: b"issuance_req".to_vec(),
-			insuance_type: IssuanceType::String,
+			issuance_requirement: Some(issuance_req.clone()),
 		};
 		let account_pair = account_pair("Alice");
 		let account_pub = account_key("Alice");
@@ -218,7 +221,6 @@ fn it_works_for_delete_schema() {
 			issuer_claims: vec![claim.clone()],
 			subject_claims: vec![claim.clone()],
 			credential_claims: vec![claim.clone()],
-			issuance_req: issuance_req.clone(),
 			metadata: b"metadata".to_vec(),
 			nonce: 1,
 		};
@@ -226,7 +228,7 @@ fn it_works_for_delete_schema() {
 		// Dispatch a signed create schema extrinsic.
 		assert_ok!(SchemaRegistry::create_schema(RawOrigin::Signed(account_pub).into(), name, creator, false, 
 												vec![mandatory_fields], Some(expiration_date), vec![claim.clone()], 
-												vec![claim.clone()], vec![claim.clone()], issuance_req.clone(), b"metadata".to_vec(), data_sig.clone()));
+												vec![claim.clone()], vec![claim.clone()], b"metadata".to_vec(), data_sig.clone()));
 		// Dispatch a signed extrinsic.
 		assert_ok!(SchemaRegistry::delete_schema(RawOrigin::Signed(account_pub).into(), data_sig.clone()));
 		// Read pallet storage and assert an expected result.
@@ -244,6 +246,7 @@ fn it_works_for_delete_credential() {
 			value: b"value".to_vec(),
 			schema_id: None,
 			claim_type: ClaimType::CredentialClaim,
+			issuance_requirement: None,
 		};
 		let account_pair = account_pair("Alice");
 		let account_pub = account_key("Alice");

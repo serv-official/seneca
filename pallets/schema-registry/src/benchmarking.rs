@@ -25,15 +25,16 @@ benchmarks! {
 			name: b"name".to_vec(),
 			attribute_type: AttributeType::Hex,
 		};
+		let issuance_req = IssuanceRequirement{
+			name: b"issuance_req".to_vec(),
+			insuance_type: IssuanceType::String,
+		};
 		let claim = Claim{
 			property: b"property".to_vec(),
 			value: b"value".to_vec(),
 			schema_id: None,
 			claim_type: ClaimType::CredentialClaim,
-		};
-		let issuance_req = IssuanceRequirement{
-			name: b"issuance_req".to_vec(),
-			insuance_type: IssuanceType::String,
+			issuance_requirement: Some(issuance_req.clone()),
 		};
 		let schema: VerifiableCredentialSchema< T::Moment> = VerifiableCredentialSchema {
 			name: name.clone(),
@@ -45,7 +46,6 @@ benchmarks! {
 			issuer_claims: vec![claim.clone()],
 			subject_claims: vec![claim.clone()],
 			credential_claims: vec![claim.clone()],
-			issuance_req: issuance_req.clone(),
 			metadata: b"metadata".to_vec(),
 			nonce: 2,
 		};
@@ -55,7 +55,7 @@ benchmarks! {
 		// Encode and sign the schema message.
 	}:  _(RawOrigin::Signed(caller), name.clone(), creator.clone(), false,
 			vec![mandatory_fields.clone()], Some(expiration_date), vec![claim.clone()], 
-			vec![claim.clone()], vec![claim.clone()], issuance_req.clone(), b"metadata".to_vec(), sig.clone() )
+			vec![claim.clone()], vec![claim.clone()], b"metadata".to_vec(), sig.clone() )
 	verify {
 		//assert that the schema stored is different from the one created since the nonce is different.
 		assert_ne!(SchemaStore::<T>::get(sig.clone()), Some(schema));
@@ -71,15 +71,16 @@ benchmarks! {
 			name: b"name".to_vec(),
 			attribute_type: AttributeType::Hex,
 		};
+		let issuance_req = IssuanceRequirement{
+			name: b"issuance_req".to_vec(),
+			insuance_type: IssuanceType::String,
+		};
 		let claim = Claim{
 			property: b"property".to_vec(),
 			value: b"value".to_vec(),
 			schema_id: None,
 			claim_type: ClaimType::CredentialClaim,
-		};
-		let issuance_req = IssuanceRequirement{
-			name: b"issuance_req".to_vec(),
-			insuance_type: IssuanceType::String,
+			issuance_requirement: Some(issuance_req.clone()),
 		};
 		let schema: VerifiableCredentialSchema<T::Moment> = VerifiableCredentialSchema {
 			name: name.clone(),
@@ -91,14 +92,13 @@ benchmarks! {
 			issuer_claims: vec![claim.clone()],
 			subject_claims: vec![claim.clone()],
 			credential_claims: vec![claim.clone()],
-			issuance_req: issuance_req.clone(),
 			metadata: b"metadata".to_vec(),
 			nonce: 2,
 		};
 		let sig: T::Signature = sr25519::Signature::from_slice(&hex!("a6350211fcdf1d7f0c79bf0a9c296de17449ca88a899f0cd19a70b07513fc107b7d34249dba71d4761ceeec2ed6bc1305defeb96418e6869e6b6199ed0de558e")).unwrap().into();
 		assert_ok!(SchemaRegistry::<T>::create_schema(RawOrigin::Signed(caller.clone()).into(), name, creator, false,
 									vec![mandatory_fields], Some(expiration_date), vec![claim.clone()], 
-									vec![claim.clone()], vec![claim.clone()],issuance_req.clone(), b"metadata".to_vec(), sig.clone()));
+									vec![claim.clone()], vec![claim.clone()], b"metadata".to_vec(), sig.clone()));
 	}:  _(RawOrigin::Signed(caller), sig.clone(), schema.clone())
 	verify {
 		assert_eq!(SchemaStore::<T>::get(sig.clone()), Some(schema.clone()));
@@ -115,15 +115,16 @@ benchmarks! {
 			name: b"name".to_vec(),
 			attribute_type: AttributeType::Hex,
 		};
+		let issuance_req = IssuanceRequirement{
+			name: b"issuance_req".to_vec(),
+			insuance_type: IssuanceType::String,
+		};
 		let claim = Claim{
 			property: b"property".to_vec(),
 			value: b"value".to_vec(),
 			schema_id: None,
 			claim_type: ClaimType::CredentialClaim,
-		};
-		let issuance_req = IssuanceRequirement{
-			name: b"issuance_req".to_vec(),
-			insuance_type: IssuanceType::String,
+			issuance_requirement: Some(issuance_req.clone()),
 		};
 		let schema: VerifiableCredentialSchema<T::Moment> = VerifiableCredentialSchema {
 			name: name.clone(),
@@ -135,14 +136,13 @@ benchmarks! {
 			issuer_claims: vec![claim.clone()],
 			subject_claims: vec![claim.clone()],
 			credential_claims: vec![claim.clone()],
-			issuance_req: issuance_req.clone(),
 			metadata: b"metadata".to_vec(),
 			nonce: 2,
 		};
 		let sig: T::Signature = sr25519::Signature::from_slice(&hex!("a6350211fcdf1d7f0c79bf0a9c296de17449ca88a899f0cd19a70b07513fc107b7d34249dba71d4761ceeec2ed6bc1305defeb96418e6869e6b6199ed0de558e")).unwrap().into();
 		assert_ok!(SchemaRegistry::<T>::create_schema(RawOrigin::Signed(caller.clone()).into(), name, creator, false,
 									vec![mandatory_fields], Some(expiration_date), vec![claim.clone()], 
-									vec![claim.clone()], vec![claim.clone()], issuance_req.clone(), b"metadata".to_vec(), sig.clone()));
+									vec![claim.clone()], vec![claim.clone()], b"metadata".to_vec(), sig.clone()));
 	}:  _(RawOrigin::Signed(caller.clone()), sig.clone())
 	verify {
 		assert_eq!(SchemaStore::<T>::get(sig.clone()), None);
@@ -159,11 +159,16 @@ benchmarks! {
 			name: b"name".to_vec(),
 			attribute_type: AttributeType::Hex,
 		};
+		let issuance_req = IssuanceRequirement{
+			name: b"issuance_req".to_vec(),
+			insuance_type: IssuanceType::String,
+		};
 		let claim = Claim{
 			property: b"property".to_vec(),
 			value: b"value".to_vec(),
 			schema_id: None,
 			claim_type: ClaimType::CredentialClaim,
+			issuance_requirement: Some(issuance_req.clone()),
 		};
 		let name = b"Alice Data".to_vec();
 		let creator = b"did:serv:5HDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec();
@@ -206,11 +211,16 @@ benchmarks! {
 			name: b"name".to_vec(),
 			attribute_type: AttributeType::Hex,
 		};
+		let issuance_req = IssuanceRequirement{
+			name: b"issuance_req".to_vec(),
+			insuance_type: IssuanceType::String,
+		};
 		let claim = Claim{
 			property: b"property".to_vec(),
 			value: b"value".to_vec(),
 			schema_id: None,
 			claim_type: ClaimType::CredentialClaim,
+			issuance_requirement: Some(issuance_req.clone()),
 		};
 		let name = b"Alice Data".to_vec();
 		//let creator = b"did:serv:5HDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec();
@@ -257,11 +267,16 @@ benchmarks! {
 			name: b"name".to_vec(),
 			attribute_type: AttributeType::Hex,
 		};
+		let issuance_req = IssuanceRequirement{
+			name: b"issuance_req".to_vec(),
+			insuance_type: IssuanceType::String,
+		};
 		let claim = Claim{
 			property: b"property".to_vec(),
 			value: b"value".to_vec(),
 			schema_id: None,
 			claim_type: ClaimType::CredentialClaim,
+			issuance_requirement: Some(issuance_req.clone()),
 		};
 		let name = b"Alice Data".to_vec();
 		//let creator = b"did:serv:5HDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec();
