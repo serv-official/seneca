@@ -208,7 +208,7 @@ pub mod pallet {
 		}
 
 		// Function to delete an existing schema
-		#[pallet::weight(10 + T::DbWeight::get().reads_writes(1,1).ref_time())]
+		#[pallet::weight(0 + T::DbWeight::get().reads_writes(1,1).ref_time())]
         pub fn delete_schema(origin: OriginFor<T>, key: T::Signature) -> DispatchResult {
             let _ = ensure_signed(origin)?;
             ensure!(<SchemaStore<T>>::contains_key(&key), Error::<T>::UnknownSchema);
@@ -218,7 +218,7 @@ pub mod pallet {
         }
 
 		// Function to delete an existing credential
-		#[pallet::weight(10 + T::DbWeight::get().reads_writes(1,1).ref_time())]
+		#[pallet::weight(0 + T::DbWeight::get().reads_writes(1,1).ref_time())]
         pub fn delete_credential(origin: OriginFor<T>, key: T::Signature) -> DispatchResult {
             let _ = ensure_signed(origin)?;
             ensure!(<CredentialStore<T>>::contains_key(&key), Error::<T>::UnknownCredential);
@@ -228,7 +228,7 @@ pub mod pallet {
         }
 
 		// Function to verify signature on data
-		#[pallet::weight(10 + T::DbWeight::get().reads_writes(1,1).ref_time())]
+		#[pallet::weight(0 + T::DbWeight::get().reads_writes(1,1).ref_time())]
 		pub fn verify_sig(origin: OriginFor<T>, data: Vec<u8>, sig: T::Signature, from: T::Public) -> DispatchResult{
 			let _ = ensure_signed(origin)?;
 			let ok = sig.verify(&data[..], &from.into_account());
