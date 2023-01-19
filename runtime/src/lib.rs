@@ -1213,6 +1213,7 @@ mod benches {
 		[pallet_balances, Balances]
 		[pallet_timestamp, Timestamp]
 		[pallet_utility, Utility]
+		[pallet_election_provider_multi_phase, ElectionProviderMultiPhase]
 		[pallet_offences, OffencesBench::<Runtime>]
 		[pallet_im_online, ImOnline]
 		[pallet_contracts, Contracts]
@@ -1220,6 +1221,7 @@ mod benches {
 		[pallet_treasury, Treasury]
 		[pallet_democracy, Democracy]
 		[pallet_collective, Council]
+		[pallet_session, SessionBench::<Runtime>]
 		[pallet_nomination_pools, NominationPoolsBench::<Runtime>]
 		[pallet_membership, TechnicalMembership]
 		[pallet_elections_phragmen, Elections]
@@ -1457,6 +1459,7 @@ impl_runtime_apis! {
 			// Trying to add benchmarks directly to the offences Pallet caused cyclic dependency
 			// issues. To get around that, we separated the Session benchmarks into its own crate,
 			// which is why we need these two lines below.
+			use pallet_session_benchmarking::Pallet as SessionBench;
 			use pallet_offences_benchmarking::Pallet as OffencesBench;
 
 			use frame_system_benchmarking::Pallet as SystemBench;
