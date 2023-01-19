@@ -367,10 +367,10 @@ impl pallet_timestamp::Config for Runtime {
 	type WeightInfo = ();
 }
 /// Existential deposit.
-pub const EXISTENTIAL_DEPOSIT: u128 = 500;
+pub const EXISTENTIAL_DEPOSIT: u128 = 10;
 
 impl pallet_balances::Config for Runtime {
-	type MaxLocks = ConstU32<50>;
+	type MaxLocks = ConstU32<10>;
 	type MaxReserves = ();
 	type ReserveIdentifier = [u8; 8];
 	/// The type for recording an account's balance.
@@ -1467,8 +1467,13 @@ impl_runtime_apis! {
 			use pallet_nomination_pools_benchmarking::Pallet as NominationPoolsBench;
 
 			let mut list = Vec::<BenchmarkList>::new();
-			list_benchmarks!(list, extra);
-
+			list_benchmark!(list, extra, pallet_balances, Balances);
+			list_benchmark!(list, extra, frame_benchmarking, BaselineBench::<Runtime>);
+            list_benchmark!(list, extra, pallet_schema_registry, SchemaRegistry);
+            list_benchmark!(list, extra, pallet_session, SessionBench::<Runtime>);
+            list_benchmark!(list, extra, pallet_offences_benchmarking, OffencesBench::<Runtime>);
+            list_benchmark!(list, extra, pallet_nomination_pools_benchmarking, NominationPoolsBench::<Runtime>);
+            list_benchmark!(list, extra, frame_system, SystemBench::<Runtime>);
 			let storage_info = AllPalletsWithSystem::storage_info();
 
 			return (list, storage_info)
@@ -1510,7 +1515,13 @@ impl_runtime_apis! {
 
 			let mut batches = Vec::<BenchmarkBatch>::new();
 			let params = (&config, &whitelist);
-			add_benchmarks!(params, batches);
+			add_benchmark!(params, batches, pallet_balances, Balances);
+			add_benchmark!(params, batches, frame_benchmarking, BaselineBench::<Runtime>);
+			add_benchmark!(params, batches, pallet_schema_registry, SchemaRegistry);
+			add_benchmark!(params, batches, pallet_session, SessionBench::<Runtime>);
+			add_benchmark!(params, batches, pallet_offences_benchmarking, OffencesBench::<Runtime>);
+			add_benchmark!(params, batches, pallet_nomination_pools_benchmarking, NominationPoolsBench::<Runtime>);
+			add_benchmark!(params, batches, frame_system, SystemBench::<Runtime>);
 
 			Ok(batches)
 		}

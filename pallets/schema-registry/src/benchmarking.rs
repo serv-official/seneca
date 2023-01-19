@@ -27,14 +27,14 @@ benchmarks! {
 		};
 		let issuance_req = IssuanceRequirement{
 			name: b"issuance_req".to_vec(),
-			insuance_type: IssuanceType::String,
+			insuance_type: IssuanceType::Text,
 		};
 		let claim = Claim{
 			property: b"property".to_vec(),
 			value: b"value".to_vec(),
 			schema_id: None,
 			claim_type: ClaimType::CredentialClaim,
-			issuance_requirement: Some(issuance_req.clone()),
+			issuance_requirement: Some(vec![issuance_req.clone()]),
 		};
 		let schema: VerifiableCredentialSchema< T::Moment> = VerifiableCredentialSchema {
 			name: name.clone(),
@@ -73,14 +73,14 @@ benchmarks! {
 		};
 		let issuance_req = IssuanceRequirement{
 			name: b"issuance_req".to_vec(),
-			insuance_type: IssuanceType::String,
+			insuance_type: IssuanceType::Text,
 		};
 		let claim = Claim{
 			property: b"property".to_vec(),
 			value: b"value".to_vec(),
 			schema_id: None,
 			claim_type: ClaimType::CredentialClaim,
-			issuance_requirement: Some(issuance_req.clone()),
+			issuance_requirement: Some(vec![issuance_req.clone()]),
 		};
 		let schema: VerifiableCredentialSchema<T::Moment> = VerifiableCredentialSchema {
 			name: name.clone(),
@@ -117,14 +117,14 @@ benchmarks! {
 		};
 		let issuance_req = IssuanceRequirement{
 			name: b"issuance_req".to_vec(),
-			insuance_type: IssuanceType::String,
+			insuance_type: IssuanceType::Text,
 		};
 		let claim = Claim{
 			property: b"property".to_vec(),
 			value: b"value".to_vec(),
 			schema_id: None,
 			claim_type: ClaimType::CredentialClaim,
-			issuance_requirement: Some(issuance_req.clone()),
+			issuance_requirement: Some(vec![issuance_req.clone()]),
 		};
 		let schema: VerifiableCredentialSchema<T::Moment> = VerifiableCredentialSchema {
 			name: name.clone(),
@@ -161,14 +161,14 @@ benchmarks! {
 		};
 		let issuance_req = IssuanceRequirement{
 			name: b"issuance_req".to_vec(),
-			insuance_type: IssuanceType::String,
+			insuance_type: IssuanceType::Text,
 		};
 		let claim = Claim{
 			property: b"property".to_vec(),
 			value: b"value".to_vec(),
 			schema_id: None,
 			claim_type: ClaimType::CredentialClaim,
-			issuance_requirement: Some(issuance_req.clone()),
+			issuance_requirement: Some(vec![issuance_req.clone()]),
 		};
 		let name = b"Alice Data".to_vec();
 		let creator = b"did:serv:5HDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec();
@@ -213,18 +213,16 @@ benchmarks! {
 		};
 		let issuance_req = IssuanceRequirement{
 			name: b"issuance_req".to_vec(),
-			insuance_type: IssuanceType::String,
+			insuance_type: IssuanceType::Text,
 		};
 		let claim = Claim{
 			property: b"property".to_vec(),
 			value: b"value".to_vec(),
 			schema_id: None,
 			claim_type: ClaimType::CredentialClaim,
-			issuance_requirement: Some(issuance_req.clone()),
+			issuance_requirement: Some(vec![issuance_req.clone()]),
 		};
 		let name = b"Alice Data".to_vec();
-		//let creator = b"did:serv:5HDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec();
-		//let creator2 = b"did:serv:7HDx7jPsiED6n48eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec();
 		let subject = b"Credential subject".to_vec();
 		let credential_holder = b"did:serv:5HDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec();
 		let credential_holder2 = b"did:serv:7JDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec();
@@ -269,18 +267,16 @@ benchmarks! {
 		};
 		let issuance_req = IssuanceRequirement{
 			name: b"issuance_req".to_vec(),
-			insuance_type: IssuanceType::String,
+			insuance_type: IssuanceType::Text,
 		};
 		let claim = Claim{
 			property: b"property".to_vec(),
 			value: b"value".to_vec(),
 			schema_id: None,
 			claim_type: ClaimType::CredentialClaim,
-			issuance_requirement: Some(issuance_req.clone()),
+			issuance_requirement: Some(vec![issuance_req.clone()]),
 		};
 		let name = b"Alice Data".to_vec();
-		//let creator = b"did:serv:5HDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec();
-		//let creator2 = b"did:serv:7HDx7jPsiED6n48eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec();
 		let subject = b"Credential subject".to_vec();
 		let credential_holder = b"did:serv:5HDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec();
 		let credential_holder2 = b"did:serv:7JDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec();

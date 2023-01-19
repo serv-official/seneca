@@ -43,7 +43,7 @@ pub struct Claim{
 	pub value: Vec<u8>,
 	pub schema_id: Option<Vec<u8>>,
     pub claim_type: ClaimType,
-    pub issuance_requirement: Option<IssuanceRequirement>,
+    pub issuance_requirement: Option<Vec<IssuanceRequirement>>,
 }
 
 
@@ -68,7 +68,7 @@ pub enum AttributeType {
     Hex,
     DateType,
     Base64,
-    String,
+    Text,
 }
 
 #[derive(PartialEq, Eq, TypeInfo, Clone, Encode, Decode, RuntimeDebug)]
@@ -85,5 +85,5 @@ pub enum IssuanceType {
     Hex,
     DateType,
     Base64,
-    String,
+    Text,
 }

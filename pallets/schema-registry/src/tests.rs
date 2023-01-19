@@ -28,7 +28,7 @@ fn it_works_for_create_schema() {
 			value: b"value".to_vec(),
 			schema_id: None,
 			claim_type: ClaimType::IssuerClaim,
-			issuance_requirement: Some(issuance_req.clone()),
+			issuance_requirement: Some(vec![issuance_req.clone()]),
 		};
 		let account_pair = account_pair("Alice");
 		let account_id = account_key("Alice");
@@ -116,7 +116,7 @@ fn it_works_for_update_schema() {
 			value: b"value".to_vec(),
 			schema_id: None,
 			claim_type: ClaimType::IssuerClaim,
-			issuance_requirement: Some(issuance_req.clone()),
+			issuance_requirement: Some(vec![issuance_req.clone()]),
 		};
 		let account_pair = account_pair("Alice");
 		let account_pub = account_key("Alice");
@@ -200,14 +200,14 @@ fn it_works_for_delete_schema() {
 		};
 		let issuance_req = IssuanceRequirement{
 			name: b"issuance_req".to_vec(),
-			insuance_type: IssuanceType::String,
+			insuance_type: IssuanceType::Text,
 		};
 		let claim = Claim{
 			property: b"property".to_vec(),
 			value: b"value".to_vec(),
 			schema_id: None,
 			claim_type: ClaimType::CredentialClaim,
-			issuance_requirement: Some(issuance_req.clone()),
+			issuance_requirement: Some(vec![issuance_req.clone()]),
 		};
 		let account_pair = account_pair("Alice");
 		let account_pub = account_key("Alice");
