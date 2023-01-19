@@ -1,13 +1,13 @@
 [package]
 name = "serv-node"
 version = "4.0.0-dev"
-description = "A fresh FRAME-based Substrate node, ready for hacking."
-authors = ["Substrate DevHub <https://github.com/substrate-developer-hub>"]
-homepage = "https://substrate.io/"
+description = "A substrate based chain for private computing & identity management."
+authors = ["Serv Developers <https://github.com/serv-official>"]
+homepage = "https://joinserv.com/"
 edition = "2021"
 license = "Unlicense"
 publish = false
-repository = "https://github.com/substrate-developer-hub/substrate-node-template/"
+repository = "https://github.com/serv-official/serv_testnet_backend"
 build = "build.rs"
 
 [package.metadata.docs.rs]

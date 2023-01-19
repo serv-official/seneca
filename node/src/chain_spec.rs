@@ -62,8 +62,8 @@ pub fn authority_keys_from_seed(s: &str) -> (AccountId, AccountId, BabeId, Grand
 pub fn serv_properties() -> Properties {
 	let mut p = Properties::new();
 	p.insert("ss58format".into(), 42.into());
-	p.insert("tokenDecimals".into(), 18.into());
-	p.insert("tokenSymbol".into(), "SERV".into());
+	p.insert("tokenDecimals".into(), 6.into());
+	p.insert("tokenSymbol".into(), "ZNO".into());
 	p
 }
 pub fn development_config() -> Result<ChainSpec, String> {
@@ -88,6 +88,11 @@ pub fn development_config() -> Result<ChainSpec, String> {
 					get_account_id_from_seed::<sr25519::Public>("Bob"),
 					get_account_id_from_seed::<sr25519::Public>("Alice//stash"),
 					get_account_id_from_seed::<sr25519::Public>("Bob//stash"),
+					get_account_id_from_seed::<sr25519::Public>("Charlie"),
+					"5DRVZN78VKbgNny4bHf2MpmHq6SVhrT6g23ciTYHi36woLMT".parse()
+					.unwrap(),
+					"5CDrkPqy6KQDYNXNXiK5NMij1p7gNQuR2WB9My8y1fYvAspA".parse()
+					.unwrap(),
 				],
 			)
 		},
@@ -118,7 +123,7 @@ pub fn local_testnet_config() -> Result<ChainSpec, String> {
 				vec![authority_keys_from_seed("Alice"), authority_keys_from_seed("Bob")],
 				vec![],
 				// Sudo account
-				get_account_id_from_seed::<sr25519::Public>("5F8xghQeZTU6QLEwqxnEsNzpUjznAoa1AFJiPyYE396f6mJv"),
+				get_account_id_from_seed::<sr25519::Public>("Alice"),
 				// Pre-funded accounts
 				vec![
 					get_account_id_from_seed::<sr25519::Public>("Alice"),
@@ -274,7 +279,7 @@ fn testnet_genesis(
 		});
 
 	// stakers: all validators and nominators.
-	const ENDOWMENT: Balance = 10_000_000 * SERV;
+	const ENDOWMENT: Balance = 10_000_000 * ZNO;
 	const STASH: Balance = ENDOWMENT / 1000;
 	let mut rng = rand::thread_rng();
 	let stakers = initial_authorities
@@ -334,7 +339,6 @@ fn testnet_genesis(
 				.map(|member| (member, STASH))
 				.collect(),
 		},
-		assets: Default::default(),
 		council: CouncilConfig::default(),
 		technical_committee: TechnicalCommitteeConfig {
 			members: endowed_accounts
@@ -352,8 +356,8 @@ fn testnet_genesis(
 		},
 		transaction_payment: Default::default(),
 		nomination_pools: NominationPoolsConfig {
-			min_create_bond: 10 * SERV,
-			min_join_bond: 1 * SERV,
+			min_create_bond: 1 * ZNO,
+			min_join_bond: 1 * ZNO,
 			..Default::default()
 		},
 	}

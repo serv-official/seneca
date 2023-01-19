@@ -1,13 +1,13 @@
 [package]
 name = "serv-runtime"
 version = "4.0.0-dev"
-description = "A fresh FRAME-based Substrate node, ready for hacking."
-authors = ["Substrate DevHub <https://github.com/substrate-developer-hub>"]
-homepage = "https://substrate.io/"
+description = "A substrate based chain for private computing & identity management."
+authors = ["Serv Developers <https://github.com/serv-official>"]
+homepage = "https://joinserv.com/"
 edition = "2021"
 license = "Unlicense"
 publish = false
-repository = "https://github.com/substrate-developer-hub/substrate-node-template/"
+repository = "https://github.com/serv-official/serv_testnet_backend"
 
 [package.metadata.docs.rs]
 targets = ["x86_64-unknown-linux-gnu"]
@@ -31,7 +31,10 @@ pallet-timestamp = { version = "4.0.0-dev", default-features = false, git = "htt
 pallet-transaction-payment = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.32" }
 pallet-bags-list = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.32" }
 pallet-session = { version = "4.0.0-dev", default-features = false, features = [ "historical" ], git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.32" }
+pallet-session-benchmarking = { version = "4.0.0-dev", default-features = false, optional = true, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.32"}
 pallet-nomination-pools = { version = "1.0.0", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.32" }
+pallet-nomination-pools-benchmarking = { version = "1.0.0", default-features = false, optional=true, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.32"}
+pallet-nomination-pools-runtime-api = { version = "1.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.32"}
 pallet-staking = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.32" }
 pallet-multisig = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.32" }
 pallet-staking-reward-curve = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.32" }
@@ -42,10 +45,6 @@ pallet-utility = { version = "4.0.0-dev", default-features = false, git = "https
 pallet-offences = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.32" }
 pallet-offences-benchmarking = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.32", optional = true }
 pallet-im-online = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.32" }
-
-#asset-handling
-pallet-uniques = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.32" }
-pallet-assets = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.32" }
 
 #smart-contracts
 pallet-contracts = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.32" }
@@ -99,12 +98,14 @@ std = [
 	"codec/std",
 	"scale-info/std",
 	"log/std",
-	"frame-try-runtime?/std",
+	"frame-try-runtime/std",
 	"frame-executive/std",
 	"frame-support/std",
 	"frame-try-runtime/std",
 	"frame-system-rpc-runtime-api/std",
 	"frame-system/std",
+	"frame-benchmarking/std",
+	"frame-system-benchmarking/std",
 	"pallet-authorship/std",
 	"pallet-babe/std",
 	"pallet-balances/std",
@@ -123,17 +124,18 @@ std = [
 	"pallet-transaction-payment/std",
 	"pallet-bags-list/std",
 	"pallet-session/std",
+	"pallet-session-benchmarking?/std",
 	"pallet-nomination-pools/std",
+	"pallet-nomination-pools-runtime-api/std",
+	"pallet-nomination-pools-benchmarking/std",
 	"pallet-staking/std",
 	"pallet-offences/std",
 	"pallet-election-provider-multi-phase/std",
 	"pallet-multisig/std",
 	"pallet-utility/std",
 	"pallet-im-online/std",
-	"pallet-uniques/std",
 	"pallet-contracts/std",
 	"pallet-contracts-primitives/std",
-	"pallet-assets/std",
 	"pallet-schema-registry/std",
 	"sp-api/std",
 	"sp-block-builder/std",
@@ -146,23 +148,26 @@ std = [
 	"sp-staking/std",
 	"sp-npos-elections/std",
 	"sp-std/std",
+	"sp-io/std",
 	"sp-transaction-pool/std",
 	"sp-version/std",
 	"node-primitives/std",
 	"pallet-did/std",
 ]
 runtime-benchmarks = [
+	"frame-system-benchmarking/runtime-benchmarks",
 	"frame-benchmarking/runtime-benchmarks",
 	"frame-support/runtime-benchmarks",
-	"frame-system-benchmarking",
 	"frame-system/runtime-benchmarks",
 	"hex-literal",
 	"pallet-balances/runtime-benchmarks",
 	"pallet-timestamp/runtime-benchmarks",
 	"pallet-utility/runtime-benchmarks",
 	"pallet-im-online/runtime-benchmarks",
+	"pallet-session-benchmarking/runtime-benchmarks",
 	"pallet-contracts/runtime-benchmarks",
-	"pallet-offences-benchmarking",
+	"pallet-nomination-pools-benchmarking/runtime-benchmarks",
+	"pallet-offences-benchmarking/runtime-benchmarks",
 	"sp-runtime/runtime-benchmarks",
 	"pallet-multisig/runtime-benchmarks",
 	"pallet-scheduler/runtime-benchmarks",
@@ -172,8 +177,6 @@ runtime-benchmarks = [
 	"pallet-democracy/runtime-benchmarks",
 	"pallet-elections-phragmen/runtime-benchmarks",
 	"pallet-preimage/runtime-benchmarks",
-	"pallet-uniques/runtime-benchmarks",
-	"pallet-assets/std",
 	"pallet-schema-registry/runtime-benchmarks",
 ]
 try-runtime = [
@@ -190,4 +193,6 @@ try-runtime = [
 	"pallet-timestamp/try-runtime",
 	"pallet-transaction-payment/try-runtime",
 	"pallet-schema-registry/try-runtime",
+	"pallet-offences/try-runtime",
+	"pallet-nomination-pools/try-runtime",
 ]

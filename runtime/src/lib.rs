@@ -9,7 +9,7 @@ use frame_election_provider_support::{
 };
 use frame_system::{
 	limits::{BlockLength, BlockWeights},
-	EnsureRoot, EnsureSigned
+	EnsureRoot
 };
 pub use node_primitives::Signature;
 use node_primitives::{AccountId, Balance, BlockNumber, Hash, Index, Moment};
@@ -367,10 +367,10 @@ impl pallet_timestamp::Config for Runtime {
 	type WeightInfo = ();
 }
 /// Existential deposit.
-pub const EXISTENTIAL_DEPOSIT: u128 = 500;
+pub const EXISTENTIAL_DEPOSIT: u128 = 50;
 
 impl pallet_balances::Config for Runtime {
-	type MaxLocks = ConstU32<50>;
+	type MaxLocks = ConstU32<10>;
 	type MaxReserves = ();
 	type ReserveIdentifier = [u8; 8];
 	/// The type for recording an account's balance.
@@ -384,7 +384,7 @@ impl pallet_balances::Config for Runtime {
 }
 
 parameter_types! {
-	pub const TransactionByteFee: Balance = 10 * MILLISER;
+	pub const TransactionByteFee: Balance = 1 * MILLISER / 1_000_000_000 ;
 	pub const OperationalFeeMultiplier: u8 = 5;
 	pub const TargetBlockFullness: Perquintill = Perquintill::from_percent(25);
 	pub AdjustmentVariable: Multiplier = Multiplier::saturating_from_rational(1, 100_000);
@@ -460,8 +460,8 @@ parameter_types! {
 	pub const UnsignedPhase: u32 = EPOCH_DURATION_IN_BLOCKS / 4;
 
 	// signed config
-	pub const SignedRewardBase: Balance = 1 * SERV;
-	pub const SignedDepositBase: Balance = 1 * SERV;
+	pub const SignedRewardBase: Balance = 1 * ZNO;
+	pub const SignedDepositBase: Balance = 1 * ZNO;
 	pub const SignedDepositByte: Balance = 1 * SER;
 
 	pub BetterUnsignedThreshold: Perbill = Perbill::from_rational(1u32, 10_000);
@@ -602,12 +602,15 @@ parameter_types! {
 	pub const BagThresholds: &'static [u64] = &voter_bags::THRESHOLDS;
 }
 
-impl pallet_bags_list::Config for Runtime {
+type VoterBagsListInstance = pallet_bags_list::Instance1;
+impl pallet_bags_list::Config<VoterBagsListInstance> for Runtime {
 	type RuntimeEvent = RuntimeEvent;
+	/// The voter bags-list is loosely kept up to date, and the real source of truth for the score
+	/// of each node is the staking pallet.
 	type ScoreProvider = Staking;
-	type WeightInfo = pallet_bags_list::weights::SubstrateWeight<Runtime>;
 	type BagThresholds = BagThresholds;
 	type Score = VoteWeight;
+	type WeightInfo = pallet_bags_list::weights::SubstrateWeight<Runtime>;
 }
 
 impl pallet_session::Config for Runtime {
@@ -720,7 +723,7 @@ impl pallet_staking::Config for Runtime {
 	type GenesisElectionProvider = onchain::UnboundedExecution<OnChainSeqPhragmen>;
 	// This a placeholder, to be introduced in the next PR as an instance of bags-list
 	type TargetList = pallet_staking::UseValidatorsMap<Self>;
-	type VoterList = BagsList;
+	type VoterList = VoterList;
 	type MaxUnlockingChunks = ConstU32<32>;
 	type OnStakerSlash = NominationPools;
 	type WeightInfo = pallet_staking::weights::SubstrateWeight<Runtime>;
@@ -847,23 +850,23 @@ impl pallet_im_online::Config for Runtime {
 
 parameter_types! {
 	pub const ProposalBond: Permill = Permill::from_percent(5);
-	pub const ProposalBondMinimum: Balance = 1 * SERV;
+	pub const ProposalBondMinimum: Balance = 1 * ZNO;
 	pub const SpendPeriod: BlockNumber = 1 * DAYS;
 	pub const Burn: Permill = Permill::from_percent(50);
 	pub const TipCountdown: BlockNumber = 1 * DAYS;
 	pub const TipFindersFee: Percent = Percent::from_percent(20);
-	pub const TipReportDepositBase: Balance = 1 * SERV;
+	pub const TipReportDepositBase: Balance = 1 * ZNO;
 	pub const DataDepositPerByte: Balance = 1 * SER;
-	pub const BountyDepositBase: Balance = 1 * SERV;
+	pub const BountyDepositBase: Balance = 1 * ZNO;
 	pub const BountyDepositPayoutDelay: BlockNumber = 1 * DAYS;
 	pub const TreasuryPalletId: PalletId = PalletId(*b"py/trsry");
 	pub const BountyUpdatePeriod: BlockNumber = 14 * DAYS;
 	pub const MaximumReasonLength: u32 = 300;
 	pub const BountyCuratorDeposit: Permill = Permill::from_percent(50);
-	pub const BountyValueMinimum: Balance = 5 * SERV;
+	pub const BountyValueMinimum: Balance = 5 * ZNO;
 	pub const MaxApprovals: u32 = 100;
 	pub const MaxActiveChildBountyCount: u32 = 5;
-	pub const ChildBountyValueMinimum: Balance = 1 * SERV;
+	pub const ChildBountyValueMinimum: Balance = 1 * ZNO;
 	pub const ChildBountyCuratorDepositBase: Permill = Permill::from_percent(10);
 }
 
@@ -929,7 +932,7 @@ impl pallet_collective::Config<TechnicalCollective> for Runtime {
 }
 
 parameter_types! {
-	pub const CandidacyBond: Balance = 10 * SERV;
+	pub const CandidacyBond: Balance = 10 * ZNO;
 	// 1 storage item created, key size is 32 bytes, value size is 16+16.
 	pub const VotingBondBase: Balance = deposit(1, 64);
 	// additional data per vote is 32 bytes (account id).
@@ -988,7 +991,7 @@ parameter_types! {
 	pub const LaunchPeriod: BlockNumber = 28 * 24 * 60 * MINUTES;
 	pub const VotingPeriod: BlockNumber = 28 * 24 * 60 * MINUTES;
 	pub const FastTrackVotingPeriod: BlockNumber = 3 * 24 * 60 * MINUTES;
-	pub const MinimumDeposit: Balance = 100 * SERV;
+	pub const MinimumDeposit: Balance = 100 * ZNO;
 	pub const EnactmentPeriod: BlockNumber = 30 * 24 * 60 * MINUTES;
 	pub const CooloffPeriod: BlockNumber = 28 * 24 * 60 * MINUTES;
 	pub const MaxProposals: u32 = 100;
@@ -1067,7 +1070,7 @@ impl pallet_scheduler::Config for Runtime {
 
 parameter_types! {
 	pub const PreimageMaxSize: u32 = 4096 * 1024;
-	pub const PreimageBaseDeposit: Balance = 1 * SERV;
+	pub const PreimageBaseDeposit: Balance = 1 * ZNO;
 	// One cent: $10,000 / MB
 	pub const PreimageByteDeposit: Balance = 1 * SER;
 }
@@ -1082,58 +1085,18 @@ impl pallet_preimage::Config for Runtime {
 }
 
 parameter_types! {
-	pub const AssetDeposit: Balance = 100 * SERV;
-	pub const ApprovalDeposit: Balance = 1 * SERV;
+	pub const AssetDeposit: Balance = 100 * ZNO;
+	pub const ApprovalDeposit: Balance = 1 * ZNO;
 	pub const StringLimit: u32 = 50;
-	pub const MetadataDepositBase: Balance = 10 * SERV;
-	pub const MetadataDepositPerByte: Balance = 1 * SERV;
-}
-
-impl pallet_assets::Config for Runtime {
-	type RuntimeEvent = RuntimeEvent;
-	type Balance = u128;
-	type AssetId = u32;
-	type Currency = Balances;
-	type ForceOrigin = EnsureRoot<AccountId>;
-	type AssetDeposit = AssetDeposit;
-	type AssetAccountDeposit = ConstU128<SERV>;
-	type MetadataDepositBase = MetadataDepositBase;
-	type MetadataDepositPerByte = MetadataDepositPerByte;
-	type ApprovalDeposit = ApprovalDeposit;
-	type StringLimit = StringLimit;
-	type Freezer = ();
-	type Extra = ();
-	type WeightInfo = pallet_assets::weights::SubstrateWeight<Runtime>;
-	#[cfg(feature = "runtime-benchmarks")]
-	type BenchmarkHelper = ();
+	pub const MetadataDepositBase: Balance = 10 * ZNO;
+	pub const MetadataDepositPerByte: Balance = 1 * ZNO;
 }
 
 parameter_types! {
-	pub const CollectionDeposit: Balance = 100 * SERV;
-	pub const ItemDeposit: Balance = 1 * SERV;
+	pub const CollectionDeposit: Balance = 100 * ZNO;
+	pub const ItemDeposit: Balance = 1 * ZNO;
 	pub const KeyLimit: u32 = 32;
 	pub const ValueLimit: u32 = 256;
-}
-
-impl pallet_uniques::Config for Runtime {
-	type RuntimeEvent = RuntimeEvent;
-	type CollectionId = u32;
-	type ItemId = u32;
-	type Currency = Balances;
-	type ForceOrigin = frame_system::EnsureRoot<AccountId>;
-	type CollectionDeposit = CollectionDeposit;
-	type ItemDeposit = ItemDeposit;
-	type MetadataDepositBase = MetadataDepositBase;
-	type AttributeDepositBase = MetadataDepositBase;
-	type DepositPerByte = MetadataDepositPerByte;
-	type StringLimit = StringLimit;
-	type KeyLimit = KeyLimit;
-	type ValueLimit = ValueLimit;
-	type WeightInfo = pallet_uniques::weights::SubstrateWeight<Runtime>;
-	#[cfg(feature = "runtime-benchmarks")]
-	type Helper = ();
-	type CreateOrigin = AsEnsureOriginWithArg<EnsureSigned<AccountId>>;
-	type Locker = ();
 }
 
 // pallet did configurations
@@ -1147,6 +1110,10 @@ impl pallet_did::Config for Runtime {
 
 impl pallet_schema_registry::Config for Runtime {
 	type RuntimeEvent = RuntimeEvent;
+	type Public = <Signature as Verify>::Signer;
+	type Moment = Moment;
+	type Signature = Signature;
+	type Timestamp = pallet_timestamp::Pallet<Runtime>;
 }
 
 // Create the runtime by composing the FRAME pallets that were previously configured.
@@ -1170,13 +1137,11 @@ construct_runtime!(
 		NominationPools: pallet_nomination_pools,
 		Staking: pallet_staking,
 		Session: pallet_session,
-		BagsList: pallet_bags_list,
+		VoterList: pallet_bags_list::<Instance1>,
 		Historical: pallet_session::historical::{Pallet},
 		Offences: pallet_offences,
 		ImOnline: pallet_im_online,
 		TransactionPayment: pallet_transaction_payment,
-		Uniques: pallet_uniques,
-		Assets: pallet_assets,
 		Multisig: pallet_multisig,
 		//smart contract support
 		Contracts: pallet_contracts,
@@ -1244,10 +1209,11 @@ mod benches {
 		[frame_benchmarking, BaselineBench::<Runtime>]
 		[frame_system, SystemBench::<Runtime>]
 		[pallet_babe, Babe]
-		[pallet_bags_list, BagsList]
+		[pallet_bags_list, VoterList]
 		[pallet_balances, Balances]
 		[pallet_timestamp, Timestamp]
 		[pallet_utility, Utility]
+		[pallet_election_provider_multi_phase, ElectionProviderMultiPhase]
 		[pallet_offences, OffencesBench::<Runtime>]
 		[pallet_im_online, ImOnline]
 		[pallet_contracts, Contracts]
@@ -1255,11 +1221,11 @@ mod benches {
 		[pallet_treasury, Treasury]
 		[pallet_democracy, Democracy]
 		[pallet_collective, Council]
+		[pallet_session, SessionBench::<Runtime>]
+		[pallet_nomination_pools, NominationPoolsBench::<Runtime>]
 		[pallet_membership, TechnicalMembership]
 		[pallet_elections_phragmen, Elections]
 		[pallet_preimage, Preimage]
-		[pallet_uniques, Uniques]
-		[pallet_assets, Assets]
 		[pallet_contracts, Contracts]
 		[pallet_multisig, Multisig]
 		[pallet_schema_registry, SchemaRegistry]
@@ -1493,6 +1459,7 @@ impl_runtime_apis! {
 			// Trying to add benchmarks directly to the offences Pallet caused cyclic dependency
 			// issues. To get around that, we separated the Session benchmarks into its own crate,
 			// which is why we need these two lines below.
+			use pallet_session_benchmarking::Pallet as SessionBench;
 			use pallet_offences_benchmarking::Pallet as OffencesBench;
 
 			use frame_system_benchmarking::Pallet as SystemBench;
@@ -1500,8 +1467,13 @@ impl_runtime_apis! {
 			use pallet_nomination_pools_benchmarking::Pallet as NominationPoolsBench;
 
 			let mut list = Vec::<BenchmarkList>::new();
-			list_benchmarks!(list, extra);
-
+			list_benchmark!(list, extra, pallet_balances, Balances);
+			list_benchmark!(list, extra, frame_benchmarking, BaselineBench::<Runtime>);
+            list_benchmark!(list, extra, pallet_schema_registry, SchemaRegistry);
+            list_benchmark!(list, extra, pallet_session, SessionBench::<Runtime>);
+            list_benchmark!(list, extra, pallet_offences_benchmarking, OffencesBench::<Runtime>);
+            list_benchmark!(list, extra, pallet_nomination_pools_benchmarking, NominationPoolsBench::<Runtime>);
+            list_benchmark!(list, extra, frame_system, SystemBench::<Runtime>);
 			let storage_info = AllPalletsWithSystem::storage_info();
 
 			return (list, storage_info)
@@ -1514,13 +1486,14 @@ impl_runtime_apis! {
 
 			use frame_system_benchmarking::Pallet as SystemBench;
 			use baseline::Pallet as BaselineBench;
-
 			// Trying to add benchmarks directly to the offences Pallet caused cyclic dependency
 			// issues. To get around that, we separated the Session benchmarks into its own crate,
 			// which is why we need these two lines below.
+			use pallet_session_benchmarking::Pallet as SessionBench;
 			use pallet_offences_benchmarking::Pallet as OffencesBench;
 			use pallet_nomination_pools_benchmarking::Pallet as NominationPoolsBench;
-
+			
+			impl pallet_session_benchmarking::Config for Runtime {}
 			impl pallet_offences_benchmarking::Config for Runtime {}
 
 			impl frame_system_benchmarking::Config for Runtime {}
@@ -1542,7 +1515,13 @@ impl_runtime_apis! {
 
 			let mut batches = Vec::<BenchmarkBatch>::new();
 			let params = (&config, &whitelist);
-			add_benchmarks!(params, batches);
+			add_benchmark!(params, batches, pallet_balances, Balances);
+			add_benchmark!(params, batches, frame_benchmarking, BaselineBench::<Runtime>);
+			add_benchmark!(params, batches, pallet_schema_registry, SchemaRegistry);
+			add_benchmark!(params, batches, pallet_session, SessionBench::<Runtime>);
+			add_benchmark!(params, batches, pallet_offences_benchmarking, OffencesBench::<Runtime>);
+			add_benchmark!(params, batches, pallet_nomination_pools_benchmarking, NominationPoolsBench::<Runtime>);
+			add_benchmark!(params, batches, frame_system, SystemBench::<Runtime>);
 
 			Ok(batches)
 		}
