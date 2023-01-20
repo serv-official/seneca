@@ -367,10 +367,10 @@ impl pallet_timestamp::Config for Runtime {
 	type WeightInfo = ();
 }
 /// Existential deposit.
-pub const EXISTENTIAL_DEPOSIT: u128 = 50;
+pub const EXISTENTIAL_DEPOSIT: u128 = 500;
 
 impl pallet_balances::Config for Runtime {
-	type MaxLocks = ConstU32<10>;
+	type MaxLocks = ConstU32<50>;
 	type MaxReserves = ();
 	type ReserveIdentifier = [u8; 8];
 	/// The type for recording an account's balance.
@@ -384,8 +384,8 @@ impl pallet_balances::Config for Runtime {
 }
 
 parameter_types! {
-	pub const TransactionByteFee: Balance = MILLISER/10_000_000_000 ;
-	pub const OperationalFeeMultiplier: u8 = 0;
+	pub const TransactionByteFee: Balance = 10 * MILLISER ;
+	pub const OperationalFeeMultiplier: u8 = 5;
 	pub const TargetBlockFullness: Perquintill = Perquintill::from_percent(25);
 	pub AdjustmentVariable: Multiplier = Multiplier::saturating_from_rational(1, 100_000);
 	pub MinimumMultiplier: Multiplier = Multiplier::saturating_from_rational(1, 1_000_000_000u128);
@@ -398,7 +398,13 @@ impl pallet_transaction_payment::Config for Runtime {
 	type OperationalFeeMultiplier = OperationalFeeMultiplier;
 	type WeightToFee = IdentityFee<Balance>;
 	type LengthToFee = ConstantMultiplier<Balance, TransactionByteFee>;
-	type FeeMultiplierUpdate = ();
+	type FeeMultiplierUpdate = TargetedFeeAdjustment<
+									Self,
+									TargetBlockFullness,
+									AdjustmentVariable,
+									MinimumMultiplier,
+									MaximumMultiplier,
+								>;
 }
 
 
