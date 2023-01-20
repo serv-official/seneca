@@ -1,0 +1,10 @@
+{
+    "jsonrpc":"2.0",
+    "id":1,
+    "method":"author_insertKey",
+    "params": [
+        "babe",
+        "april avoid slot rack ready pizza bounce attend various above lesson near//3//babe",
+        "0xdd54d92aadd95c1037de48054453b945dcd9e2da645bd2f1a6c0e620792f034b"
+    ]
+}

@@ -43,23 +43,47 @@ cargo build --release
 
 ## Run public testnet
 
-* Start your bootnodes, node key can be generate with command `./target/release/serv-node key generate-node-key`. The network supports 4 initial validators.
+Start your bootnodes, node key can be generate with command `./target/release/serv-node key generate-node-key`. The network supports 4 initial validators.
   ```shell
-  ./target/release/serv-node \
-  --node-key <your-node-key> \
-  --base-path /tmp/bootnode1 \
-  --chain serv-network-staging-raw.json \
-  --name bootnode1
+    ./target/release/serv-node \
+    --node-key  0xe4e3546e70e513b79bf620f5f78e01bc49ef0f167bf62e3ae6a1675f21c8c439 \
+    --base-path /tmp/bootnode1 \
+    --chain serv-network-staging-raw.json \
+    --name bootnode1
   ```
 * Start your initial validators,
   ```shell
-  ./target/release/serv-node \
-  --base-path  /tmp/validator1 \
-  --chain   serv-network-staging-raw.json \
-  --bootnodes  /ip4/<your-bootnode-ip>/tcp/30333/p2p/<your-bootnode-peerid> \
-	--port 30336 \
-	--ws-port 9947 \
-	--rpc-port 9936 \
-  --name  validator1 \
-  --validator
+    ./target/release/serv-node \
+    --base-path  /tmp/validator1 \
+    --chain   serv-network-staging-raw.json \
+    --bootnodes  /ip4/<your-bootnode-ip>/tcp/30333/p2p/<your-bootnode-peerid> \
+    --port 30336 \
+    --ws-port 9947 \
+    --rpc-port 9936 \
+    --name  validator1 \
+    --validator
+  ```
+* Start second validator,
+  ```shell
+    ./target/release/serv-node \
+    --base-path  /tmp/validator2 \
+    --chain   serv-network-staging-raw.json \
+    --bootnodes  /ip4/<your-bootnode-ip>/tcp/30333/p2p/<your-bootnode-peerid> \
+    --port 30337 \
+    --ws-port 9948 \
+    --rpc-port 9937 \
+    --name  validator2 \
+    --validator
+  ```
+* Start third validator,
+  ```shell
+    ./target/release/serv-node \
+    --base-path  /tmp/validator3 \
+    --chain   serv-network-staging-raw.json \
+    --bootnodes  /ip4/<your-bootnode-ip>/tcp/30333/p2p/<your-bootnode-peerid> \
+    --port 30338 \
+    --ws-port 9949 \
+    --rpc-port 9938 \
+    --name  validator3 \
+    --validator
   ```

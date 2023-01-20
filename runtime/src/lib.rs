@@ -384,7 +384,7 @@ impl pallet_balances::Config for Runtime {
 }
 
 parameter_types! {
-	pub const TransactionByteFee: Balance = MILLISER/10_000_000_000 ;
+	pub const TransactionByteFee: Balance = MILLISER / 10_000_000_000 ;
 	pub const OperationalFeeMultiplier: u8 = 0;
 	pub const TargetBlockFullness: Perquintill = Perquintill::from_percent(25);
 	pub AdjustmentVariable: Multiplier = Multiplier::saturating_from_rational(1, 100_000);
@@ -398,7 +398,13 @@ impl pallet_transaction_payment::Config for Runtime {
 	type OperationalFeeMultiplier = OperationalFeeMultiplier;
 	type WeightToFee = IdentityFee<Balance>;
 	type LengthToFee = ConstantMultiplier<Balance, TransactionByteFee>;
-	type FeeMultiplierUpdate = ();
+	type FeeMultiplierUpdate = TargetedFeeAdjustment<
+									Self,
+									TargetBlockFullness,
+									AdjustmentVariable,
+									MinimumMultiplier,
+									MaximumMultiplier,
+								>;
 }
 
 

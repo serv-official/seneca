@@ -1,0 +1,10 @@
+{
+    "jsonrpc":"2.0",
+    "id":1,
+    "method":"author_insertKey",
+    "params": [
+        "imol",
+        "april avoid slot rack ready pizza bounce attend various above lesson near//2//im_online",
+        "0x9c1369dca61be010e0eb4b9f241352cacf38dff728902f89de23e91740a9442b"
+    ]
+}
