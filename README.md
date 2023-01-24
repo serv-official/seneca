@@ -46,7 +46,7 @@ cargo build --release
 Start your bootnodes, node key can be generate with command `./target/release/serv-node key generate-node-key`. The network supports 4 initial validators.
   ```shell
     ./target/release/serv-node \
-    --node-key  0xe4e3546e70e513b79bf620f5f78e01bc49ef0f167bf62e3ae6a1675f21c8c439 \
+    --node-key  0x0278c3d699e1020d6117cbb6217d6c71e6e502a7460223eb274bed0a6cca2369 \
     --base-path /tmp/bootnode1 \
     --chain serv-network-staging-raw.json \
     --name bootnode1
