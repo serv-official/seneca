@@ -3,7 +3,7 @@
   "id": "serv_network",
   "chainType": "Live",
   "bootNodes": [
-    "/ip4/127.0.0.1/tcp/30333/p2p/12D3KooWL1Y7TgGZB9bitAtD6L12Dx8Ste1HNvSrk98jqbiiG7ii"
+    "/ip4/172.31.23.55/tcp/30333/p2p/12D3KooWL1Y7TgGZB9bitAtD6L12Dx8Ste1HNvSrk98jqbiiG7ii"
   ],
   "telemetryEndpoints": [
     [

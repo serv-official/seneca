@@ -13,7 +13,7 @@
 
 </div>
 
-## Features
+## 🚴 Features
 
 * WASM Smart contract support
 * NPoS
@@ -22,15 +22,15 @@
 
 **Notes:** The code is un-audited and still under active development, use it at your own risk.
 
-## Getting Started
+## 📦 Getting Started
 
 Follow the steps below to get started.
 
-### Rust Setup
+### 🛠️ Rust Setup
 
 First, complete the [Dev Docs Installation](https://docs.substrate.io/install/).
 
-### Build and Run
+### 🏃 Build and Run
 
 ## Run dev node
 
@@ -38,14 +38,72 @@ Use the following command to build the node and run it after build successfully:
 
 ```sh
 cargo build --release
-./target/release/serv-node --dev
+./target/release/serv --dev
 ```
 
-## Run public testnet
+### 🕸️ Multi-Node Local Testnet
 
-Start your bootnodes, node key can be generate with command `./target/release/serv-node key generate-node-key`. The network supports 4 initial validators.
+If you want to see the multi-node consensus algorithm in action locally, then you can create a local testnet with two validator nodes for Alice and Bob, who are the initial authorities of the genesis chain that have been endowed with testnet units.
+
+Optionally, give each node a name and expose them so they are listed on the Polkadot [telemetry site](https://telemetry.polkadot.io/#/Local%20Testnet).
+
+You'll need two terminal windows open.
+
+We'll start Alice's substrate node first on default TCP port 30333 with her chain database stored locally at `/tmp/alice`. The bootnode ID of her node is `12D3KooWCkmvmzEYwdxS7c6zkXT9K8u2PUxfPRogDShH9CrcecB4`, which is generated from the `--node-key` value that we specify below:
+
+```bash
+cargo run -- \
+  --base-path /tmp/alice \
+  --chain=local \
+  --alice \
+  --node-key 0000000000000000000000000000000000000000000000000000000000000001 \
+  --telemetry-url 'ws://telemetry.polkadot.io:1024 0' \
+  --validator
+```
+
+In the second terminal, we'll start Bob's substrate node on a different TCP port of 30334, and with his chain database stored locally at `/tmp/bob`. We'll specify a value for the `--bootnodes` option that will connect his node to Alice's bootnode ID on TCP port 30333:
+
+```bash
+cargo run -- \
+  --base-path /tmp/bob \
+  --bootnodes /ip4/127.0.0.1/tcp/30333/p2p/12D3KooWCkmvmzEYwdxS7c6zkXT9K8u2PUxfPRogDShH9CrcecB4 \
+  --chain=local \
+  --bob \
+  --port 30334 \
+  --telemetry-url 'ws://telemetry.polkadot.io:1024 0' \
+  --validator
+```
+
+Additional CLI usage options are available and may be shown by running `cargo run -- --help`.
+
+### 🐳 Run in Docker
+
+First, install [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/).
+
+Then run the following command to start a single node development chain.
+
+```bash
+./scripts/docker_run.sh
+```
+
+This command will firstly compile your code, and then start a local development network. You can also replace the default command (`cargo build --release && ./target/release/serv --dev --ws-external`) by appending your own. A few useful ones are as follow.
+
+```bash
+# Run Substrate node without re-compiling
+./scripts/docker_run.sh ./target/release/serv --dev --ws-external
+
+# Purge the local dev chain
+./scripts/docker_run.sh ./target/release/serv purge-chain --dev
+
+# Check whether the code is compilable
+./scripts/docker_run.sh cargo check
+```
+
+## ⚡ Run public testnet
+
+Start your bootnodes, node key can be generate with command `./target/release/serv key generate-node-key`. The network supports 4 initial validators.
   ```shell
-    ./target/release/serv-node \
+    ./target/release/serv \
     --node-key  0x0278c3d699e1020d6117cbb6217d6c71e6e502a7460223eb274bed0a6cca2369 \
     --base-path /tmp/bootnode1 \
     --chain serv-network-staging-raw.json \
@@ -53,10 +111,10 @@ Start your bootnodes, node key can be generate with command `./target/release/se
   ```
 * Start your initial validators,
   ```shell
-    ./target/release/serv-node \
+    ./target/release/serv \
     --base-path  /tmp/validator1 \
     --chain   serv-network-staging-raw.json \
-    --bootnodes  /ip4/<your-bootnode-ip>/tcp/30333/p2p/<your-bootnode-peerid> \
+    --bootnodes  /ip4/<your-bootnode-ip>/tcp/30333/p2p/12D3KooWCkmvmzEYwdxS7c6zkXT9K8u2PUxfPRogDShH9CrcecB4 \
     --port 30336 \
     --ws-port 9947 \
     --rpc-port 9936 \
@@ -65,10 +123,10 @@ Start your bootnodes, node key can be generate with command `./target/release/se
   ```
 * Start second validator,
   ```shell
-    ./target/release/serv-node \
+    ./target/release/serv \
     --base-path  /tmp/validator2 \
     --chain   serv-network-staging-raw.json \
-    --bootnodes  /ip4/<your-bootnode-ip>/tcp/30333/p2p/<your-bootnode-peerid> \
+    --bootnodes  /ip4/<your-bootnode-ip>/tcp/30333/p2p/12D3KooWCkmvmzEYwdxS7c6zkXT9K8u2PUxfPRogDShH9CrcecB4 \
     --port 30337 \
     --ws-port 9948 \
     --rpc-port 9937 \
@@ -77,10 +135,10 @@ Start your bootnodes, node key can be generate with command `./target/release/se
   ```
 * Start third validator,
   ```shell
-    ./target/release/serv-node \
+    ./target/release/serv \
     --base-path  /tmp/validator3 \
     --chain   serv-network-staging-raw.json \
-    --bootnodes  /ip4/<your-bootnode-ip>/tcp/30333/p2p/<your-bootnode-peerid> \
+    --bootnodes  /ip4/<your-bootnode-ip>/tcp/30333/p2p/12D3KooWCkmvmzEYwdxS7c6zkXT9K8u2PUxfPRogDShH9CrcecB4 \
     --port 30338 \
     --ws-port 9949 \
     --rpc-port 9938 \
