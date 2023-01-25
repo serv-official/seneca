@@ -4,11 +4,14 @@
 pub mod currency {
 	use node_primitives::Balance;
 
-	pub const MILLISER: Balance = 100_000;
-	pub const SER: Balance = 100 * MILLISER; // assume this is worth about a cent.
-	pub const ZNO: Balance = 10 * SER;
+	// Unit = the base number of indivisible units for balances
+	pub const ZNO: Balance = 1_000 * MILLIZNO;
+	pub const MILLIZNO: Balance = 1_000 * MICROZNO;
+	pub const MICROZNO: Balance = 1_000 * NANOZNO;
+	pub const NANOZNO: Balance = 1_000 * PICOZNO;
+	pub const PICOZNO: Balance = 1;
 
 	pub const fn deposit(items: u32, bytes: u32) -> Balance {
-		items as Balance * 15 * SER + (bytes as Balance) * 6 * SER
+		items as Balance * 20 * ZNO + (bytes as Balance) * 100 * MICROZNO
 	}
 }

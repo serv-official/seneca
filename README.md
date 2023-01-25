@@ -103,21 +103,25 @@ This command will firstly compile your code, and then start a local development 
 
 Start your bootnodes, node key can be generate with command `./target/release/serv key generate-node-key`. The network supports 4 initial validators.
   ```shell
-    ./target/release/serv \
-    --node-key  0x0278c3d699e1020d6117cbb6217d6c71e6e502a7460223eb274bed0a6cca2369 \
+    ./target/release/serv-node \
     --base-path /tmp/bootnode1 \
-    --chain serv-network-staging-raw.json \
-    --name bootnode1
+    --chain serv-spec-raw.json \
+    --port 30333 \
+    --ws-port 9944 \
+    --rpc-port 9933 \
+    --node-key 0xe4e3546e70e513b79bf620f5f78e01bc49ef0f167bf62e3ae6a1675f21c8c439 \
+    --telemetry-url "wss://telemetry.polkadot.io/submit/ 0" \
+    --validator
   ```
 * Start your initial validators,
   ```shell
-    ./target/release/serv \
+    ./target/release/serv-node \
     --base-path  /tmp/validator1 \
-    --chain   serv-network-staging-raw.json \
+    --chain   serv-spec-raw.json \
     --bootnodes  /ip4/<your-bootnode-ip>/tcp/30333/p2p/12D3KooWCkmvmzEYwdxS7c6zkXT9K8u2PUxfPRogDShH9CrcecB4 \
-    --port 30336 \
-    --ws-port 9947 \
-    --rpc-port 9936 \
+    --port 30334 \
+    --ws-port 9945 \
+    --rpc-port 9934 \
     --name  validator1 \
     --validator
   ```
@@ -127,9 +131,9 @@ Start your bootnodes, node key can be generate with command `./target/release/se
     --base-path  /tmp/validator2 \
     --chain   serv-network-staging-raw.json \
     --bootnodes  /ip4/<your-bootnode-ip>/tcp/30333/p2p/12D3KooWCkmvmzEYwdxS7c6zkXT9K8u2PUxfPRogDShH9CrcecB4 \
-    --port 30337 \
-    --ws-port 9948 \
-    --rpc-port 9937 \
+    --port 30335 \
+    --ws-port 9946 \
+    --rpc-port 9935 \
     --name  validator2 \
     --validator
   ```
@@ -139,9 +143,9 @@ Start your bootnodes, node key can be generate with command `./target/release/se
     --base-path  /tmp/validator3 \
     --chain   serv-network-staging-raw.json \
     --bootnodes  /ip4/<your-bootnode-ip>/tcp/30333/p2p/12D3KooWCkmvmzEYwdxS7c6zkXT9K8u2PUxfPRogDShH9CrcecB4 \
-    --port 30338 \
-    --ws-port 9949 \
-    --rpc-port 9938 \
+    --port 30336 \
+    --ws-port 9947 \
+    --rpc-port 9936 \
     --name  validator3 \
     --validator
   ```
