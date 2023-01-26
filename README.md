@@ -101,11 +101,12 @@ This command will firstly compile your code, and then start a local development 
 
 ## ⚡ Run public testnet
 Connect as a validator
-* Start your validator node,
+* Start your validator node, make sure your node has discovered other peers
   ```shell
     ./target/release/serv-node \
     --base-path  /tmp/<validator name> \
-    --chain   serv-spec-raw.json \
+    --chain  serv-spec-raw.json \
+    --bootnodes  /ip4/172.31.23.55/tcp/30333/p2p/12D3KooWCkmvmzEYwdxS7c6zkXT9K8u2PUxfPRogDShH9CrcecB4 \
     --port 30334 \
     --ws-port 9945 \
     --rpc-port 9934 \
