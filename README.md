@@ -119,7 +119,6 @@ Connect as a validator
   | gran      | Ed25519 |
   | babe      | Sr25519 |
   | imon      | Sr25519 |
-  |-----------|---------|
   ```
     ./target/release/serv-node key insert \
     --base-path <path for this validator> \
