@@ -106,13 +106,12 @@ Connect as a validator
     ./target/release/serv-node \
     --base-path  /tmp/<validator name> \
     --chain   serv-spec-raw.json \
-    --bootnodes  /ip4/172.31.23.55/tcp/30333/p2p/12D3KooWCkmvmzEYwdxS7c6zkXT9K8u2PUxfPRogDShH9CrcecB4 \
     --port 30334 \
     --ws-port 9945 \
     --rpc-port 9934 \
     --name  <validator name> \
     --validator
-
+  ```
 * Submit your keys to the network
   | Key Type  | Scheme  |
   |-----------|---------|
