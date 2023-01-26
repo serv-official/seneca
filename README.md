@@ -100,52 +100,31 @@ This command will firstly compile your code, and then start a local development 
 ```
 
 ## ⚡ Run public testnet
-
-Start your bootnodes, node key can be generate with command `./target/release/serv key generate-node-key`. The network supports 4 initial validators.
+Connect as a validator
+* Start your validator node,
   ```shell
     ./target/release/serv-node \
-    --base-path /tmp/bootnode1 \
-    --chain serv-spec-raw.json \
-    --port 30333 \
-    --ws-port 9944 \
-    --rpc-port 9933 \
-    --node-key 0xe4e3546e70e513b79bf620f5f78e01bc49ef0f167bf62e3ae6a1675f21c8c439 \
-    --telemetry-url "wss://telemetry.polkadot.io/submit/ 0" \
-    --validator
-  ```
-* Start your initial validators,
-  ```shell
-    ./target/release/serv-node \
-    --base-path  /tmp/validator1 \
+    --base-path  /tmp/<validator name> \
     --chain   serv-spec-raw.json \
-    --bootnodes  /ip4/<your-bootnode-ip>/tcp/30333/p2p/12D3KooWCkmvmzEYwdxS7c6zkXT9K8u2PUxfPRogDShH9CrcecB4 \
+    --bootnodes  /ip4/172.31.23.55/tcp/30333/p2p/12D3KooWCkmvmzEYwdxS7c6zkXT9K8u2PUxfPRogDShH9CrcecB4 \
     --port 30334 \
     --ws-port 9945 \
     --rpc-port 9934 \
-    --name  validator1 \
+    --name  <validator name> \
     --validator
+
+* Submit your keys to the network
+  | Key Type  | Scheme  |
+  |-----------|---------|
+  | gran      | Ed25519 |
+  | babe      | Sr25519 |
+  | imon      | Sr25519 |
+  |-----------|---------|
   ```
-* Start second validator,
-  ```shell
-    ./target/release/serv \
-    --base-path  /tmp/validator2 \
-    --chain   serv-network-staging-raw.json \
-    --bootnodes  /ip4/<your-bootnode-ip>/tcp/30333/p2p/12D3KooWCkmvmzEYwdxS7c6zkXT9K8u2PUxfPRogDShH9CrcecB4 \
-    --port 30335 \
-    --ws-port 9946 \
-    --rpc-port 9935 \
-    --name  validator2 \
-    --validator
-  ```
-* Start third validator,
-  ```shell
-    ./target/release/serv \
-    --base-path  /tmp/validator3 \
-    --chain   serv-network-staging-raw.json \
-    --bootnodes  /ip4/<your-bootnode-ip>/tcp/30333/p2p/12D3KooWCkmvmzEYwdxS7c6zkXT9K8u2PUxfPRogDShH9CrcecB4 \
-    --port 30336 \
-    --ws-port 9947 \
-    --rpc-port 9936 \
-    --name  validator3 \
-    --validator
+    ./target/release/serv-node key insert \
+    --base-path <path for this validator> \
+    --chain <raw relay chainSpec> \
+    --scheme <see table> \
+    --suri "<mnemonic of this validator>" \
+    --key-type <see table>
   ```

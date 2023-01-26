@@ -63,7 +63,7 @@ pub use pallet_staking::StakerStatus;
 #[cfg(any(feature = "std", test))]
 pub use frame_system::Call as SystemCall;
 pub use pallet_timestamp::Call as TimestampCall;
-use pallet_transaction_payment::{CurrencyAdapter, Multiplier, TargetedFeeAdjustment};
+use pallet_transaction_payment::{CurrencyAdapter, Multiplier};
 #[cfg(any(feature = "std", test))]
 pub use sp_runtime::BuildStorage;
 pub use pallet_schema_registry;
@@ -145,11 +145,13 @@ type NegativeImbalance = <Balances as Currency<AccountId>>::NegativeImbalance;
 impl OnUnbalanced<NegativeImbalance> for NegativeImbalanceToTreasury {
 	fn on_unbalanceds<B>(mut fees_then_tips: impl Iterator<Item = NegativeImbalance>) {
 		if let Some(fees) = fees_then_tips.next() {
-			let mut amount = fees;
+			let mut split = fees.ration(90, 10);
 			if let Some(tips) = fees_then_tips.next() {
-				amount.subsume(tips);
+				// for tips, if any, 90% to treasury, 10% to author (though this can be anything)
+				tips.ration_merge_into(90, 10, &mut split);
 			}
-			Treasury::on_unbalanced(amount);
+			Treasury::on_unbalanced(split.0);
+			Author::on_unbalanced(split.1);
 		}
 	}
 }
@@ -214,6 +216,15 @@ impl Contains<RuntimeCall> for BaseFilter {
 	fn contains(_call: &RuntimeCall) -> bool {
 		// !matches!(call, Call::TemplateModule(..)) // Template module will be disable
 		true
+	}
+}
+
+pub struct Author;
+impl OnUnbalanced<NegativeImbalance> for Author {
+	fn on_nonzero_unbalanced(amount: NegativeImbalance) {
+		if let Some(author) = Authorship::author() {
+			Balances::resolve_creating(&author, amount);
+		}
 	}
 }
 
@@ -412,13 +423,7 @@ impl pallet_transaction_payment::Config for Runtime {
 	type OperationalFeeMultiplier = OperationalFeeMultiplier;
 	type WeightToFee = WeightToFee;
 	type LengthToFee = ConstantMultiplier<Balance, TransactionByteFee>;
-	type FeeMultiplierUpdate = TargetedFeeAdjustment<
-									Self,
-									TargetBlockFullness,
-									AdjustmentVariable,
-									MinimumMultiplier,
-									MaximumMultiplier,
-								>;
+	type FeeMultiplierUpdate = ();
 }
 
 
