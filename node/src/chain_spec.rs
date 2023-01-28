@@ -34,6 +34,7 @@ pub fn get_from_seed<TPublic: Public>(seed: &str) -> <TPublic::Pair as Pair>::Pu
 type AccountPublic = <Signature as Verify>::Signer;
 
 const STAGING_TELEMETRY_URL: &str = "wss://telemetry.polkadot.io/submit/";
+const DEFAULT_PROTOCOL_ID: &str = "zeno";
 
 fn session_keys(babe: BabeId, grandpa: GrandpaId, im_online: ImOnlineId) -> SessionKeys {
 	SessionKeys { babe, grandpa, im_online }
@@ -85,18 +86,13 @@ pub fn development_config() -> Result<ChainSpec, String> {
 				get_account_id_from_seed::<sr25519::Public>("Alice"),
 				// Pre-funded accounts
 				vec![
-					"5GgZPqeWSnoVPRyy7ALAFPyU6Ws1o8pKBNtuMttAqkFRopR5".parse()
-					.unwrap(),
-					"5EEpSSiLWCKisQxoJFsLrR3MSzxBvREH5vofieHGQYtWMMLs".parse()
-					.unwrap(),
-					"5GHJvRMyqSGnMSWoLgE9WSufoZZ6dBowdkDV4dvYApBykd9Z".parse()
-					.unwrap(),
-					"5DNvfF8gjTys1ZAo5S9Wq2ZESLm1Ssudj8CC8Z4CDU67PsVZ".parse()
-					.unwrap(),
-					"5DRVZN78VKbgNny4bHf2MpmHq6SVhrT6g23ciTYHi36woLMT".parse()
-					.unwrap(),
-					"5CDrkPqy6KQDYNXNXiK5NMij1p7gNQuR2WB9My8y1fYvAspA".parse()
-					.unwrap(),
+					get_account_id_from_seed::<sr25519::Public>("Alice"),
+					get_account_id_from_seed::<sr25519::Public>("Bob"),
+					get_account_id_from_seed::<sr25519::Public>("Dave"),
+					get_account_id_from_seed::<sr25519::Public>("Ferdie"),
+					get_account_id_from_seed::<sr25519::Public>("Eve"),
+					get_account_id_from_seed::<sr25519::Public>("Alice//stash"),
+					get_account_id_from_seed::<sr25519::Public>("Bob//stash"),
 				],
 			)
 		},
@@ -150,7 +146,7 @@ pub fn local_testnet_config() -> Result<ChainSpec, String> {
 		// Telemetry
 		None,
 		// Protocol ID
-		None,
+		Some(DEFAULT_PROTOCOL_ID),
 		// Properties
 		None,
 		Some(serv_properties()),
@@ -173,7 +169,7 @@ pub fn staging_network_config() -> ChainSpec {
 			TelemetryEndpoints::new(vec![(STAGING_TELEMETRY_URL.to_string(), 0)])
 				.expect("Staging telemetry url is valid; qed"),
 		),
-		None,
+		Some(DEFAULT_PROTOCOL_ID),
 		None,
 		Some(serv_properties()),
 		Default::default(),
@@ -244,10 +240,6 @@ fn staging_network_config_genesis() -> GenesisConfig {
 	.into();
 
 	let endowed_accounts: Vec<AccountId> = vec![
-		"5GgZPqeWSnoVPRyy7ALAFPyU6Ws1o8pKBNtuMttAqkFRopR5".parse()
-		.unwrap(),
-		"5EEpSSiLWCKisQxoJFsLrR3MSzxBvREH5vofieHGQYtWMMLs".parse()
-		.unwrap(),
 		"5GHJvRMyqSGnMSWoLgE9WSufoZZ6dBowdkDV4dvYApBykd9Z".parse()
 		.unwrap(),
 		"5DNvfF8gjTys1ZAo5S9Wq2ZESLm1Ssudj8CC8Z4CDU67PsVZ".parse()
@@ -285,8 +277,9 @@ fn testnet_genesis(
 		});
 
 	// stakers: all validators and nominators.
-	const ENDOWMENT: Balance = 1 * ZNO;
-	const STASH: Balance = ENDOWMENT / 1000;
+	const ENDOWMENT: Balance = 1_000 * ZNO;
+	const STASH: Balance = ENDOWMENT / 1_000;
+	
 	let mut rng = rand::thread_rng();
 	let stakers = initial_authorities
 		.iter()

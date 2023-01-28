@@ -32,6 +32,7 @@ fn it_works_for_create_schema() {
 		};
 		let account_pair = account_pair("Alice");
 		let account_id = account_key("Alice");
+		let nonce = 2u64;
 		// Encode and sign the schema message.
 		let schema = VerifiableCredentialSchema {
 			name: name.clone(),
@@ -44,13 +45,13 @@ fn it_works_for_create_schema() {
 			subject_claims: vec![claim.clone()],
 			credential_claims: vec![claim.clone()],
 			metadata: b"metadata".to_vec(),
-			nonce: 2,
+			nonce,
 		};
 		let data_sig = account_pair.sign(&schema.encode());
 		// Dispatch a signed create schema extrinsic.
 		assert_ok!(SchemaRegistry::create_schema(RawOrigin::Signed(account_id).into(), name.clone(), creator.clone(), false,  
 												vec![mandatory_fields.clone()], Some(expiration_date), vec![claim.clone()], 
-												vec![claim.clone()], vec![claim.clone()], b"metadata".to_vec(), data_sig.clone()));
+												vec![claim.clone()], vec![claim.clone()], b"metadata".to_vec(), data_sig.clone(), nonce));
 
 	});
 
@@ -120,6 +121,7 @@ fn it_works_for_update_schema() {
 		};
 		let account_pair = account_pair("Alice");
 		let account_pub = account_key("Alice");
+		let nonce = 2u64;
 		// Encode and sign the schema message.
 		let schema = VerifiableCredentialSchema {
 			name: name.clone(),
@@ -132,15 +134,28 @@ fn it_works_for_update_schema() {
 			subject_claims: vec![claim.clone()],
 			credential_claims: vec![claim.clone()],
 			metadata: b"metadata".to_vec(),
-			nonce: 2,
+			nonce,
+		};
+		let updated_schema = VerifiableCredentialSchema {
+			name: name.clone(),
+			creator: creator.clone(),
+			public: false,
+			creation_date: Timestamp::now(),
+			expiration_date: Some(expiration_date),
+			mandatory_fields: vec![mandatory_fields.clone()],
+			issuer_claims: vec![claim.clone()],
+			subject_claims: vec![claim.clone()],
+			credential_claims: vec![claim.clone()],
+			metadata: b"metadata2".to_vec(),
+			nonce,
 		};
 		let data_sig = account_pair.sign(&schema.encode());
 		// Dispatch a signed extrinsic.
 		assert_ok!(SchemaRegistry::create_schema(RawOrigin::Signed(account_pub).into(), name, creator, false,
 												vec![mandatory_fields], Some(expiration_date), vec![claim.clone()], 
-												vec![claim.clone()], vec![claim.clone()], b"metadata".to_vec(), data_sig.clone()));
-		assert_ok!(SchemaRegistry::update_schema(RawOrigin::Root.into(), data_sig.clone(), schema.clone()));
-		assert_eq!(SchemaRegistry::schema_registry(data_sig.clone()), Some(schema));
+												vec![claim.clone()], vec![claim.clone()], b"metadata".to_vec(), data_sig.clone(), nonce));
+		assert_ok!(SchemaRegistry::update_schema(RawOrigin::Root.into(), data_sig.clone(), updated_schema.clone()));
+		assert_eq!(SchemaRegistry::schema_registry(data_sig.clone()), Some(updated_schema));
 
 	})
 }
@@ -211,6 +226,7 @@ fn it_works_for_delete_schema() {
 		};
 		let account_pair = account_pair("Alice");
 		let account_pub = account_key("Alice");
+		let nonce = 2u64;
 		let schema = VerifiableCredentialSchema {
 			name: name.clone(),
 			creator: creator.clone(),
@@ -222,13 +238,13 @@ fn it_works_for_delete_schema() {
 			subject_claims: vec![claim.clone()],
 			credential_claims: vec![claim.clone()],
 			metadata: b"metadata".to_vec(),
-			nonce: 1,
+			nonce,
 		};
 		let data_sig = account_pair.sign(&schema.encode());
 		// Dispatch a signed create schema extrinsic.
 		assert_ok!(SchemaRegistry::create_schema(RawOrigin::Signed(account_pub).into(), name, creator, false, 
 												vec![mandatory_fields], Some(expiration_date), vec![claim.clone()], 
-												vec![claim.clone()], vec![claim.clone()], b"metadata".to_vec(), data_sig.clone()));
+												vec![claim.clone()], vec![claim.clone()], b"metadata".to_vec(), data_sig.clone(), nonce));
 		// Dispatch a signed extrinsic.
 		assert_ok!(SchemaRegistry::delete_schema(RawOrigin::Signed(account_pub).into(), data_sig.clone()));
 		// Read pallet storage and assert an expected result.

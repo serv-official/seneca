@@ -11,7 +11,7 @@
       0
     ]
   ],
-  "protocolId": null,
+  "protocolId": "zeno",
   "properties": {
     "ss58format": 42,
     "tokenDecimals": 6,

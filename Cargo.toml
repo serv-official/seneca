@@ -4,5 +4,19 @@ members = [
     "pallets/schema-registry",
     "runtime",
 ]
+
 [profile.release]
 panic = "unwind"
+opt-level = 3
+
+[profile.production]
+inherits = "release"
+lto = true
+codegen-units = 1
+
+[profile.testnet]
+inherits = "release"
+debug = 1 # debug symbols are useful for profilers
+debug-assertions = true
+overflow-checks = true
+        

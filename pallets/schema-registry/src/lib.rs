@@ -10,6 +10,7 @@ mod types;
 pub use pallet::*;
 #[cfg(feature = "runtime-benchmarks")]
 mod benchmarking;
+pub mod weights;
 
 #[frame_support::pallet]
 pub mod pallet {
@@ -20,6 +21,7 @@ pub mod pallet {
 	};
 	use frame_system::pallet_prelude::*;
 	use scale_info::{prelude::vec::Vec, StaticTypeInfo };
+	use crate::weights::WeightInfo;
 	use crate::types::*;
 
 	#[pallet::pallet]
@@ -41,6 +43,7 @@ pub mod pallet {
 		+ MaxEncodedLen
 		+ StaticTypeInfo;
 		type Timestamp: Time<Moment=Self::Moment> ;
+		type WeightInfo: WeightInfo;
 		
 	}
 
@@ -55,9 +58,6 @@ pub mod pallet {
 	pub type CredentialStore<T: Config> =
 		StorageMap<_, Blake2_128Concat, T::Signature, VerifiableCredential<T::AccountId, T::Moment>,  OptionQuery>;
 	
-	#[pallet::storage]
-	#[pallet::getter(fn get_nonce)]
-	pub(super) type Nonce<T: Config> = StorageValue<_,u64,ValueQuery>;
 		
 	// Pallets use events to inform users when important changes are made.
 	// https://docs.substrate.io/main-docs/build/events-errors/
@@ -105,7 +105,7 @@ pub mod pallet {
 	impl<T: Config> Pallet<T> {
 		/// Create a new schema item
 		#[pallet::call_index(1)]
-		#[pallet::weight(1_000)]
+		#[pallet::weight(T::WeightInfo::create_schema())]
 		pub fn create_schema(origin: OriginFor<T>, 
 			name: Vec<u8>, 
 			creator: Vec<u8>,
@@ -117,10 +117,10 @@ pub mod pallet {
 			credential_claims: Vec<Claim>,			
 			metadata: Vec<u8>,
 			signature: T::Signature,
+			nonce: u64, 
 			) -> DispatchResult {
 			// Ensure that the caller of the function is signed
 			let _ = ensure_signed(origin)?;
-			let nonce = Self::get_nonce();
 			// Create a new Schema item
 			let verifiable_credential_schema = VerifiableCredentialSchema {
 				name,
@@ -135,9 +135,6 @@ pub mod pallet {
 				metadata,
 				nonce,
 			};
-			// sign the schema
-			
-			let _ = Self::increment_nonce()?;
 			// Ensure that the Schema does not already exist
 			ensure!(!SchemaStore::<T>::contains_key(&signature), "Schema already exists");
 			// Save the Schema data in storage
@@ -149,7 +146,7 @@ pub mod pallet {
 
 		/// Create a new credential item
 		#[pallet::call_index(2)]
-		#[pallet::weight(1_000)]
+		#[pallet::weight(T::WeightInfo::create_credential())]
 		pub fn create_credential(origin: OriginFor<T>, 
 			context: Vec<u8>,
 			schema: Vec<u8>,
@@ -173,7 +170,6 @@ pub mod pallet {
 				subject,
 				credential_holder,
 			};
-			let _ = Self::increment_nonce()?;
 			// Ensure that the Credential does not already exist
 			ensure!(!CredentialStore::<T>::contains_key(&signature), "Credential already exists");
 			// Save the Credential data in storage
@@ -185,35 +181,33 @@ pub mod pallet {
 
 		// Function to update an existing schema
 		#[pallet::call_index(3)]
-		#[pallet::weight(1_000)]
+		#[pallet::weight(T::WeightInfo::update_schema())]
 		pub fn update_schema(origin: OriginFor<T>, old_schema_key:T::Signature, new_data: VerifiableCredentialSchema<T::Moment>) -> DispatchResult {
 			let _ = ensure_signed_or_root(origin)?;
 			let schema_data = SchemaStore::<T>::get(&old_schema_key).ok_or(Error::<T>::UnknownSchema)?;
 			ensure!(schema_data != new_data, Error::<T>::SchemaAlreadyExists);
 			// Update the schema data
 			SchemaStore::<T>::insert(&old_schema_key, &new_data);
-			let _ = Self::increment_nonce()?;
 			Self::deposit_event(Event::SchemaUpdated(old_schema_key, new_data));
 			Ok(())
 		}
 
 		// Function to update an existing credential
 		#[pallet::call_index(4)]
-		#[pallet::weight(1_000)]
+		#[pallet::weight(T::WeightInfo::update_credential())]
 		pub fn update_credential(origin: OriginFor<T>, old_credential_sig: T::Signature, new_data: VerifiableCredential<T::AccountId, T::Moment>) -> DispatchResult {
 			let _ = ensure_signed_or_root(origin)?;
 			let credential_data = CredentialStore::<T>::get(&old_credential_sig).ok_or(Error::<T>::UnknownCredential)?;
 			ensure!(credential_data != new_data, Error::<T>::CredentialAlreadyExists);
 			// Update the credential data
 			CredentialStore::<T>::insert(&old_credential_sig, &new_data);
-			let _ = Self::increment_nonce()?;
 			Self::deposit_event(Event::CredentialUpdated(old_credential_sig, new_data));
 			Ok(())
 		}
 
 		// Function to delete an existing schema
 		#[pallet::call_index(5)]
-		#[pallet::weight(1_000)]
+		#[pallet::weight(T::WeightInfo::delete_schema())]
         pub fn delete_schema(origin: OriginFor<T>, key: T::Signature) -> DispatchResult {
             let _ = ensure_signed(origin)?;
             ensure!(<SchemaStore<T>>::contains_key(&key), Error::<T>::UnknownSchema);
@@ -224,7 +218,7 @@ pub mod pallet {
 
 		// Function to delete an existing credential
 		#[pallet::call_index(6)]
-		#[pallet::weight(1_000)]
+		#[pallet::weight(T::WeightInfo::delete_credential())]
         pub fn delete_credential(origin: OriginFor<T>, key: T::Signature) -> DispatchResult {
             let _ = ensure_signed(origin)?;
             ensure!(<CredentialStore<T>>::contains_key(&key), Error::<T>::UnknownCredential);
@@ -235,7 +229,7 @@ pub mod pallet {
 
 		// Function to verify signature on data
 		#[pallet::call_index(7)]
-		#[pallet::weight(1_000)]
+		#[pallet::weight(0)]
 		pub fn verify_sig(origin: OriginFor<T>, data: Vec<u8>, sig: T::Signature, from: T::Public) -> DispatchResult{
 			let _ = ensure_signed(origin)?;
 			let ok = sig.verify(&data[..], &from.into_account());
@@ -245,18 +239,5 @@ pub mod pallet {
 		}
 
 	}
-
-	impl<T: Config> Pallet<T>{
-		// Function to sign data with account public key
-		fn increment_nonce() -> DispatchResult {
-			<Nonce<T>>::try_mutate(|nonce| {
-				let next = nonce.checked_add(1).ok_or("Overflow")?;
-				*nonce = next;
-				
-				Ok(().into())
-			})
-		}
-	}
-
 
 }

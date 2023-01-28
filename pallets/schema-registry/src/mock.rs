@@ -75,6 +75,7 @@ impl pallet_timestamp::Config for Test {
 
 impl pallet_schema_registry::Config for Test {
 	type RuntimeEvent = RuntimeEvent;
+	type WeightInfo = ();
     type Public = <<sp_core::sr25519::Signature as Verify>::Signer as IdentifyAccount>::AccountId;
     type Signature = sp_core::sr25519::Signature;
     type Moment = Moment;

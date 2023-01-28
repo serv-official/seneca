@@ -28,10 +28,10 @@ use sp_runtime::{
 	impl_opaque_keys,
 	traits::{
 		self, AccountIdLookup, BlakeTwo256, Block as BlockT, NumberFor, OpaqueKeys,
-		SaturatedConversion, StaticLookup, Convert, Bounded, Verify,
+		SaturatedConversion, StaticLookup, Convert, Verify,
 	},
 	transaction_validity::{TransactionPriority, TransactionSource, TransactionValidity},
-	ApplyExtrinsicResult, FixedPointNumber, FixedU128, Perbill, Percent, Permill, Perquintill,
+	ApplyExtrinsicResult, FixedU128, Perbill, Percent, Permill,
 };
 use sp_std::prelude::*;
 use smallvec::smallvec;
@@ -39,6 +39,7 @@ use smallvec::smallvec;
 use sp_version::NativeVersion;
 use sp_version::RuntimeVersion;
 use static_assertions::const_assert;
+use sp_runtime::PerThing;
 
 // A few exports that help ease life for downstream crates.
 pub use frame_support::{
@@ -63,7 +64,7 @@ pub use pallet_staking::StakerStatus;
 #[cfg(any(feature = "std", test))]
 pub use frame_system::Call as SystemCall;
 pub use pallet_timestamp::Call as TimestampCall;
-use pallet_transaction_payment::{CurrencyAdapter, Multiplier};
+use pallet_transaction_payment::CurrencyAdapter;
 #[cfg(any(feature = "std", test))]
 pub use sp_runtime::BuildStorage;
 pub use pallet_schema_registry;
@@ -129,12 +130,12 @@ impl WeightToFeePolynomial for WeightToFee {
 	fn polynomial() -> WeightToFeeCoefficients<Self::Balance> {
 		// in Rococo, extrinsic base weight (smallest non-zero weight) is mapped to 1 MILLIZNO:
 		// in our template, we map to 1/10 of that, or 1/10 MILLIZNO
-		let p = MILLIZNO / 10;
-		let q = 100 * Balance::from(ExtrinsicBaseWeight::get().ref_time());
+		let p = MILLIZNO;
+		let q = Balance::from(ExtrinsicBaseWeight::get().ref_time());
 		smallvec![WeightToFeeCoefficient {
 			degree: 1,
 			negative: false,
-			coeff_frac: Perbill::from_rational(p % q, q),
+			coeff_frac: PerThing::from_rational(p % q, q),
 			coeff_integer: p / q,
 		}]
 	}
@@ -145,10 +146,10 @@ type NegativeImbalance = <Balances as Currency<AccountId>>::NegativeImbalance;
 impl OnUnbalanced<NegativeImbalance> for NegativeImbalanceToTreasury {
 	fn on_unbalanceds<B>(mut fees_then_tips: impl Iterator<Item = NegativeImbalance>) {
 		if let Some(fees) = fees_then_tips.next() {
-			let mut split = fees.ration(90, 10);
+			let mut split = fees.ration(80, 20);
 			if let Some(tips) = fees_then_tips.next() {
-				// for tips, if any, 90% to treasury, 10% to author (though this can be anything)
-				tips.ration_merge_into(90, 10, &mut split);
+				// for tips, if any, 80% to treasury, 20% to author (though this can be anything)
+				tips.ration_merge_into(80, 20, &mut split);
 			}
 			Treasury::on_unbalanced(split.0);
 			Author::on_unbalanced(split.1);
@@ -160,8 +161,8 @@ impl OnUnbalanced<NegativeImbalance> for NegativeImbalanceToTreasury {
 //   https://docs.substrate.io/v3/runtime/upgrades#runtime-versioning
 #[sp_version::runtime_version]
 pub const VERSION: RuntimeVersion = RuntimeVersion {
-	spec_name: create_runtime_str!("serv-runtime"),
-	impl_name: create_runtime_str!("serv-runtime"),
+	spec_name: create_runtime_str!("seneca"),
+	impl_name: create_runtime_str!("seneca"),
 	authoring_version: 1,
 	// The version of the runtime specification. A full node will not attempt to use its native
 	//   runtime in substitute for the on-chain Wasm runtime unless all of `spec_name`,
@@ -191,6 +192,7 @@ pub const SLOT_DURATION: u64 = MILLISECS_PER_BLOCK;
 pub const MINUTES: BlockNumber = 60_000 / (MILLISECS_PER_BLOCK as BlockNumber);
 pub const HOURS: BlockNumber = MINUTES * 60;
 pub const DAYS: BlockNumber = HOURS * 24;
+pub const WEEKS: BlockNumber = DAYS * 7;
 
 // NOTE: Currently it is not possible to change the epoch duration after the chain has started.
 //       Attempting to do so will brick block production.
@@ -238,7 +240,7 @@ const NORMAL_DISPATCH_RATIO: Perbill = Perbill::from_percent(75);
 
 /// We allow for 2 seconds of compute with a 6 second average block time, with maximum proof size.
 const MAXIMUM_BLOCK_WEIGHT: Weight = WEIGHT_PER_SECOND.saturating_mul(2).set_proof_size(u64::MAX);
-const AVERAGE_ON_INITIALIZE_RATIO: Perbill = Perbill::from_percent(10);
+const AVERAGE_ON_INITIALIZE_RATIO: Perbill = Perbill::from_percent(5);
 
 parameter_types! {
 	pub const Version: RuntimeVersion = VERSION;
@@ -392,7 +394,7 @@ impl pallet_timestamp::Config for Runtime {
 	type WeightInfo = ();
 }
 /// Existential deposit.
-pub const EXISTENTIAL_DEPOSIT: u128 = MILLIZNO;
+pub const EXISTENTIAL_DEPOSIT: u128 = 10 * MILLIZNO;
 
 impl pallet_balances::Config for Runtime {
 	type MaxLocks = ConstU32<50>;
@@ -409,12 +411,8 @@ impl pallet_balances::Config for Runtime {
 }
 
 parameter_types! {
-	pub const TransactionByteFee: Balance = 10 * MICROZNO ;
+	pub const TransactionByteFee: Balance = MICROZNO;
 	pub const OperationalFeeMultiplier: u8 = 5;
-	pub const TargetBlockFullness: Perquintill = Perquintill::from_percent(25);
-	pub AdjustmentVariable: Multiplier = Multiplier::saturating_from_rational(1, 100_000);
-	pub MinimumMultiplier: Multiplier = Multiplier::saturating_from_rational(1, 1_000_000_000u128);
-	pub MaximumMultiplier: Multiplier = Bounded::max_value();
 }
 
 impl pallet_transaction_payment::Config for Runtime {
@@ -875,7 +873,7 @@ parameter_types! {
 	pub const TipCountdown: BlockNumber = 1 * DAYS;
 	pub const TipFindersFee: Percent = Percent::from_percent(20);
 	pub const TipReportDepositBase: Balance = 1 * ZNO;
-	pub const DataDepositPerByte: Balance = 1 * ZNO;
+	pub const DataDepositPerByte: Balance = 1 * MILLIZNO;
 	pub const BountyDepositBase: Balance = 1 * ZNO;
 	pub const BountyDepositPayoutDelay: BlockNumber = 1 * DAYS;
 	pub const TreasuryPalletId: PalletId = PalletId(*b"py/trsry");
@@ -1133,6 +1131,7 @@ impl pallet_schema_registry::Config for Runtime {
 	type Moment = Moment;
 	type Signature = Signature;
 	type Timestamp = pallet_timestamp::Pallet<Runtime>;
+	type WeightInfo = ();
 }
 
 // Create the runtime by composing the FRAME pallets that were previously configured.
