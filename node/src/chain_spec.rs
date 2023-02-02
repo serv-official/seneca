@@ -61,10 +61,10 @@ pub fn authority_keys_from_seed(s: &str) -> (AccountId, AccountId, BabeId, Grand
 }
 
 /// Token
-pub fn serv_properties() -> Properties {
+pub fn zeno_properties() -> Properties {
 	let mut p = Properties::new();
 	p.insert("ss58format".into(), 42.into());
-	p.insert("tokenDecimals".into(), 6.into());
+	p.insert("tokenDecimals".into(), 10.into());
 	p.insert("tokenSymbol".into(), "ZNO".into());
 	p
 }
@@ -104,7 +104,7 @@ pub fn development_config() -> Result<ChainSpec, String> {
 		None,
 		None,
 		// Properties
-		Some(serv_properties()),
+		Some(zeno_properties()),
 		// Extensions
 		None,
 	))
@@ -149,7 +149,7 @@ pub fn local_testnet_config() -> Result<ChainSpec, String> {
 		Some(DEFAULT_PROTOCOL_ID),
 		// Properties
 		None,
-		Some(serv_properties()),
+		Some(zeno_properties()),
 		// Extensions
 		None,
 	))
@@ -160,8 +160,8 @@ pub fn staging_network_config() -> ChainSpec {
 	let boot_nodes = vec![];
 
 	ChainSpec::from_genesis(
-		"Serv Network",
-		"serv_network",
+		"Zeno Testnet",
+		"zeno_testnet",
 		ChainType::Live,
 		staging_network_config_genesis,
 		boot_nodes,
@@ -171,7 +171,7 @@ pub fn staging_network_config() -> ChainSpec {
 		),
 		Some(DEFAULT_PROTOCOL_ID),
 		None,
-		Some(serv_properties()),
+		Some(zeno_properties()),
 		Default::default(),
 	)
 }
@@ -277,7 +277,7 @@ fn testnet_genesis(
 		});
 
 	// stakers: all validators and nominators.
-	const ENDOWMENT: Balance = 1_000 * ZNO;
+	const ENDOWMENT: Balance = 1_000 * DOLLARS;
 	const STASH: Balance = ENDOWMENT / 1_000;
 	
 	let mut rng = rand::thread_rng();
@@ -355,8 +355,8 @@ fn testnet_genesis(
 		},
 		transaction_payment: Default::default(),
 		nomination_pools: NominationPoolsConfig {
-			min_create_bond: 1 * ZNO,
-			min_join_bond: 1 * ZNO,
+			min_create_bond: 10 * DOLLARS,
+			min_join_bond: 1 * DOLLARS,
 			..Default::default()
 		},
 	}

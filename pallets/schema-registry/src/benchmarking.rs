@@ -33,7 +33,7 @@ benchmarks! {
 		let claim = Claim{
 			property: b"property".to_vec(),
 			value: b"value".to_vec(),
-			schema_id: None,
+			id: None,
 			claim_type: ClaimType::CredentialClaim,
 			issuance_requirement: Some(vec![issuance_req.clone()]),
 		};
@@ -80,7 +80,7 @@ benchmarks! {
 		let claim = Claim{
 			property: b"property".to_vec(),
 			value: b"value".to_vec(),
-			schema_id: None,
+			id: None,
 			claim_type: ClaimType::CredentialClaim,
 			issuance_requirement: Some(vec![issuance_req.clone()]),
 		};
@@ -137,7 +137,7 @@ benchmarks! {
 		let claim = Claim{
 			property: b"property".to_vec(),
 			value: b"value".to_vec(),
-			schema_id: None,
+			id: None,
 			claim_type: ClaimType::CredentialClaim,
 			issuance_requirement: Some(vec![issuance_req.clone()]),
 		};
@@ -182,7 +182,7 @@ benchmarks! {
 		let claim = Claim{
 			property: b"property".to_vec(),
 			value: b"value".to_vec(),
-			schema_id: None,
+			id: None,
 			claim_type: ClaimType::CredentialClaim,
 			issuance_requirement: Some(vec![issuance_req.clone()]),
 		};
@@ -201,7 +201,7 @@ benchmarks! {
 			schema: schema.clone(),
 			issuer: Some(caller.clone()),
 			claim: vec![claim.clone()],
-			issuance_date: Default::default(),
+			issuance_date: Some(Default::default()),
 			expiration_date: Some(expiration_date),
 			subject: subject.clone(),
 			credential_holder: credential_holder.clone(),
@@ -234,7 +234,7 @@ benchmarks! {
 		let claim = Claim{
 			property: b"property".to_vec(),
 			value: b"value".to_vec(),
-			schema_id: None,
+			id: None,
 			claim_type: ClaimType::CredentialClaim,
 			issuance_requirement: Some(vec![issuance_req.clone()]),
 		};
@@ -254,7 +254,7 @@ benchmarks! {
 			schema: schema.clone(),
 			issuer: Some(caller.clone()),
 			claim: vec![claim.clone()],
-			issuance_date: Default::default(),
+			issuance_date: Some(Default::default()),
 			expiration_date: Some(expiration_date),
 			subject: subject.clone(),
 			credential_holder: credential_holder.clone(),
@@ -288,7 +288,7 @@ benchmarks! {
 		let claim = Claim{
 			property: b"property".to_vec(),
 			value: b"value".to_vec(),
-			schema_id: None,
+			id: None,
 			claim_type: ClaimType::CredentialClaim,
 			issuance_requirement: Some(vec![issuance_req.clone()]),
 		};
@@ -308,7 +308,7 @@ benchmarks! {
 			schema: schema.clone(),
 			issuer: Some(caller.clone()),
 			claim: vec![claim.clone()],
-			issuance_date: Default::default(),
+			issuance_date: Some(Default::default()),
 			expiration_date: Some(expiration_date),
 			subject: subject.clone(),
 			credential_holder: credential_holder.clone(),

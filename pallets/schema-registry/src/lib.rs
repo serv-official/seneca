@@ -165,7 +165,7 @@ pub mod pallet {
 				schema,
 				issuer,
 				claim,
-				issuance_date: T::Timestamp::now(),
+				issuance_date: Some(T::Timestamp::now()),
 				expiration_date,
 				subject,
 				credential_holder,

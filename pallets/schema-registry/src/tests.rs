@@ -26,7 +26,7 @@ fn it_works_for_create_schema() {
 		let claim = Claim{
 			property: b"property".to_vec(),
 			value: b"value".to_vec(),
-			schema_id: None,
+			id: None,
 			claim_type: ClaimType::IssuerClaim,
 			issuance_requirement: Some(vec![issuance_req.clone()]),
 		};
@@ -65,7 +65,7 @@ fn it_works_for_create_credential() {
 		let claim = Claim{
 			property: b"property".to_vec(),
 			value: b"value".to_vec(),
-			schema_id: None,
+			id: None,
 			claim_type: ClaimType::CredentialClaim,
 			issuance_requirement: None,
 		};
@@ -82,7 +82,7 @@ fn it_works_for_create_credential() {
 			schema: schema.clone(),
 			issuer: Some(account_id),
 			claim: vec![claim.clone()],
-			issuance_date: Timestamp::now(),
+			issuance_date: Some(Timestamp::now()),
 			expiration_date: Some(1702379816u64),
 			subject: subject.clone(),
 			credential_holder: credential_holder.clone(),
@@ -115,7 +115,7 @@ fn it_works_for_update_schema() {
 		let claim = Claim{
 			property: b"property".to_vec(),
 			value: b"value".to_vec(),
-			schema_id: None,
+			id: None,
 			claim_type: ClaimType::IssuerClaim,
 			issuance_requirement: Some(vec![issuance_req.clone()]),
 		};
@@ -168,7 +168,7 @@ fn it_works_for_update_credential() {
 		let claim = Claim{
 			property: b"property".to_vec(),
 			value: b"value".to_vec(),
-			schema_id: None,
+			id: None,
 			claim_type: ClaimType::CredentialClaim,
 			issuance_requirement: None,
 		};
@@ -186,7 +186,7 @@ fn it_works_for_update_credential() {
 				schema: schema.clone(),
 				issuer: Some(account_id),
 				claim: vec![claim.clone()],
-				issuance_date: Timestamp::now(),
+				issuance_date: Some(Timestamp::now()),
 				expiration_date: Some(1702379816u64),
 				subject: subject.clone(),
 				credential_holder: credential_holder.clone(),
@@ -220,7 +220,7 @@ fn it_works_for_delete_schema() {
 		let claim = Claim{
 			property: b"property".to_vec(),
 			value: b"value".to_vec(),
-			schema_id: None,
+			id: None,
 			claim_type: ClaimType::CredentialClaim,
 			issuance_requirement: Some(vec![issuance_req.clone()]),
 		};
@@ -260,7 +260,7 @@ fn it_works_for_delete_credential() {
 		let claim = Claim{
 			property: b"property".to_vec(),
 			value: b"value".to_vec(),
-			schema_id: None,
+			id: None,
 			claim_type: ClaimType::CredentialClaim,
 			issuance_requirement: None,
 		};
@@ -277,7 +277,7 @@ fn it_works_for_delete_credential() {
 			schema: schema.clone(),
 			issuer: Some(account_id),
 			claim: vec![claim.clone()],
-			issuance_date: Timestamp::now(),
+			issuance_date: Some(Timestamp::now()),
 			expiration_date: Some(1702379816u64),
 			subject: subject.clone(),
 			credential_holder: credential_holder.clone(),
