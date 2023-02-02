@@ -74,7 +74,7 @@ fn it_works_for_create_credential() {
 		
 		let subject = Subject{
 				id: b"did:serv:5HDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec(),
-				claim: claim.clone(),
+				claim: vec![claim.clone()],
 		};
 		let credential_holder = b"did:serv:5HDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec();
 		let nonce = 2u64;
@@ -180,7 +180,7 @@ fn it_works_for_update_credential() {
 		
 		let subject = Subject{
 			id: b"did:serv:5HDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec(),
-			claim: claim.clone(),
+			claim: vec![claim.clone()],
 		};
 		let credential_holder = b"did:serv:5HDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec();
 		// Encode and sign the schema message.
@@ -276,7 +276,7 @@ fn it_works_for_delete_credential() {
 		
 		let subject = Subject{
 			id: b"did:serv:5HDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec(),
-			claim: claim.clone(),
+			claim: vec![claim.clone()],
 		};
 		let nonce = 2u64;
 		let credential_holder = b"did:serv:5HDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec();

@@ -198,7 +198,7 @@ benchmarks! {
 		let issuer = b"did:serv:5HDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec();
 		let subject = Subject{
 			id: b"did:serv:5HDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec(),
-			claim: claim.clone(),
+			claim: vec![claim.clone()],
 		};
 		let nonce = 2u64;
 		let schema = "VerifiableCredentialSchema".encode();
@@ -255,7 +255,7 @@ benchmarks! {
 		};
 		let subject = Subject{
 			id: b"did:serv:5HDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec(),
-			claim: claim.clone(),
+			claim: vec![claim.clone()],
 		};
 		let nonce = 2u64;
 		// Encode and sign the credential.
@@ -314,7 +314,7 @@ benchmarks! {
 		};
 		let subject = Subject{
 			id: b"did:serv:5HDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec(),
-			claim: claim.clone(),
+			claim: vec![claim.clone()],
 		};
 		let nonce = 2u64;
 		// Encode and sign the credential.

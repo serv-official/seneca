@@ -63,7 +63,7 @@ pub struct Attribute {
 #[derive(PartialEq, Eq, TypeInfo, Clone, Encode, Decode, RuntimeDebug)]
 pub struct Subject {
     pub id: Vec<u8>,
-    pub claim: Claim,
+    pub claim: Vec<Claim>,
 }
 
 #[derive(PartialEq, Eq, TypeInfo, Clone, Encode, Decode, RuntimeDebug)]
