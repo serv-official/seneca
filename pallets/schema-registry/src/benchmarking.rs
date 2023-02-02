@@ -195,24 +195,29 @@ benchmarks! {
 			name: b"name".to_vec(),
 			attribute_type: AttributeType::Hex,
 		};
+		let issuer = b"did:serv:5HDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec();
+		let subject = Subject{
+			id: b"did:serv:5HDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec(),
+			claim: claim.clone(),
+		};
+		let nonce = 2u64;
 		let schema = "VerifiableCredentialSchema".encode();
-		let credential: VerifiableCredential<T::AccountId, T::Moment>  = VerifiableCredential{
+		let credential: VerifiableCredential<T::Moment>  = VerifiableCredential{
 			context: context.clone(),
 			schema: schema.clone(),
-			issuer: Some(caller.clone()),
-			claim: vec![claim.clone()],
+			issuer: issuer.clone(),
 			issuance_date: Some(Default::default()),
 			expiration_date: Some(expiration_date),
 			subject: subject.clone(),
 			credential_holder: credential_holder.clone(),
+			nonce: nonce.clone()
 		};
 		// sign the schema.
 		// must be same type as T::Signature
 		let sig: T::Signature = sr25519::Signature::from_slice(&hex!("a6350211fcdf1d7f0c79bf0a9c296de17449ca88a899f0cd19a70b07513fc107b7d34249dba71d4761ceeec2ed6bc1305defeb96418e6869e6b6199ed0de558e")).unwrap().into();
 		// Encode and sign the schema message.
 	}:  _(RawOrigin::Signed(caller.clone()), context.clone(), schema.clone(), 
-				Some(caller.clone()), vec![claim.clone()],  Some(expiration_date), 
-				subject.clone(), credential_holder.clone(),sig.clone() )
+				issuer,  Some(expiration_date),subject.clone(), credential_holder.clone(),sig.clone(), nonce )
 	verify {
 		assert_eq!(CredentialStore::<T>::get(sig.clone()), Some(credential.clone()));
 	}
@@ -242,29 +247,34 @@ benchmarks! {
 		let subject = b"Credential subject".to_vec();
 		let credential_holder = b"did:serv:5HDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec();
 		let credential_holder2 = b"did:serv:7JDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec();
+		let issuer = b"did:serv:5HDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec();
 		let expiration_date: T::Moment = Default::default();
 		let mandatory_fields = Attribute{
 			name: b"name".to_vec(),
 			attribute_type: AttributeType::Hex,
 		};
+		let subject = Subject{
+			id: b"did:serv:5HDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec(),
+			claim: claim.clone(),
+		};
+		let nonce = 2u64;
 		// Encode and sign the credential.
 		let schema = "VerifiableCredentialSchema".encode();
-		let credential: VerifiableCredential<T::AccountId, T::Moment>  = VerifiableCredential{
+		let credential: VerifiableCredential<T::Moment>  = VerifiableCredential{
 			context: context.clone(),
 			schema: schema.clone(),
-			issuer: Some(caller.clone()),
-			claim: vec![claim.clone()],
+			issuer: issuer.clone(),
 			issuance_date: Some(Default::default()),
 			expiration_date: Some(expiration_date),
 			subject: subject.clone(),
 			credential_holder: credential_holder.clone(),
+			nonce: nonce.clone()
 		};
 		// sign the schema.
 		// must be same type as T::Signature
 		let sig: T::Signature = sr25519::Signature::from_slice(&hex!("a6350211fcdf1d7f0c79bf0a9c296de17449ca88a899f0cd19a70b07513fc107b7d34249dba71d4761ceeec2ed6bc1305defeb96418e6869e6b6199ed0de558e")).unwrap().into();
 		assert_ok!(SchemaRegistry::<T>::create_credential(RawOrigin::Signed(caller.clone()).into(), context.clone(), schema.clone(), 
-				Some(caller.clone()), vec![claim.clone()],  Some(expiration_date), 
-				subject.clone(), credential_holder2.clone(),sig.clone()));
+				issuer, Some(expiration_date), subject.clone(), credential_holder2.clone(),sig.clone(), nonce));
 		// Encode and sign the schema message.
 	}:  _(RawOrigin::Signed(caller.clone()), sig.clone(), credential.clone())
 	verify {
@@ -296,29 +306,34 @@ benchmarks! {
 		let subject = b"Credential subject".to_vec();
 		let credential_holder = b"did:serv:5HDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec();
 		let credential_holder2 = b"did:serv:7JDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec();
+		let issuer = b"did:serv:5HDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec();
 		let expiration_date: T::Moment = Default::default();
 		let mandatory_fields = Attribute{
 			name: b"name".to_vec(),
 			attribute_type: AttributeType::Hex,
 		};
+		let subject = Subject{
+			id: b"did:serv:5HDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec(),
+			claim: claim.clone(),
+		};
+		let nonce = 2u64;
 		// Encode and sign the credential.
 		let schema = "VerifiableCredentialSchema".encode();
-		let credential: VerifiableCredential<T::AccountId, T::Moment>  = VerifiableCredential{
+		let credential: VerifiableCredential<T::Moment>  = VerifiableCredential{
 			context: context.clone(),
 			schema: schema.clone(),
-			issuer: Some(caller.clone()),
-			claim: vec![claim.clone()],
+			issuer: issuer.clone(),
 			issuance_date: Some(Default::default()),
 			expiration_date: Some(expiration_date),
 			subject: subject.clone(),
 			credential_holder: credential_holder.clone(),
+			nonce: nonce.clone()
 		};
 		// sign the schema.
 		// must be same type as T::Signature
 		let sig: T::Signature = sr25519::Signature::from_slice(&hex!("a6350211fcdf1d7f0c79bf0a9c296de17449ca88a899f0cd19a70b07513fc107b7d34249dba71d4761ceeec2ed6bc1305defeb96418e6869e6b6199ed0de558e")).unwrap().into();
 		assert_ok!(SchemaRegistry::<T>::create_credential(RawOrigin::Signed(caller.clone()).into(), context.clone(), schema.clone(), 
-				Some(caller.clone()), vec![claim.clone()],  Some(expiration_date), 
-				subject.clone(), credential_holder2.clone(),sig.clone()));
+				issuer, Some(expiration_date), subject.clone(), credential_holder2.clone(),sig.clone(), nonce));
 		// Encode and sign the schema message.
 	}:  _(RawOrigin::Signed(caller.clone()), sig.clone())
 	verify {

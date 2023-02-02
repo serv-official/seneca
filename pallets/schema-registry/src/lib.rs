@@ -56,7 +56,7 @@ pub mod pallet {
 	#[pallet::storage]
 	#[pallet::getter(fn credential_registry)]
 	pub type CredentialStore<T: Config> =
-		StorageMap<_, Blake2_128Concat, T::Signature, VerifiableCredential<T::AccountId, T::Moment>,  OptionQuery>;
+		StorageMap<_, Blake2_128Concat, T::Signature, VerifiableCredential<T::Moment>,  OptionQuery>;
 	
 		
 	// Pallets use events to inform users when important changes are made.
@@ -69,11 +69,11 @@ pub mod pallet {
 		// Event is emitted when a Schema item is created
 		SchemaCreated(T::Signature, VerifiableCredentialSchema<T::Moment>),
 		// Event is emitted when a Credential item is created
-		CredentialCreated(T::Signature, VerifiableCredential<T::AccountId, T::Moment>),
+		CredentialCreated(T::Signature, VerifiableCredential<T::Moment>),
 		// Event is emitted when an existing Schema item is updated
 		SchemaUpdated(T::Signature, VerifiableCredentialSchema<T::Moment>),
 		// Event is emitted when an existing credential item is updated
-		CredentialUpdated(T::Signature, VerifiableCredential<T::AccountId, T::Moment>),
+		CredentialUpdated(T::Signature, VerifiableCredential<T::Moment>),
 		// Event is emitted when an existing Schema item is deleted
 		SchemaDeleted(T::Signature),
 		// Event is emitted when an existing Credential item is deleted
@@ -150,12 +150,12 @@ pub mod pallet {
 		pub fn create_credential(origin: OriginFor<T>, 
 			context: Vec<u8>,
 			schema: Vec<u8>,
-			issuer: Option<T::AccountId>,
-			claim: Vec<Claim>,
+			issuer: Vec<u8>,
 			expiration_date: Option<T::Moment>,
-			subject: Vec<u8>,
+			subject: Subject,
 			credential_holder: Vec<u8>,
 			signature: T::Signature,
+			nonce: u64,
 			) -> DispatchResult {
 
 			// Ensure that the caller of the function is signed
@@ -164,11 +164,11 @@ pub mod pallet {
 				context,
 				schema,
 				issuer,
-				claim,
 				issuance_date: Some(T::Timestamp::now()),
 				expiration_date,
 				subject,
 				credential_holder,
+				nonce,
 			};
 			// Ensure that the Credential does not already exist
 			ensure!(!CredentialStore::<T>::contains_key(&signature), "Credential already exists");
@@ -195,7 +195,7 @@ pub mod pallet {
 		// Function to update an existing credential
 		#[pallet::call_index(4)]
 		#[pallet::weight(T::WeightInfo::update_credential())]
-		pub fn update_credential(origin: OriginFor<T>, old_credential_sig: T::Signature, new_data: VerifiableCredential<T::AccountId, T::Moment>) -> DispatchResult {
+		pub fn update_credential(origin: OriginFor<T>, old_credential_sig: T::Signature, new_data: VerifiableCredential<T::Moment>) -> DispatchResult {
 			let _ = ensure_signed_or_root(origin)?;
 			let credential_data = CredentialStore::<T>::get(&old_credential_sig).ok_or(Error::<T>::UnknownCredential)?;
 			ensure!(credential_data != new_data, Error::<T>::CredentialAlreadyExists);

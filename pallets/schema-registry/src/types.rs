@@ -7,20 +7,20 @@ use scale_info::prelude::vec::Vec;
 
 #[derive(PartialEq, Eq, TypeInfo, Clone, Encode, Decode, RuntimeDebug)]
 pub struct VerifiableCredentialObject<AccountId, Moment>{
-    pub verifiable_credential: VerifiableCredential<AccountId, Moment>,
+    pub verifiable_credential: VerifiableCredential<Moment>,
     pub registrar: AccountId,
     pub registration_date : Moment,
 }
 #[derive(PartialEq, Eq, TypeInfo, Clone, Encode, Decode, RuntimeDebug)]
-pub struct VerifiableCredential<AccountId, Moment> {
+pub struct VerifiableCredential<Moment> {
     pub context: Vec<u8>,
     pub schema: Vec<u8>,
-    pub issuer: Option<AccountId>,
-    pub claim: Vec<Claim>,
+    pub issuer: Vec<u8>,
     pub issuance_date: Option<Moment>,
     pub expiration_date: Option<Moment>,
-    pub subject: Vec<u8>,
-    pub credential_holder: Vec<u8>
+    pub subject: Subject,
+    pub credential_holder: Vec<u8>,
+    pub nonce: u64,
 }
 
 #[derive(PartialEq, Eq, TypeInfo, Clone, Encode, Decode, RuntimeDebug)]
@@ -58,6 +58,12 @@ pub enum ClaimType {
 pub struct Attribute {
     pub name: Vec<u8>,
     pub attribute_type: AttributeType,
+}
+
+#[derive(PartialEq, Eq, TypeInfo, Clone, Encode, Decode, RuntimeDebug)]
+pub struct Subject {
+    pub id: Vec<u8>,
+    pub claim: Claim,
 }
 
 #[derive(PartialEq, Eq, TypeInfo, Clone, Encode, Decode, RuntimeDebug)]
