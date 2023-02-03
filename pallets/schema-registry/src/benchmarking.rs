@@ -33,7 +33,7 @@ benchmarks! {
 		let claim = Claim{
 			property: b"property".to_vec(),
 			value: b"value".to_vec(),
-			id: None,
+			schemaid: None,
 			claim_type: ClaimType::CredentialClaim,
 			issuance_requirement: Some(vec![issuance_req.clone()]),
 		};
@@ -80,7 +80,7 @@ benchmarks! {
 		let claim = Claim{
 			property: b"property".to_vec(),
 			value: b"value".to_vec(),
-			id: None,
+			schemaid: None,
 			claim_type: ClaimType::CredentialClaim,
 			issuance_requirement: Some(vec![issuance_req.clone()]),
 		};
@@ -137,7 +137,7 @@ benchmarks! {
 		let claim = Claim{
 			property: b"property".to_vec(),
 			value: b"value".to_vec(),
-			id: None,
+			schemaid: None,
 			claim_type: ClaimType::CredentialClaim,
 			issuance_requirement: Some(vec![issuance_req.clone()]),
 		};
@@ -182,7 +182,7 @@ benchmarks! {
 		let claim = Claim{
 			property: b"property".to_vec(),
 			value: b"value".to_vec(),
-			id: None,
+			schemaid: None,
 			claim_type: ClaimType::CredentialClaim,
 			issuance_requirement: Some(vec![issuance_req.clone()]),
 		};
@@ -239,7 +239,7 @@ benchmarks! {
 		let claim = Claim{
 			property: b"property".to_vec(),
 			value: b"value".to_vec(),
-			id: None,
+			schemaid: None,
 			claim_type: ClaimType::CredentialClaim,
 			issuance_requirement: Some(vec![issuance_req.clone()]),
 		};
@@ -298,7 +298,7 @@ benchmarks! {
 		let claim = Claim{
 			property: b"property".to_vec(),
 			value: b"value".to_vec(),
-			id: None,
+			schemaid: None,
 			claim_type: ClaimType::CredentialClaim,
 			issuance_requirement: Some(vec![issuance_req.clone()]),
 		};

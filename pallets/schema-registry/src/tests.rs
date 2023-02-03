@@ -25,7 +25,7 @@ fn it_works_for_create_schema() {
 		let claim = Claim{
 			property: b"property".to_vec(),
 			value: b"value".to_vec(),
-			id: None,
+			schemaid: None,
 			claim_type: ClaimType::IssuerClaim,
 			issuance_requirement: Some(vec![issuance_req.clone()]),
 		};
@@ -64,7 +64,7 @@ fn it_works_for_create_credential() {
 		let claim = Claim{
 			property: b"property".to_vec(),
 			value: b"value".to_vec(),
-			id: None,
+			schemaid: None,
 			claim_type: ClaimType::CredentialClaim,
 			issuance_requirement: None,
 		};
@@ -117,7 +117,7 @@ fn it_works_for_update_schema() {
 		let claim = Claim{
 			property: b"property".to_vec(),
 			value: b"value".to_vec(),
-			id: None,
+			schemaid: None,
 			claim_type: ClaimType::IssuerClaim,
 			issuance_requirement: Some(vec![issuance_req.clone()]),
 		};
@@ -170,7 +170,7 @@ fn it_works_for_update_credential() {
 		let claim = Claim{
 			property: b"property".to_vec(),
 			value: b"value".to_vec(),
-			id: None,
+			schemaid: None,
 			claim_type: ClaimType::CredentialClaim,
 			issuance_requirement: None,
 		};
@@ -226,7 +226,7 @@ fn it_works_for_delete_schema() {
 		let claim = Claim{
 			property: b"property".to_vec(),
 			value: b"value".to_vec(),
-			id: None,
+			schemaid: None,
 			claim_type: ClaimType::CredentialClaim,
 			issuance_requirement: Some(vec![issuance_req.clone()]),
 		};
@@ -266,7 +266,7 @@ fn it_works_for_delete_credential() {
 		let claim = Claim{
 			property: b"property".to_vec(),
 			value: b"value".to_vec(),
-			id: None,
+			schemaid: None,
 			claim_type: ClaimType::CredentialClaim,
 			issuance_requirement: None,
 		};

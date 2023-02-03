@@ -39,7 +39,7 @@ pub struct VerifiableCredentialSchema<Moment> {
 }
 #[derive(PartialEq, Eq, TypeInfo, Clone, Encode, Decode, RuntimeDebug)]
 pub struct Claim{
-    pub id: Option<Vec<u8>>,
+    pub schemaid: Option<Vec<u8>>,
 	pub property: Vec<u8>,
 	pub value: Vec<u8>,
     pub claim_type: ClaimType,
