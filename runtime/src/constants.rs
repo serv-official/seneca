@@ -24,9 +24,6 @@ pub mod fee {
 	use smallvec::smallvec;
 	pub use sp_runtime::Perbill;
 
-	/// The block saturation level. Fees will be updates based on this value.
-	pub const TARGET_BLOCK_FULLNESS: Perbill = Perbill::from_percent(25);
-
 	/// Handles converting a weight scalar to a fee value, based on the scale and granularity of the
 	/// node's balance type.
 	///
@@ -43,7 +40,7 @@ pub mod fee {
 		fn polynomial() -> WeightToFeeCoefficients<Self::Balance> {
 			// in seneca, extrinsic base weight (smallest non-zero weight) is mapped to 1/10 CENT:
 			let p = super::currency::CENTS/10;
-			let q = 10 * Balance::from(ExtrinsicBaseWeight::get().ref_time());
+			let q = 100 * Balance::from(ExtrinsicBaseWeight::get().ref_time());
 			smallvec![WeightToFeeCoefficient {
 				degree: 1,
 				negative: false,
