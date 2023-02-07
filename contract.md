@@ -41,7 +41,7 @@ On macos
  ```
  cargo +nightly contract build
  ```
- This command builds a WebAssembly binary for the <name> project, a metadata file that contains the contract Application Binary Interface (ABI), and a .contract file that you use to deploy the contract. For example, you should see output similar to the following:
+ This command builds a WebAssembly binary for the <<name>>project, a metadata file that contains the contract Application Binary Interface (ABI), and a .contract file that you use to deploy the contract. For example, you should see output similar to the following:
 
  ```
  Original wasm size: 47.8K, Optimized: 22.4K
@@ -87,8 +87,8 @@ To upload the smart contract source code:
 * Click Upload New Contract Code.
 * Select an Account to use to create a contract instance. You can select any existing account, including a predefined account such as alice.
 
-* Type a descriptive Name for the smart contract, for example, <contract-name> Contract.
-* Browse and select or drag and drop the <contract-name>.contract file that contains the bundled Wasm  blob and metadata into the upload section.
+* Type a descriptive Name for the smart contract, for example, <<contract-name>> Contract.
+* Browse and select or drag and drop the <<contract-name>>.contract file that contains the bundled Wasm  blob and metadata into the upload section.
 * Click Next to continue.
 
 ### Create a contract instance
