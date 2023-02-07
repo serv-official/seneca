@@ -3,7 +3,7 @@
   "id": "zeno_testnet",
   "chainType": "Live",
   "bootNodes": [
-    "/ip4/172.31.28.226/tcp/30333/p2p/12D3KooWJidJ5e3BBpXh8T45dzE5pt5DakJMyMUk5AJs5Ky9jqTJ"
+    "/ip4/172.31.28.226/tcp/30333/p2p/12D3KooWQb5Xk4kXFSxPFyCkKbTMNthncAdmy9q7AWP7HFhy6ivd"
   ],
   "telemetryEndpoints": [
     [

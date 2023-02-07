@@ -1,4 +1,4 @@
-Please make sure you set up your rust and substrate environment following these instructions https://docs.substrate.io/install/
+Please make sure you set up your rust and substrate environment following these [instructions](https://docs.substrate.io/install/)
 
 ## Please install the following packages after setup
 
