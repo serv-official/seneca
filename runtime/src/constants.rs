@@ -5,12 +5,12 @@ pub mod currency {
 	use node_primitives::Balance;
 
 	// Unit = the base number of indivisible units for balances
-	pub const MILLICENTS: Balance = 1_000_000_000;
-	pub const CENTS: Balance = 1_000 * MILLICENTS; // assume this is worth about a cent.
-	pub const DOLLARS: Balance = 100 * CENTS;
+	pub const MILLICENTS: Balance = 10u128.pow(9);
+	pub const CENTS: Balance = 10u128.pow(12); // assume this is worth about a cent.
+	pub const DOLLARS: Balance = 10u128.pow(15);
 
 	pub const fn deposit(items: u32, bytes: u32) -> Balance {
-		items as Balance * 15 * CENTS + (bytes as Balance) * 6 * CENTS
+		items as Balance * 56 * CENTS + (bytes as Balance) * 50 * MILLICENTS
 	}
 }
 

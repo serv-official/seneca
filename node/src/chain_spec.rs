@@ -64,7 +64,7 @@ pub fn authority_keys_from_seed(s: &str) -> (AccountId, AccountId, BabeId, Grand
 pub fn zeno_properties() -> Properties {
 	let mut p = Properties::new();
 	p.insert("ss58format".into(), 42.into());
-	p.insert("tokenDecimals".into(), 10.into());
+	p.insert("tokenDecimals".into(), 15_i16.into());
 	p.insert("tokenSymbol".into(), "ZNO".into());
 	p
 }
@@ -172,7 +172,7 @@ pub fn staging_network_config() -> ChainSpec {
 		Some(DEFAULT_PROTOCOL_ID),
 		None,
 		Some(zeno_properties()),
-		Default::default(),
+		None,
 	)
 }
 
@@ -223,12 +223,12 @@ fn staging_network_config_genesis() -> GenesisConfig {
 			hex!["40d85189f85ca2bd00d12f9aaacdf6786f4a81ef5f691bb1027c4993c3b21140"].into(),
 			// 5CPA4DJzfhJJhU2C2nXZ9MBPHPj36ipeQmvmepsk58KBjHqo
 			hex!["0e129c7197b7afcb4b938b4384d74ebe80f427b465d370f7b4f13a2cc4ca8c15"].into(),
-			// 5H4ueMfsNdLXWByEgJmMMLCVeenUS3iiSW4AcQ5rqRiombPK
-			hex!["dd54d92aadd95c1037de48054453b945dcd9e2da645bd2f1a6c0e620792f034b"].unchecked_into(),
-			// 5F6Udepii6Gfhc4G3Mc17bZouhdXA8x14NuXAid5tig7n3Vj
-			hex!["860eac80525b405dd1a36dfbe39abef0c7bf66e16b4e07280fc908b914a3f563"].unchecked_into(),
-			// 5EJ7vzC5tWGmdS7erBKbhYM4Qs5qhd4SczERtQ6sA5A4H87z
-			hex!["62b3b2f0c8e3b800adbc655ed604ef4e5869992f4af00f0bf1fbefb7ed1d655d"].unchecked_into(),
+			// 5FeQoaUQBS48FiMVP4bCh7KaztmRkm6tKGc8yqzEmC5jJhWh
+			hex!["9e69a33ac604ffc7a66f99f82cf0728997114d7c4de130734f5ab962332f3f25"].unchecked_into(),
+			// 5DsHYb9RXu1f3wHN4nPThkUGx4gamYyUQ7p6Zk1BR3UNcyxU
+			hex!["4fc2ed4c37349489421a905411c99713add4b5aa800cf8b8d19db62d86f6f345"].unchecked_into(),
+			// 5GvMt8Z1gM4hudYnBPQF83HWmhvPeNfhEo1Yfg2BDw2CYdZ9
+			hex!["d6cff6807ec79e13c06128bdc51eaa6544068f6c54c7d8c23901ad408c604538"].unchecked_into(),
 		),
 	];
 
