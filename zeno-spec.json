@@ -1,16 +1,9 @@
 {
   "name": "Zeno Testnet",
   "id": "zeno_testnet",
-  "chainType": "Live",
-  "bootNodes": [
-    "/ip4/172.31.28.226/tcp/30333/p2p/12D3KooWKXs48zSnxj6gA8LJPVf9QhRgWcdr27utg7vHET2Jj7JN"
-  ],
-  "telemetryEndpoints": [
-    [
-      "/dns/telemetry.polkadot.io/tcp/443/x-parity-wss/%2Fsubmit%2F",
-      0
-    ]
-  ],
+  "chainType": "Local",
+  "bootNodes": [],
+  "telemetryEndpoints": null,
   "protocolId": "zeno",
   "properties": {
     "ss58format": 42,
@@ -25,6 +18,14 @@
       },
       "balances": {
         "balances": [
+          [
+            "5GgZPqeWSnoVPRyy7ALAFPyU6Ws1o8pKBNtuMttAqkFRopR5",
+            1000000000000000000
+          ],
+          [
+            "5EEpSSiLWCKisQxoJFsLrR3MSzxBvREH5vofieHGQYtWMMLs",
+            1000000000000000000
+          ],
           [
             "5GHJvRMyqSGnMSWoLgE9WSufoZZ6dBowdkDV4dvYApBykd9Z",
             1000000000000000000
@@ -179,14 +180,23 @@
       "technicalCommittee": {
         "phantom": null,
         "members": [
+          "5GgZPqeWSnoVPRyy7ALAFPyU6Ws1o8pKBNtuMttAqkFRopR5",
+          "5EEpSSiLWCKisQxoJFsLrR3MSzxBvREH5vofieHGQYtWMMLs",
           "5GHJvRMyqSGnMSWoLgE9WSufoZZ6dBowdkDV4dvYApBykd9Z",
           "5DNvfF8gjTys1ZAo5S9Wq2ZESLm1Ssudj8CC8Z4CDU67PsVZ",
-          "5DRVZN78VKbgNny4bHf2MpmHq6SVhrT6g23ciTYHi36woLMT",
-          "5CDrkPqy6KQDYNXNXiK5NMij1p7gNQuR2WB9My8y1fYvAspA"
+          "5DRVZN78VKbgNny4bHf2MpmHq6SVhrT6g23ciTYHi36woLMT"
         ]
       },
       "elections": {
         "members": [
+          [
+            "5GgZPqeWSnoVPRyy7ALAFPyU6Ws1o8pKBNtuMttAqkFRopR5",
+            1000000000000000
+          ],
+          [
+            "5EEpSSiLWCKisQxoJFsLrR3MSzxBvREH5vofieHGQYtWMMLs",
+            1000000000000000
+          ],
           [
             "5GHJvRMyqSGnMSWoLgE9WSufoZZ6dBowdkDV4dvYApBykd9Z",
             1000000000000000
@@ -198,10 +208,6 @@
           [
             "5DRVZN78VKbgNny4bHf2MpmHq6SVhrT6g23ciTYHi36woLMT",
             1000000000000000
-          ],
-          [
-            "5CDrkPqy6KQDYNXNXiK5NMij1p7gNQuR2WB9My8y1fYvAspA",
-            1000000000000000
           ]
         ]
       },
@@ -210,7 +216,7 @@
         "phantom": null
       },
       "sudo": {
-        "key": "5FemZuvaJ7wVy4S49X7Y9mj7FyTR4caQD5mZo2rL7MXQoXMi"
+        "key": "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY"
       }
     }
   }
