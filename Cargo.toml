@@ -2,6 +2,7 @@
 members = [
     "node",
     "pallets/schema-registry",
+    "pallets/template",
     "runtime",
 ]
 
@@ -19,4 +20,3 @@ inherits = "release"
 debug = 1 # debug symbols are useful for profilers
 debug-assertions = true
 overflow-checks = true
-        

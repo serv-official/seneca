@@ -16,9 +16,9 @@ pub mod currency {
 
 /// Fee-related.
 pub mod fee {
-	use crate::weights::ExtrinsicBaseWeight;
 	use frame_support::weights::{
 		WeightToFeeCoefficient, WeightToFeeCoefficients, WeightToFeePolynomial,
+		constants::ExtrinsicBaseWeight,
 	};
 	use node_primitives::Balance;
 	use smallvec::smallvec;
