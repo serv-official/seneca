@@ -12,7 +12,7 @@ fn it_works_for_create_schema() {
 	new_test_ext().execute_with(|| {
 		// Dispatch a signed extrinsic.
 		let name = b"Alice Data".to_vec();
-		let creator = b"did:serv:5HDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec();
+		let creator = b"did:serv:5NfERrBBRHZb59jVW6UMZZMTSBpikzvhXHDx7jPsiED6n47e".to_vec();
 		let expiration_date = Timestamp::now();
 		let mandatory_fields = Attribute{
 			name: b"name".to_vec(),
@@ -29,8 +29,8 @@ fn it_works_for_create_schema() {
 			claim_type: ClaimType::IssuerClaim,
 			issuance_requirement: Some(vec![issuance_req.clone()]),
 		};
-		let account_pair = account_pair("Alice");
-		let account_id = account_key("Alice");
+		let account_pair = account_pair("5NfERrBBRHZb59jVW6UMZZMTSBpikzvhXHDx7jPsiED6n47e");
+		let account_id = account_key("5NfERrBBRHZb59jVW6UMZZMTSBpikzvhXHDx7jPsiED6n47e");
 		let nonce = 2u64;
 		// Encode and sign the schema message.
 		let schema = VerifiableCredentialSchema {
@@ -46,7 +46,10 @@ fn it_works_for_create_schema() {
 			metadata: b"metadata".to_vec(),
 			nonce,
 		};
-		let data_sig = account_pair.sign(&schema.encode());
+		//dbg!("Schema: {:?}", schema);
+		let binding = schema.encode();
+		let vc_bytes = binding.as_slice();
+		let data_sig = account_pair.sign(&vc_bytes);
 		// Dispatch a signed create schema extrinsic.
 		assert_ok!(SchemaRegistry::create_schema(RawOrigin::Signed(account_id).into(), name.clone(), creator.clone(), false,  
 												vec![mandatory_fields.clone()], Some(expiration_date), vec![claim.clone()], 
@@ -70,13 +73,13 @@ fn it_works_for_create_credential() {
 		};
 		let account_pair = account_pair("Alice");
 		let account_pub = account_key("Alice");
-		let issuer = b"did:serv:5HDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec();
+		let issuer = b"did:serv:5NfERrBBRHZb59jVW6UMZZMTSBpikzvhXHDx7jPsiED6n47e".to_vec();
 		
 		let subject = Subject{
-				id: b"did:serv:5HDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec(),
+				id: b"did:serv:5NfERrBBRHZb59jVW6UMZZMTSBpikzvhXHDx7jPsiED6n47e".to_vec(),
 				claim: vec![claim.clone()],
 		};
-		let credential_holder = b"did:serv:5HDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec();
+		let credential_holder = b"did:serv:5NfERrBBRHZb59jVW6UMZZMTSBpikzvhXHDx7jPsiED6n47e".to_vec();
 		let nonce = 2u64;
 		// Encode and sign the schema message.
 		let schema = "verifiableCredentialSchema".encode();
@@ -104,7 +107,7 @@ fn it_works_for_update_schema() {
 	new_test_ext().execute_with(|| {
 		// Dispatch a signed extrinsic.
 		let name = b"Alice Data".to_vec();
-		let creator = b"did:serv:5HDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec();
+		let creator = b"did:serv:5NfERrBBRHZb59jVW6UMZZMTSBpikzvhXHDx7jPsiED6n47e".to_vec();
 		let expiration_date = Timestamp::now();
 		let mandatory_fields = Attribute{
 			name: b"name".to_vec(),
@@ -121,8 +124,8 @@ fn it_works_for_update_schema() {
 			claim_type: ClaimType::IssuerClaim,
 			issuance_requirement: Some(vec![issuance_req.clone()]),
 		};
-		let account_pair = account_pair("Alice");
-		let account_pub = account_key("Alice");
+		let account_pair = account_pair("5NfERrBBRHZb59jVW6UMZZMTSBpikzvhXHDx7jPsiED6n47e");
+		let account_pub = account_key("5NfERrBBRHZb59jVW6UMZZMTSBpikzvhXHDx7jPsiED6n47e");
 		let nonce = 2u64;
 		// Encode and sign the schema message.
 		let schema = VerifiableCredentialSchema {
@@ -174,15 +177,15 @@ fn it_works_for_update_credential() {
 			claim_type: ClaimType::CredentialClaim,
 			issuance_requirement: None,
 		};
-		let account_pair = account_pair("Alice");
-		let account_pub = account_key("Alice");
-		let issuer = b"did:serv:5HDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec();
+		let account_pair = account_pair("5NfERrBBRHZb59jVW6UMZZMTSBpikzvhXHDx7jPsiED6n47e");
+		let account_pub = account_key("5NfERrBBRHZb59jVW6UMZZMTSBpikzvhXHDx7jPsiED6n47e");
+		let issuer = b"did:serv:5NfERrBBRHZb59jVW6UMZZMTSBpikzvhXHDx7jPsiED6n47e".to_vec();
 		
 		let subject = Subject{
-			id: b"did:serv:5HDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec(),
+			id: b"did:serv:5NfERrBBRHZb59jVW6UMZZMTSBpikzvhXHDx7jPsiED6n47e".to_vec(),
 			claim: vec![claim.clone()],
 		};
-		let credential_holder = b"did:serv:5HDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec();
+		let credential_holder = b"did:serv:5NfERrBBRHZb59jVW6UMZZMTSBpikzvhXHDx7jPsiED6n47e".to_vec();
 		// Encode and sign the schema message.
 		let schema = "VerifiableCredentialSchema".encode();
 		let nonce = 2u64;
@@ -213,7 +216,7 @@ fn it_works_for_delete_schema() {
 	new_test_ext().execute_with(|| {
 		// Dispatch a signed extrinsic.
 		let name = b"Alice Data".to_vec();
-		let creator = b"did:serv:5HDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec();
+		let creator = b"did:serv:5NfERrBBRHZb59jVW6UMZZMTSBpikzvhXHDx7jPsiED6n47e".to_vec();
 		let expiration_date = Timestamp::now();
 		let mandatory_fields = Attribute{
 			name: b"name".to_vec(),
@@ -230,8 +233,8 @@ fn it_works_for_delete_schema() {
 			claim_type: ClaimType::CredentialClaim,
 			issuance_requirement: Some(vec![issuance_req.clone()]),
 		};
-		let account_pair = account_pair("Alice");
-		let account_pub = account_key("Alice");
+		let account_pair = account_pair("5NfERrBBRHZb59jVW6UMZZMTSBpikzvhXHDx7jPsiED6n47e");
+		let account_pub = account_key("5NfERrBBRHZb59jVW6UMZZMTSBpikzvhXHDx7jPsiED6n47e");
 		let nonce = 2u64;
 		let schema = VerifiableCredentialSchema {
 			name: name.clone(),
@@ -270,16 +273,16 @@ fn it_works_for_delete_credential() {
 			claim_type: ClaimType::CredentialClaim,
 			issuance_requirement: None,
 		};
-		let account_pair = account_pair("Alice");
-		let account_pub = account_key("Alice");
-		let issuer = b"did:serv:5HDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec();
+		let account_pair = account_pair("5NfERrBBRHZb59jVW6UMZZMTSBpikzvhXHDx7jPsiED6n47e");
+		let account_pub = account_key("5NfERrBBRHZb59jVW6UMZZMTSBpikzvhXHDx7jPsiED6n47e");
+		let issuer = b"did:serv:5NfERrBBRHZb59jVW6UMZZMTSBpikzvhXHDx7jPsiED6n47e".to_vec();
 		
 		let subject = Subject{
-			id: b"did:serv:5HDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec(),
+			id: b"did:serv:5NfERrBBRHZb59jVW6UMZZMTSBpikzvhXHDx7jPsiED6n47e".to_vec(),
 			claim: vec![claim.clone()],
 		};
 		let nonce = 2u64;
-		let credential_holder = b"did:serv:5HDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec();
+		let credential_holder = b"did:serv:5NfERrBBRHZb59jVW6UMZZMTSBpikzvhXHDx7jPsiED6n47e".to_vec();
 		// Encode and sign the schema message.
 		let schema = "VerefiableCredentialSchema".encode();
 		let credential = VerifiableCredential{

@@ -197,6 +197,7 @@ pub mod pallet {
 	Schema<T::AccountId, T::Moment, T::Signature>
 	for Pallet<T>
 	{
+		// Function to create a new schema
 		fn create_verifiable_schema(
 			name: &Vec<u8>, 
 			creator: &Vec<u8>,
@@ -231,7 +232,7 @@ pub mod pallet {
 				Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
 			};
 			let mut acc = Self::split_string(&signer).as_bytes();
-			let signer_acc: T::AccountId = T::AccountId::decode(&mut acc).unwrap();
+			let signer_acc = T::AccountId::decode(&mut acc).unwrap();
 			Self::is_valid_signer(signature, vc_bytes, &signer_acc)?;
 			// Save the Schema data in storage
 			SchemaStore::<T>::insert(&signature, &verifiable_credential_schema);
@@ -239,7 +240,7 @@ pub mod pallet {
 			Self::deposit_event(Event::SchemaCreated(signature.to_owned(), verifiable_credential_schema));
 			Ok(())
 		}
-
+		// create a new credential
 		fn create_verifiable_credential(
 			context: &Vec<u8>,
 			schema: &Vec<u8>,
@@ -261,12 +262,22 @@ pub mod pallet {
 				credential_holder: credential_holder.to_owned(),
 				nonce: nonce.to_owned(),
 			};
+			let binding = verifiable_credential.encode();
+   			let vc_bytes = binding.as_slice();
+			let signer = match String::from_utf8(verifiable_credential.clone().issuer){
+				Ok(v) => v,
+				Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
+			};
+			let mut acc = Self::split_string(&signer).as_bytes();
+			let signer_acc = T::AccountId::decode(&mut acc).unwrap();
+			Self::is_valid_signer(signature, vc_bytes, &signer_acc)?;
 			// Save the Schema data in storage
 			CredentialStore::<T>::insert(&signature, &verifiable_credential);
 			// Emit an event to indicate that the Credential was created and stored
 			Self::deposit_event(Event::CredentialCreated(signature.to_owned(), verifiable_credential));
 			Ok(())
 		}
+		// update a schema
 		fn update_verifiable_schema(
 			old_schema_key: &T::Signature, 
 			new_data: &VerifiableCredentialSchema<T::Moment>) -> DispatchResult{
@@ -275,22 +286,27 @@ pub mod pallet {
 			Self::deposit_event(Event::SchemaUpdated(old_schema_key.to_owned(), new_data.to_owned()));
 			Ok(())
 		}
+		// update a credential
 		fn update_verifiable_credential(old_credential_sig: &T::Signature, new_data: &VerifiableCredential<T::Moment>) -> DispatchResult{
 			// Update the credential data
 			CredentialStore::<T>::insert(old_credential_sig, new_data);
 			Self::deposit_event(Event::CredentialUpdated(old_credential_sig.to_owned(), new_data.to_owned()));
 			Ok(())
 		}
+		// delete schema
 		fn delete_verifiable_schema(key: &T::Signature) -> DispatchResult{
             <SchemaStore<T>>::remove(key);
             Self::deposit_event(Event::SchemaDeleted(key.to_owned()));
 			Ok(())
 		}
+		// delete a credential
 		fn delete_verifiable_credential(key: &T::Signature) -> DispatchResult{
             <CredentialStore<T>>::remove(key);
             Self::deposit_event(Event::CredentialDeleted(key.to_owned()));
 			Ok(())
 		}
+
+		// check if the signature is valid
 		fn is_valid_signer(
             signature: &T::Signature,
             msg: &[u8],
