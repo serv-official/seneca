@@ -4654,6 +4654,7 @@ dependencies = [
  "frame-support",
  "frame-system",
  "hex-literal",
+ "pallet-randomness-collective-flip",
  "pallet-session",
  "pallet-timestamp",
  "parity-scale-codec",

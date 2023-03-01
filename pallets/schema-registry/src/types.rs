@@ -7,15 +7,15 @@ use scale_info::prelude::vec::Vec;
 
 #[derive(PartialEq, Eq, TypeInfo, Clone, Encode, Decode, RuntimeDebug)]
 pub struct VerifiableCredentialObject<AccountId, Moment>{
-    pub verifiable_credential: VerifiableCredential<Moment>,
+    pub verifiable_credential: VerifiableCredential<AccountId, Moment>,
     pub registrar: AccountId,
     pub registration_date : Moment,
 }
 #[derive(PartialEq, Eq, TypeInfo, Clone, Encode, Decode, RuntimeDebug)]
-pub struct VerifiableCredential<Moment> {
+pub struct VerifiableCredential<AccountId, Moment> {
     pub context: Vec<u8>,
     pub schema: Vec<u8>,
-    pub issuer: Vec<u8>,
+    pub issuer: AccountId,
     pub issuance_date: Option<Moment>,
     pub expiration_date: Option<Moment>,
     pub subject: Subject,
@@ -24,9 +24,9 @@ pub struct VerifiableCredential<Moment> {
 }
 
 #[derive(PartialEq, Eq, TypeInfo, Clone, Encode, Decode, RuntimeDebug)]
-pub struct VerifiableCredentialSchema<Moment> {
+pub struct VerifiableCredentialSchema<AccountId, Moment> {
 	pub name: Vec<u8>,
-	pub creator: Vec<u8>,
+	pub creator: AccountId,
     pub public: bool,
 	pub creation_date: Moment,
 	pub expiration_date: Option<Moment>,
