@@ -1,6 +1,6 @@
 use crate::types::*;
-
 use frame_support::{dispatch::DispatchResult};
+use scale_info::prelude::vec::Vec;
 
 pub trait Schema<AccountId, Moment, Signature, Hash> {
     fn create_verifiable_schema(

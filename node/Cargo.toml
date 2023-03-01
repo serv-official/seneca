@@ -60,7 +60,7 @@ frame-benchmarking = {  git = "https://github.com/paritytech/substrate.git", bra
 frame-benchmarking-cli = {  git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.37" }
 
 # Local Dependencies
-seneca-runtime = {  path = "../runtime" }
+seneca-runtime = {  path = "../runtime/seneca" }
 node-primitives = { version = "2.0.0", default-features = false, path = "../primitives" }
 
 # CLI-specific dependencies

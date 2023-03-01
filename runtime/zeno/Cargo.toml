@@ -1,5 +1,5 @@
 [package]
-name = "seneca-runtime"
+name = "zeno-runtime"
 version = "4.0.0-dev"
 description = "A fresh FRAME-based Substrate node, ready for hacking."
 authors = ["Seneca Devs <https://github.com/serv-official>"]
@@ -18,7 +18,7 @@ scale-info = { version = "2.1.1", default-features = false, features = ["derive"
 smallvec    = "1.6.1"
 log = "0.4.17"
 
-node-primitives = { version = "2.0.0", default-features = false, path = "../primitives" }
+node-primitives = { version = "2.0.0", default-features = false, path = "../../primitives" }
 pallet-aura = { default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.37" }
 pallet-balances = { default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.37" }
 frame-support = { default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.37" }
@@ -70,9 +70,9 @@ frame-benchmarking = { default-features = false, git = "https://github.com/parit
 frame-system-benchmarking = { default-features = false, git = "https://github.com/paritytech/substrate.git", optional = true , branch = "polkadot-v0.9.37" }
 
 # Local Dependencies
-pallet-template = { default-features = false, path = "../pallets/template" }
+pallet-template = { default-features = false, path = "../../pallets/template" }
 pallet-did = {default-features = false, git ="https://github.com/ArnoldTumukunde/pallet-did.git", branch="master"}
-pallet-schema-registry = {default-features = false, path = "../pallets/schema-registry" }
+pallet-schema-registry = {default-features = false, path = "../../pallets/schema-registry" }
 
 [dependencies.validator-set]
 default-features = false

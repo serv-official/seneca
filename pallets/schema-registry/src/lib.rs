@@ -220,17 +220,17 @@ pub mod pallet {
 			random_hash: &T::Hash,
 		) -> DispatchResult{
 			let verifiable_credential_schema = VerifiableCredentialSchema {
-				name: name.to_owned(),
-				creator: creator.to_owned(),
-				public: public.to_owned(),
+				name: name.clone(),
+				creator: creator.clone(),
+				public: public.clone(),
 				creation_date,
 				expiration_date,
-				mandatory_fields: mandatory_fields.to_owned(),
-				issuer_claims: issuer_claims.to_owned(),
-				subject_claims: subject_claims.to_owned(),
-				credential_claims: credential_claims.to_owned(),
-				metadata: metadata.to_owned(),
-				nonce: nonce.to_owned(),
+				mandatory_fields: mandatory_fields.clone(),
+				issuer_claims: issuer_claims.clone(),
+				subject_claims: subject_claims.clone(),
+				credential_claims: credential_claims.clone(),
+				metadata: metadata.clone(),
+				nonce: nonce.clone(),
 			};
 			let binding = verifiable_credential_schema.encode();
    			let vc_bytes = binding.as_slice();
@@ -239,7 +239,7 @@ pub mod pallet {
 			// Save the Schema data in storage
 			SchemaStore::<T>::insert(random_hash, (&signature, &verifiable_credential_schema));
 			// Emit an event to indicate that the Schema was created
-			Self::deposit_event(Event::SchemaCreated(random_hash.to_owned(), verifiable_credential_schema.encode()));
+			Self::deposit_event(Event::SchemaCreated(random_hash.clone(), verifiable_credential_schema.encode()));
 			Ok(())
 		}
 		// create a new credential
@@ -256,14 +256,14 @@ pub mod pallet {
 			random_hash: &T::Hash,
 		) -> DispatchResult{
 			let verifiable_credential = VerifiableCredential {
-				context: context.to_owned(),
-				schema: schema.to_owned(),
-				issuer: issuer.to_owned(),
+				context: context.clone(),
+				schema: schema.clone(),
+				issuer: issuer.clone(),
 				issuance_date,
 				expiration_date,
-				subject: subject.to_owned(),
-				credential_holder: credential_holder.to_owned(),
-				nonce: nonce.to_owned(),
+				subject: subject.clone(),
+				credential_holder: credential_holder.clone(),
+				nonce: nonce.clone(),
 			};
 			let binding = verifiable_credential.encode();
    			let vc_bytes = binding.as_slice();
@@ -272,7 +272,7 @@ pub mod pallet {
 			// Save the Schema data in storage
 			CredentialStore::<T>::insert(&random_hash, (&signature, &verifiable_credential));
 			// Emit an event to indicate that the Credential was created and stored
-			Self::deposit_event(Event::CredentialCreated(random_hash.to_owned(), verifiable_credential.encode()));
+			Self::deposit_event(Event::CredentialCreated(random_hash.clone(), verifiable_credential.encode()));
 			Ok(())
 		}
 		// update a schema
@@ -281,26 +281,26 @@ pub mod pallet {
 			new_data: &(T::Signature, VerifiableCredentialSchema<T::AccountId, T::Moment>)) -> DispatchResult{
 			// Update the schema data
 			SchemaStore::<T>::insert(old_schema_key, new_data);
-			Self::deposit_event(Event::SchemaUpdated(old_schema_key.to_owned(), new_data.encode()));
+			Self::deposit_event(Event::SchemaUpdated(old_schema_key.clone(), new_data.encode()));
 			Ok(())
 		}
 		// update a credential
 		fn update_verifiable_credential(old_credential_key: &T::Hash, new_data: &(T::Signature, VerifiableCredential<T::AccountId, T::Moment>)) -> DispatchResult{
 			// Update the credential data
 			CredentialStore::<T>::insert(old_credential_key, new_data);
-			Self::deposit_event(Event::CredentialUpdated(old_credential_key.to_owned(), new_data.encode()));
+			Self::deposit_event(Event::CredentialUpdated(old_credential_key.clone(), new_data.encode()));
 			Ok(())
 		}
 		// delete schema
 		fn delete_verifiable_schema(key: &T::Hash) -> DispatchResult{
             <SchemaStore<T>>::remove(key);
-            Self::deposit_event(Event::SchemaDeleted(key.to_owned()));
+            Self::deposit_event(Event::SchemaDeleted(key.clone()));
 			Ok(())
 		}
 		// delete a credential
 		fn delete_verifiable_credential(key: &T::Hash) -> DispatchResult{
             <CredentialStore<T>>::remove(key);
-            Self::deposit_event(Event::CredentialDeleted(key.to_owned()));
+            Self::deposit_event(Event::CredentialDeleted(key.clone()));
 			Ok(())
 		}
 

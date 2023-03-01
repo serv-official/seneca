@@ -3,7 +3,8 @@ members = [
     "node",
     "pallets/schema-registry",
     "pallets/template",
-    "runtime",
+    "runtime/seneca",
+    "runtime/zeno",
 ]
 
 [profile.release]
