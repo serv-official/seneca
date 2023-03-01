@@ -162,7 +162,7 @@ pub mod pallet {
 		#[pallet::call_index(3)]
 		#[pallet::weight(T::WeightInfo::update_schema())]
 		pub fn update_schema(origin: OriginFor<T>, old_schema_key: T::Hash, new_data: (T::Signature, VerifiableCredentialSchema<T::AccountId, T::Moment>)) -> DispatchResult {
-			let _ = ensure_signed_or_root(origin)?;
+			let _ = ensure_signed(origin)?;
 			let schema_data = SchemaStore::<T>::get(&old_schema_key).ok_or(Error::<T>::UnknownSchema)?;
 			ensure!(schema_data != new_data, Error::<T>::SchemaAlreadyExists);
 			// Update the schema data
@@ -172,12 +172,12 @@ pub mod pallet {
 		// Function to update an existing credential
 		#[pallet::call_index(4)]
 		#[pallet::weight(T::WeightInfo::update_credential())]
-		pub fn update_credential(origin: OriginFor<T>, old_credential_sig: T::Hash, new_data: (T::Signature, VerifiableCredential<T::AccountId, T::Moment>)) -> DispatchResult {
-			let _ = ensure_signed_or_root(origin)?;
-			let credential_data = CredentialStore::<T>::get(&old_credential_sig).ok_or(Error::<T>::UnknownCredential)?;
+		pub fn update_credential(origin: OriginFor<T>, old_credential_key: T::Hash, new_data: (T::Signature, VerifiableCredential<T::AccountId, T::Moment>)) -> DispatchResult {
+			let _ = ensure_signed(origin)?;
+			let credential_data = CredentialStore::<T>::get(&old_credential_key).ok_or(Error::<T>::UnknownCredential)?;
 			ensure!(credential_data != new_data, Error::<T>::CredentialAlreadyExists);
 			// Update the credential data
-			Self::update_verifiable_credential(&old_credential_sig, &new_data)
+			Self::update_verifiable_credential(&old_credential_key, &new_data)
 		}
 
 		// Function to delete an existing schema
@@ -285,10 +285,10 @@ pub mod pallet {
 			Ok(())
 		}
 		// update a credential
-		fn update_verifiable_credential(old_credential_sig: &T::Hash, new_data: &(T::Signature, VerifiableCredential<T::AccountId, T::Moment>)) -> DispatchResult{
+		fn update_verifiable_credential(old_credential_key: &T::Hash, new_data: &(T::Signature, VerifiableCredential<T::AccountId, T::Moment>)) -> DispatchResult{
 			// Update the credential data
-			CredentialStore::<T>::insert(old_credential_sig, new_data);
-			Self::deposit_event(Event::CredentialUpdated(old_credential_sig.to_owned(), new_data.encode()));
+			CredentialStore::<T>::insert(old_credential_key, new_data);
+			Self::deposit_event(Event::CredentialUpdated(old_credential_key.to_owned(), new_data.encode()));
 			Ok(())
 		}
 		// delete schema

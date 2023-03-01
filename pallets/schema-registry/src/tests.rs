@@ -161,7 +161,7 @@ fn it_works_for_update_schema() {
 		assert_ok!(SchemaRegistry::create_schema(RawOrigin::Signed(account_pub).into(), name, account_pub.clone(), false,
 												vec![mandatory_fields], Some(expiration_date), vec![claim.clone()], 
 												vec![claim.clone()], vec![claim.clone()], b"metadata".to_vec(), data_sig.clone(),rand_hash, nonce));
-		assert_ok!(SchemaRegistry::update_schema(RawOrigin::Root.into(), rand_hash, (updated_sig.clone(), updated_schema.clone())));
+		assert_ok!(SchemaRegistry::update_schema(RawOrigin::Signed(account_pub).into(), rand_hash, (updated_sig.clone(), updated_schema.clone())));
 		assert_eq!(SchemaRegistry::schema_registry(rand_hash.clone()), Some((updated_sig, updated_schema)));
 
 	})
@@ -196,19 +196,30 @@ fn it_works_for_update_credential() {
 				schema: schema.clone(),
 				issuer: account_pub.clone(),
 				issuance_date: Some(Timestamp::now()),
-				expiration_date: Some(1702379816u64),
+				expiration_date: Some(1702479816u64),
 				subject: subject.clone(),
 				credential_holder: credential_holder.clone(),
 				nonce: nonce.clone(),
 		};
+		let updated_credential = VerifiableCredential{
+			context: context.clone(),
+			schema: schema.clone(),
+			issuer: account_pub.clone(),
+			issuance_date: Some(Timestamp::now()),
+			expiration_date: Some(1702379816u64),
+			subject: subject.clone(),
+			credential_holder: credential_holder.clone(),
+			nonce: nonce.clone(),
+	};
 		let data_sig = account_pair.sign(&credential.encode());
+		let updated_sig = account_pair.sign(&updated_credential.encode());
 		let rand_hash = random_hash();
 		// Dispatch a signed create schema extrinsic.
 		assert_ok!(SchemaRegistry::create_credential(RawOrigin::Signed(account_pub).into(), context.clone(), schema.clone(), 
 													account_pub.clone(), Some(1702479816u64),subject.clone(), credential_holder.clone(),data_sig.clone(),
 													nonce.clone(), rand_hash));
-		assert_ok!(SchemaRegistry::update_credential(RawOrigin::Signed(account_pub).into(), rand_hash.clone(),(data_sig.clone(), credential.clone())));
-		assert_eq!(SchemaRegistry::credential_registry(rand_hash.clone()), Some((data_sig, credential)));
+		assert_ok!(SchemaRegistry::update_credential(RawOrigin::Signed(account_pub).into(), rand_hash.clone(),(updated_sig.clone(), credential.clone())));
+		assert_eq!(SchemaRegistry::credential_registry(rand_hash.clone()), Some((updated_sig, credential)));
 
 	})
 }
