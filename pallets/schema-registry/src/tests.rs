@@ -76,10 +76,10 @@ fn it_works_for_create_credential() {
 		let account_pub = account_pair.public().into_account();
 		
 		let subject = Subject{
-				id: b"did:serv:5GFEtniprMeFuh8HcoVrWxz4aQtv6T5V9bkENSnfPYhY4p8H".to_vec(),
+				id: b"did:seneca:5GFEtniprMeFuh8HcoVrWxz4aQtv6T5V9bkENSnfPYhY4p8H".to_vec(),
 				claim: vec![claim.clone()],
 		};
-		let credential_holder = b"did:serv:5GFEtniprMeFuh8HcoVrWxz4aQtv6T5V9bkENSnfPYhY4p8H".to_vec();
+		let credential_holder = b"did:seneca:5GFEtniprMeFuh8HcoVrWxz4aQtv6T5V9bkENSnfPYhY4p8H".to_vec();
 		let nonce = 2u64;
 		// Encode and sign the schema message.
 		let schema = "verifiableCredentialSchema".encode();
@@ -183,10 +183,10 @@ fn it_works_for_update_credential() {
 		let account_pub = account_pair.public().into_account();
 		
 		let subject = Subject{
-			id: b"did:serv:5GFEtniprMeFuh8HcoVrWxz4aQtv6T5V9bkENSnfPYhY4p8H".to_vec(),
+			id: b"did:seneca:5GFEtniprMeFuh8HcoVrWxz4aQtv6T5V9bkENSnfPYhY4p8H".to_vec(),
 			claim: vec![claim.clone()],
 		};
-		let credential_holder = b"did:serv:5GFEtniprMeFuh8HcoVrWxz4aQtv6T5V9bkENSnfPYhY4p8H".to_vec();
+		let credential_holder = b"did:seneca:5GFEtniprMeFuh8HcoVrWxz4aQtv6T5V9bkENSnfPYhY4p8H".to_vec();
 		// Encode and sign the schema message.
 		let schema = "VerifiableCredentialSchema".encode();
 		let nonce = 2u64;
@@ -290,11 +290,11 @@ fn it_works_for_delete_credential() {
 		let account_pub = account_pair.public().into_account();
 		
 		let subject = Subject{
-			id: b"did:serv:5GFEtniprMeFuh8HcoVrWxz4aQtv6T5V9bkENSnfPYhY4p8H".to_vec(),
+			id: b"did:seneca:5GFEtniprMeFuh8HcoVrWxz4aQtv6T5V9bkENSnfPYhY4p8H".to_vec(),
 			claim: vec![claim.clone()],
 		};
 		let nonce = 2u64;
-		let credential_holder = b"did:serv:5GFEtniprMeFuh8HcoVrWxz4aQtv6T5V9bkENSnfPYhY4p8H".to_vec();
+		let credential_holder = b"did:seneca:5GFEtniprMeFuh8HcoVrWxz4aQtv6T5V9bkENSnfPYhY4p8H".to_vec();
 		// Encode and sign the schema message.
 		let schema = "VerefiableCredentialSchema".encode();
 		let credential = VerifiableCredential{

@@ -36,7 +36,7 @@ pub mod pallet {
 	pub trait Config: frame_system::Config {
 		/// Because this pallet emits events, it depends on the runtime's definition of an event.
 		type RuntimeEvent: From<Event<Self>> + IsType<<Self as frame_system::Config>::RuntimeEvent>;
-		type Public: IdentifyAccount<AccountId = Self::AccountId> + Encode + Decode + Member + TypeInfo;
+		type Public: IdentifyAccount<AccountId = Self::AccountId> + Encode + Decode + Member + From<sp_core::sr25519::Public> + TypeInfo;
 		type Signature: Verify<Signer = Self::Public> + Member + Parameter + Decode + Encode + From<sp_core::sr25519::Signature> + TypeInfo;
 		type Moment: Parameter
 		+ Default
@@ -53,12 +53,12 @@ pub mod pallet {
 	#[pallet::storage]
 	#[pallet::getter(fn schema_registry)]
 	pub type SchemaStore<T: Config> =
-		StorageMap<_, Blake2_128Concat, T::Hash, (T::Signature, VerifiableCredentialSchema<T::AccountId, T::Moment>),  OptionQuery>;
+		StorageMap<_, Blake2_128Concat, T::Hash, (T::Signature, VerifiableCredentialSchema<T::Public, T::Moment>),  OptionQuery>;
 
 	#[pallet::storage]
 	#[pallet::getter(fn credential_registry)]
 	pub type CredentialStore<T: Config> =
-		StorageMap<_, Blake2_128Concat, T::Hash, (T::Signature, VerifiableCredential<T::AccountId, T::Moment>),  OptionQuery>;
+		StorageMap<_, Blake2_128Concat, T::Hash, (T::Signature, VerifiableCredential<T::Public, T::Moment>),  OptionQuery>;
 
 	#[pallet::storage]
 	#[pallet::getter(fn get_nonce)]
@@ -114,7 +114,7 @@ pub mod pallet {
 		#[pallet::weight(T::WeightInfo::create_schema())]
 		pub fn create_schema(origin: OriginFor<T>, 
 			name: Vec<u8>, 
-			creator: T::AccountId, 
+			creator: T::Public, 
 			public: bool,
 			mandatory_fields: Vec<Attribute>,
 			expiration_date: Option<T::Moment>,
@@ -141,7 +141,7 @@ pub mod pallet {
 		pub fn create_credential(origin: OriginFor<T>, 
 			context: Vec<u8>,
 			schema: Vec<u8>,
-			issuer: T::AccountId,
+			issuer: T::Public,
 			expiration_date: Option<T::Moment>,
 			subject: Subject,
 			credential_holder: Vec<u8>,
@@ -161,7 +161,7 @@ pub mod pallet {
 		// Function to update an existing schema
 		#[pallet::call_index(3)]
 		#[pallet::weight(T::WeightInfo::update_schema())]
-		pub fn update_schema(origin: OriginFor<T>, old_schema_key: T::Hash, new_data: (T::Signature, VerifiableCredentialSchema<T::AccountId, T::Moment>)) -> DispatchResult {
+		pub fn update_schema(origin: OriginFor<T>, old_schema_key: T::Hash, new_data: (T::Signature, VerifiableCredentialSchema<T::Public, T::Moment>)) -> DispatchResult {
 			let _ = ensure_signed(origin)?;
 			let schema_data = SchemaStore::<T>::get(&old_schema_key).ok_or(Error::<T>::UnknownSchema)?;
 			ensure!(schema_data != new_data, Error::<T>::SchemaAlreadyExists);
@@ -172,7 +172,7 @@ pub mod pallet {
 		// Function to update an existing credential
 		#[pallet::call_index(4)]
 		#[pallet::weight(T::WeightInfo::update_credential())]
-		pub fn update_credential(origin: OriginFor<T>, old_credential_key: T::Hash, new_data: (T::Signature, VerifiableCredential<T::AccountId, T::Moment>)) -> DispatchResult {
+		pub fn update_credential(origin: OriginFor<T>, old_credential_key: T::Hash, new_data: (T::Signature, VerifiableCredential<T::Public, T::Moment>)) -> DispatchResult {
 			let _ = ensure_signed(origin)?;
 			let credential_data = CredentialStore::<T>::get(&old_credential_key).ok_or(Error::<T>::UnknownCredential)?;
 			ensure!(credential_data != new_data, Error::<T>::CredentialAlreadyExists);
@@ -200,13 +200,13 @@ pub mod pallet {
 
 	}
 	impl<T: Config>
-	Schema<T::AccountId, T::Moment, T::Signature, T::Hash>
+	Schema<T::Public, T::Moment, T::Signature, T::Hash>
 	for Pallet<T>
 	{
 		// Function to create a new schema
 		fn create_verifiable_schema(
 			name: &Vec<u8>, 
-			creator: &T::AccountId,
+			creator: &T::Public,
 			public: &bool,
 			creation_date: T::Moment,
 			expiration_date: Option<T::Moment>,
@@ -246,7 +246,7 @@ pub mod pallet {
 		fn create_verifiable_credential(
 			context: &Vec<u8>,
 			schema: &Vec<u8>,
-			issuer: &T::AccountId,
+			issuer: &T::Public,
 			issuance_date: Option<T::Moment>,
 			expiration_date: Option<T::Moment>,
 			subject: &Subject,
@@ -278,14 +278,14 @@ pub mod pallet {
 		// update a schema
 		fn update_verifiable_schema(
 			old_schema_key: &T::Hash, 
-			new_data: &(T::Signature, VerifiableCredentialSchema<T::AccountId, T::Moment>)) -> DispatchResult{
+			new_data: &(T::Signature, VerifiableCredentialSchema<T::Public, T::Moment>)) -> DispatchResult{
 			// Update the schema data
 			SchemaStore::<T>::insert(old_schema_key, new_data);
 			Self::deposit_event(Event::SchemaUpdated(old_schema_key.clone(), new_data.encode()));
 			Ok(())
 		}
 		// update a credential
-		fn update_verifiable_credential(old_credential_key: &T::Hash, new_data: &(T::Signature, VerifiableCredential<T::AccountId, T::Moment>)) -> DispatchResult{
+		fn update_verifiable_credential(old_credential_key: &T::Hash, new_data: &(T::Signature, VerifiableCredential<T::Public, T::Moment>)) -> DispatchResult{
 			// Update the credential data
 			CredentialStore::<T>::insert(old_credential_key, new_data);
 			Self::deposit_event(Event::CredentialUpdated(old_credential_key.clone(), new_data.encode()));
@@ -304,8 +304,8 @@ pub mod pallet {
 			Ok(())
 		}
 
-		fn is_valid_signer(data: &[u8], sig: &T::Signature, from: &T::AccountId) -> DispatchResult{
-			ensure!(sig.verify(data, from), <Error<T>>::SignatureVerifyError);
+		fn is_valid_signer(data: &[u8], sig: &T::Signature, from: &T::Public) -> DispatchResult{
+			ensure!(sig.verify(data, &from.clone().into_account()), <Error<T>>::SignatureVerifyError);
 			Ok(())
 		}
 	}

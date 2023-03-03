@@ -1,15 +1,15 @@
 //! Benchmarking setup for pallet-template
-
 use super::*;
 #[allow(unused)]
 use crate::Pallet as SchemaRegistry;
 use sp_core::Encode;
-use sp_core::sr25519;
+use sp_core::{H256, Pair, sr25519};
 use hex_literal::hex;
 use frame_benchmarking::{benchmarks, whitelisted_caller};
 use frame_system::RawOrigin;
 use scale_info::prelude::vec;
 use frame_support::assert_ok;
+use frame_support::sp_runtime::traits::{Hash, IdentifyAccount};
 use crate::types::*;
 
 
@@ -19,7 +19,7 @@ benchmarks! {
 		let s in 0 .. 100;
 		let caller: T::AccountId = whitelisted_caller();
 		let name = b"Alice Data".to_vec();
-		let creator = b"did:serv:5HDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec();
+		let creator = b"did:seneca:5HDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec();
 		let expiration_date: T::Moment = Default::default();
 		let nonce = 2u64;
 		let mandatory_fields = Attribute{
@@ -37,9 +37,16 @@ benchmarks! {
 			claim_type: ClaimType::CredentialClaim,
 			issuance_requirement: Some(vec![issuance_req.clone()]),
 		};
-		let schema: VerifiableCredentialSchema< T::Moment> = VerifiableCredentialSchema {
+		// sign the schema in benchmarks
+		let keypair = sr25519::Pair::from_string("//Alice", None).unwrap();
+		let sig: T::Signature = keypair.sign(&schema.encode()).into();
+		let pub_key: T::Public = keypair.public().into();
+		//create random hash
+		let hash = H256::random();
+
+		let schema: VerifiableCredentialSchema<T::Public, T::Moment> = VerifiableCredentialSchema {
 			name: name.clone(),
-			creator: creator.clone(),
+			creator: pub_key.clone(),
 			public: false,
 			creation_date: Default::default(),
 			expiration_date: Some(expiration_date),
@@ -50,23 +57,21 @@ benchmarks! {
 			metadata: b"metadata".to_vec(),
 			nonce,
 		};
-		// sign the schema.
-		// must be same type as T::Signature
-		let sig: T::Signature = sr25519::Signature::from_slice(&hex!("a6350211fcdf1d7f0c79bf0a9c296de17449ca88a899f0cd19a70b07513fc107b7d34249dba71d4761ceeec2ed6bc1305defeb96418e6869e6b6199ed0de558e")).unwrap().into();
+
 		// Encode and sign the schema message.
-	}:  _(RawOrigin::Signed(caller), name.clone(), creator.clone(), false,
+	}:  _(RawOrigin::Signed(caller), name.clone(), pub_key, false,
 			vec![mandatory_fields.clone()], Some(expiration_date), vec![claim.clone()], 
-			vec![claim.clone()], vec![claim.clone()], b"metadata".to_vec(), sig.clone(), nonce )
+			vec![claim.clone()], vec![claim.clone()], b"metadata".to_vec(), sig.clone(), hash.clone(),nonce )
 	verify {
 		//assert that the schema stored is different from the one created since the nonce is different.
-		assert_eq!(SchemaStore::<T>::get(sig.clone()), Some(schema));
+		assert_eq!(SchemaStore::<T>::get(hash.clone()), Some((sig, schema)));
 	}
 	update_schema{
 		let s in 0 .. 100;
 		let caller: T::AccountId = whitelisted_caller();
 		// Dispatch a signed extrinsic.
 		let name = b"Alice Data".to_vec();
-		let creator = b"did:serv:5HDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec();
+		let creator = b"did:seneca:5HDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec();
 		let expiration_date: T::Moment = Default::default();
 		let mandatory_fields = Attribute{
 			name: b"name".to_vec(),
@@ -84,9 +89,15 @@ benchmarks! {
 			claim_type: ClaimType::CredentialClaim,
 			issuance_requirement: Some(vec![issuance_req.clone()]),
 		};
-		let schema: VerifiableCredentialSchema<T::Moment> = VerifiableCredentialSchema {
+		// sign the schema in benchmarks
+		let keypair = sr25519::Pair::from_string("//Alice", None).unwrap();
+		let sig: T::Signature = keypair.sign(&schema.encode()).into();
+		let pub_key: T::Public = keypair.public().into();
+		//create random hash
+		let hash = H256::random();
+		let schema: VerifiableCredentialSchema<T::Public, T::Moment> = VerifiableCredentialSchema {
 			name: name.clone(),
-			creator: creator.clone(),
+			creator: pub_key.clone(),
 			public: false,
 			creation_date: Default::default(),
 			expiration_date: Some(expiration_date),
@@ -99,7 +110,7 @@ benchmarks! {
 		};
 		let updated_schema = VerifiableCredentialSchema {
 			name: name.clone(),
-			creator: creator.clone(),
+			creator: pub_key.clone(),
 			public: false,
 			creation_date: Default::default(),
 			expiration_date: Some(expiration_date),
@@ -111,12 +122,12 @@ benchmarks! {
 			nonce,
 		};
 		let sig: T::Signature = sr25519::Signature::from_slice(&hex!("a6350211fcdf1d7f0c79bf0a9c296de17449ca88a899f0cd19a70b07513fc107b7d34249dba71d4761ceeec2ed6bc1305defeb96418e6869e6b6199ed0de558e")).unwrap().into();
-		assert_ok!(SchemaRegistry::<T>::create_schema(RawOrigin::Signed(caller.clone()).into(), name, creator, false,
+		assert_ok!(SchemaRegistry::<T>::create_schema(RawOrigin::Signed(caller.clone()).into(), name, pub_key, false,
 									vec![mandatory_fields], Some(expiration_date), vec![claim.clone()], 
-									vec![claim.clone()], vec![claim.clone()], b"metadata".to_vec(), sig.clone(), nonce));
-	}:  _(RawOrigin::Signed(caller), sig.clone(), updated_schema.clone())
+									vec![claim.clone()], vec![claim.clone()], b"metadata".to_vec(), sig.clone(), hash.clone(), nonce));
+	}:  _(RawOrigin::Signed(caller), hash.clone(), (sig.clone(), updated_schema.clone()))
 	verify {
-		assert_eq!(SchemaStore::<T>::get(sig.clone()), Some(updated_schema.clone()));
+		assert_eq!(SchemaStore::<T>::get(hash.clone()), Some((sig.clone(), updated_schema.clone())));
 	}
 
 	delete_schema{
@@ -124,7 +135,7 @@ benchmarks! {
 		let caller: T::AccountId = whitelisted_caller();
 		// Dispatch a signed extrinsic.
 		let name = b"Alice Data".to_vec();
-		let creator = b"did:serv:5HDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec();
+		let creator = b"did:seneca:5HDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec();
 		let expiration_date: T::Moment = Default::default();
 		let mandatory_fields = Attribute{
 			name: b"name".to_vec(),
@@ -142,9 +153,17 @@ benchmarks! {
 			issuance_requirement: Some(vec![issuance_req.clone()]),
 		};
 		let nonce = 2u64;
-		let schema: VerifiableCredentialSchema<T::Moment> = VerifiableCredentialSchema {
+
+		// sign the schema in benchmarks
+		let keypair = sr25519::Pair::from_string("//Alice", None).unwrap();
+		let sig: T::Signature = keypair.sign(&schema.encode()).into();
+		let pub_key: T::Public = keypair.public().into();
+		//create random hash
+		let hash = H256::random();
+
+		let schema: VerifiableCredentialSchema<T::Public, T::Moment> = VerifiableCredentialSchema {
 			name: name.clone(),
-			creator: creator.clone(),
+			creator: pub_key.clone(),
 			public: false,
 			creation_date: Default::default(),
 			expiration_date: Some(expiration_date),
@@ -155,20 +174,20 @@ benchmarks! {
 			metadata: b"metadata".to_vec(),
 			nonce,
 		};
-		let sig: T::Signature = sr25519::Signature::from_slice(&hex!("a6350211fcdf1d7f0c79bf0a9c296de17449ca88a899f0cd19a70b07513fc107b7d34249dba71d4761ceeec2ed6bc1305defeb96418e6869e6b6199ed0de558e")).unwrap().into();
-		assert_ok!(SchemaRegistry::<T>::create_schema(RawOrigin::Signed(caller.clone()).into(), name, creator, false,
+
+		assert_ok!(SchemaRegistry::<T>::create_schema(RawOrigin::Signed(caller.clone()).into(), name, pub_key, false,
 									vec![mandatory_fields], Some(expiration_date), vec![claim.clone()], 
-									vec![claim.clone()], vec![claim.clone()], b"metadata".to_vec(), sig.clone(), nonce));
-	}:  _(RawOrigin::Signed(caller.clone()), sig.clone())
+									vec![claim.clone()], vec![claim.clone()], b"metadata".to_vec(), sig.clone(), hash.clone(), nonce));
+	}:  _(RawOrigin::Signed(caller.clone()), hash.clone())
 	verify {
-		assert_eq!(SchemaStore::<T>::get(sig.clone()), None);
+		assert_eq!(SchemaStore::<T>::get(hash.clone()), None);
 	}
 
 	create_credential{
 		let s in 0 .. 100;
 		let caller: T::AccountId = whitelisted_caller();
 		let name = b"Alice Data".to_vec();
-		let creator = b"did:serv:5HDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec();
+		let creator = b"did:seneca:5HDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec();
 		let context = b"Credential context".to_vec();
 		let expiration_date: T::Moment = Default::default();
 		let mandatory_fields = Attribute{
@@ -187,45 +206,51 @@ benchmarks! {
 			issuance_requirement: Some(vec![issuance_req.clone()]),
 		};
 		let name = b"Alice Data".to_vec();
-		let creator = b"did:serv:5HDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec();
+		let creator = b"did:seneca:5HDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec();
 		let subject = b"Credential subject".to_vec();
-		let credential_holder = b"did:serv:5HDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec();
+		let credential_holder = b"did:seneca:5HDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec();
 		let expiration_date: T::Moment = Default::default();
 		let mandatory_fields = Attribute{
 			name: b"name".to_vec(),
 			attribute_type: AttributeType::Hex,
 		};
-		let issuer = b"did:serv:5HDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec();
+		let issuer = b"did:seneca:5HDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec();
 		let subject = Subject{
-			id: b"did:serv:5HDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec(),
+			id: b"did:seneca:5HDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec(),
 			claim: vec![claim.clone()],
 		};
 		let nonce = 2u64;
 		let schema = "VerifiableCredentialSchema".encode();
-		let credential: VerifiableCredential<T::Moment>  = VerifiableCredential{
+
+		// sign the schema in benchmarks
+		let keypair = sr25519::Pair::from_string("//Alice", None).unwrap();
+		let sig: T::Signature = keypair.sign(&schema.encode()).into();
+		let pub_key: T::Public = keypair.public().into();
+		//create random hash
+		let hash = H256::random();
+
+		let credential: VerifiableCredential<T::Public, T::Moment>  = VerifiableCredential{
 			context: context.clone(),
 			schema: schema.clone(),
-			issuer: issuer.clone(),
+			issuer: pub_key.clone(),
 			issuance_date: Some(Default::default()),
 			expiration_date: Some(expiration_date),
 			subject: subject.clone(),
 			credential_holder: credential_holder.clone(),
 			nonce: nonce.clone()
 		};
-		// sign the schema.
-		// must be same type as T::Signature
-		let sig: T::Signature = sr25519::Signature::from_slice(&hex!("a6350211fcdf1d7f0c79bf0a9c296de17449ca88a899f0cd19a70b07513fc107b7d34249dba71d4761ceeec2ed6bc1305defeb96418e6869e6b6199ed0de558e")).unwrap().into();
+
 		// Encode and sign the schema message.
 	}:  _(RawOrigin::Signed(caller.clone()), context.clone(), schema.clone(), 
-				issuer,  Some(expiration_date),subject.clone(), credential_holder.clone(),sig.clone(), nonce )
+				pub_key.clone(),  Some(expiration_date),subject.clone(), credential_holder.clone(), sig.clone(), nonce, hash.clone() )
 	verify {
-		assert_eq!(CredentialStore::<T>::get(sig.clone()), Some(credential.clone()));
+		assert_eq!(CredentialStore::<T>::get(hash.clone()), Some((sig.clone(), credential.clone())));
 	}
 	update_credential{
 		let s in 0 .. 100;
 		let caller: T::AccountId = whitelisted_caller();
 		let name = b"Alice Data".to_vec();
-		let creator = b"did:serv:5HDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec();
+		let creator = b"did:seneca:5HDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec();
 		let context = b"Credential context".to_vec();
 		let expiration_date: T::Moment = Default::default();
 		let mandatory_fields = Attribute{
@@ -245,46 +270,49 @@ benchmarks! {
 		};
 		let name = b"Alice Data".to_vec();
 		let subject = b"Credential subject".to_vec();
-		let credential_holder = b"did:serv:5HDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec();
-		let credential_holder2 = b"did:serv:7JDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec();
-		let issuer = b"did:serv:5HDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec();
+		let credential_holder = b"did:seneca:5HDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec();
+		let credential_holder2 = b"did:seneca:7JDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec();
+		let issuer = b"did:seneca:5HDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec();
 		let expiration_date: T::Moment = Default::default();
 		let mandatory_fields = Attribute{
 			name: b"name".to_vec(),
 			attribute_type: AttributeType::Hex,
 		};
 		let subject = Subject{
-			id: b"did:serv:5HDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec(),
+			id: b"did:seneca:5HDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec(),
 			claim: vec![claim.clone()],
 		};
 		let nonce = 2u64;
 		// Encode and sign the credential.
 		let schema = "VerifiableCredentialSchema".encode();
-		let credential: VerifiableCredential<T::Moment>  = VerifiableCredential{
+		// sign the schema in benchmarks
+		let keypair = sr25519::Pair::from_string("//Alice", None).unwrap();
+		let sig: T::Signature = keypair.sign(&schema.encode()).into();
+		let pub_key: T::Public = keypair.public().into();
+		//create random hash
+		let hash = H256::random();
+		let credential: VerifiableCredential<T::Public, T::Moment>  = VerifiableCredential{
 			context: context.clone(),
 			schema: schema.clone(),
-			issuer: issuer.clone(),
+			issuer: pub_key.clone(),
 			issuance_date: Some(Default::default()),
 			expiration_date: Some(expiration_date),
 			subject: subject.clone(),
 			credential_holder: credential_holder.clone(),
 			nonce: nonce.clone()
 		};
-		// sign the schema.
-		// must be same type as T::Signature
-		let sig: T::Signature = sr25519::Signature::from_slice(&hex!("a6350211fcdf1d7f0c79bf0a9c296de17449ca88a899f0cd19a70b07513fc107b7d34249dba71d4761ceeec2ed6bc1305defeb96418e6869e6b6199ed0de558e")).unwrap().into();
 		assert_ok!(SchemaRegistry::<T>::create_credential(RawOrigin::Signed(caller.clone()).into(), context.clone(), schema.clone(), 
-				issuer, Some(expiration_date), subject.clone(), credential_holder2.clone(),sig.clone(), nonce));
+				pub_key.clone(), Some(expiration_date), subject.clone(), credential_holder2.clone(),sig.clone(), nonce, hash.clone()));
 		// Encode and sign the schema message.
-	}:  _(RawOrigin::Signed(caller.clone()), sig.clone(), credential.clone())
+	}:  _(RawOrigin::Signed(caller.clone()), hash.clone(),(sig.clone(), credential.clone()))
 	verify {
-		assert_eq!(CredentialStore::<T>::get(sig.clone()), Some(credential.clone()));
+		assert_eq!(CredentialStore::<T>::get(hash.clone()), Some((sig.clone(), credential.clone())));
 	}
 	delete_credential{
 		let s in 0 .. 100;
 		let caller: T::AccountId = whitelisted_caller();
 		let name = b"Alice Data".to_vec();
-		let creator = b"did:serv:5HDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec();
+		let creator = b"did:seneca:5HDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec();
 		let context = b"Credential context".to_vec();
 		let expiration_date: T::Moment = Default::default();
 		let mandatory_fields = Attribute{
@@ -304,40 +332,43 @@ benchmarks! {
 		};
 		let name = b"Alice Data".to_vec();
 		let subject = b"Credential subject".to_vec();
-		let credential_holder = b"did:serv:5HDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec();
-		let credential_holder2 = b"did:serv:7JDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec();
-		let issuer = b"did:serv:5HDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec();
+		let credential_holder = b"did:seneca:5HDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec();
+		let credential_holder2 = b"did:seneca:7JDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec();
+		let issuer = b"did:seneca:5HDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec();
 		let expiration_date: T::Moment = Default::default();
 		let mandatory_fields = Attribute{
 			name: b"name".to_vec(),
 			attribute_type: AttributeType::Hex,
 		};
 		let subject = Subject{
-			id: b"did:serv:5HDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec(),
+			id: b"did:seneca:5HDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec(),
 			claim: vec![claim.clone()],
 		};
 		let nonce = 2u64;
+		// sign the schema in benchmarks
+		let keypair = sr25519::Pair::from_string("//Alice", None).unwrap();
+		let sig: T::Signature = keypair.sign(&schema.encode()).into();
+		let pub_key: T::Public = keypair.public().into();
+		//create random hash
+		let hash = H256::random();
 		// Encode and sign the credential.
 		let schema = "VerifiableCredentialSchema".encode();
-		let credential: VerifiableCredential<T::Moment>  = VerifiableCredential{
+		let credential: VerifiableCredential<T::Public, T::Moment>  = VerifiableCredential{
 			context: context.clone(),
 			schema: schema.clone(),
-			issuer: issuer.clone(),
+			issuer: pub_key.clone(),
 			issuance_date: Some(Default::default()),
 			expiration_date: Some(expiration_date),
 			subject: subject.clone(),
 			credential_holder: credential_holder.clone(),
 			nonce: nonce.clone()
 		};
-		// sign the schema.
-		// must be same type as T::Signature
-		let sig: T::Signature = sr25519::Signature::from_slice(&hex!("a6350211fcdf1d7f0c79bf0a9c296de17449ca88a899f0cd19a70b07513fc107b7d34249dba71d4761ceeec2ed6bc1305defeb96418e6869e6b6199ed0de558e")).unwrap().into();
 		assert_ok!(SchemaRegistry::<T>::create_credential(RawOrigin::Signed(caller.clone()).into(), context.clone(), schema.clone(), 
-				issuer, Some(expiration_date), subject.clone(), credential_holder2.clone(),sig.clone(), nonce));
+				pub_key, Some(expiration_date), subject.clone(), credential_holder2.clone(),sig.clone(), nonce, hash.clone()));
 		// Encode and sign the schema message.
-	}:  _(RawOrigin::Signed(caller.clone()), sig.clone())
+	}:  _(RawOrigin::Signed(caller.clone()), hash.clone())
 	verify {
-		assert_eq!(CredentialStore::<T>::get(sig.clone()), None);
+		assert_eq!(CredentialStore::<T>::get(hash.clone()), None);
 	}
 
 	impl_benchmark_test_suite!(SchemaRegistry, crate::mock::new_test_ext(), crate::mock::Test);
