@@ -2,14 +2,12 @@
 use super::*;
 #[allow(unused)]
 use crate::Pallet as SchemaRegistry;
-use sp_core::Encode;
-use sp_core::{H256, Pair, sr25519};
-use hex_literal::hex;
+use codec::Encode;
+use sp_core::{Pair, sr25519};
 use frame_benchmarking::{benchmarks, whitelisted_caller};
 use frame_system::RawOrigin;
 use scale_info::prelude::vec;
 use frame_support::assert_ok;
-use frame_support::sp_runtime::traits::{Hash, IdentifyAccount};
 use crate::types::*;
 
 
@@ -37,12 +35,11 @@ benchmarks! {
 			claim_type: ClaimType::CredentialClaim,
 			issuance_requirement: Some(vec![issuance_req.clone()]),
 		};
-		// sign the schema in benchmarks
+
+		//create random schema_id
+		let asset_id: T::SchemaId = Default::default();
 		let keypair = sr25519::Pair::from_string("//Alice", None).unwrap();
-		let sig: T::Signature = keypair.sign(&schema.encode()).into();
 		let pub_key: T::Public = keypair.public().into();
-		//create random hash
-		let hash = H256::random();
 
 		let schema: VerifiableCredentialSchema<T::Public, T::Moment> = VerifiableCredentialSchema {
 			name: name.clone(),
@@ -58,13 +55,16 @@ benchmarks! {
 			nonce,
 		};
 
+		// sign the schema in benchmarks
+		let sig: T::Signature = keypair.sign(&schema.encode()).into();
+
 		// Encode and sign the schema message.
 	}:  _(RawOrigin::Signed(caller), name.clone(), pub_key, false,
 			vec![mandatory_fields.clone()], Some(expiration_date), vec![claim.clone()], 
-			vec![claim.clone()], vec![claim.clone()], b"metadata".to_vec(), sig.clone(), hash.clone(),nonce )
+			vec![claim.clone()], vec![claim.clone()], b"metadata".to_vec(), sig.clone(), asset_id.clone(),nonce )
 	verify {
 		//assert that the schema stored is different from the one created since the nonce is different.
-		assert_eq!(SchemaStore::<T>::get(hash.clone()), Some((sig, schema)));
+		assert_eq!(SchemaStore::<T>::get(asset_id.clone()), Some((sig, schema)));
 	}
 	update_schema{
 		let s in 0 .. 100;
@@ -89,12 +89,11 @@ benchmarks! {
 			claim_type: ClaimType::CredentialClaim,
 			issuance_requirement: Some(vec![issuance_req.clone()]),
 		};
-		// sign the schema in benchmarks
+		//create random schema_id
+		let asset_id: T::SchemaId = Default::default();
 		let keypair = sr25519::Pair::from_string("//Alice", None).unwrap();
-		let sig: T::Signature = keypair.sign(&schema.encode()).into();
 		let pub_key: T::Public = keypair.public().into();
-		//create random hash
-		let hash = H256::random();
+
 		let schema: VerifiableCredentialSchema<T::Public, T::Moment> = VerifiableCredentialSchema {
 			name: name.clone(),
 			creator: pub_key.clone(),
@@ -121,13 +120,16 @@ benchmarks! {
 			metadata: b"metadata2".to_vec(),
 			nonce,
 		};
-		let sig: T::Signature = sr25519::Signature::from_slice(&hex!("a6350211fcdf1d7f0c79bf0a9c296de17449ca88a899f0cd19a70b07513fc107b7d34249dba71d4761ceeec2ed6bc1305defeb96418e6869e6b6199ed0de558e")).unwrap().into();
+
+		// sign the schema in benchmarks
+		let sig: T::Signature = keypair.sign(&schema.encode()).into();
+
 		assert_ok!(SchemaRegistry::<T>::create_schema(RawOrigin::Signed(caller.clone()).into(), name, pub_key, false,
 									vec![mandatory_fields], Some(expiration_date), vec![claim.clone()], 
-									vec![claim.clone()], vec![claim.clone()], b"metadata".to_vec(), sig.clone(), hash.clone(), nonce));
-	}:  _(RawOrigin::Signed(caller), hash.clone(), (sig.clone(), updated_schema.clone()))
+									vec![claim.clone()], vec![claim.clone()], b"metadata".to_vec(), sig.clone(), asset_id.clone(), nonce));
+	}:  _(RawOrigin::Signed(caller), asset_id.clone(), (sig.clone(), updated_schema.clone()))
 	verify {
-		assert_eq!(SchemaStore::<T>::get(hash.clone()), Some((sig.clone(), updated_schema.clone())));
+		assert_eq!(SchemaStore::<T>::get(asset_id.clone()), Some((sig.clone(), updated_schema.clone())));
 	}
 
 	delete_schema{
@@ -154,12 +156,12 @@ benchmarks! {
 		};
 		let nonce = 2u64;
 
+		//create random schema_id
+		let asset_id: T::SchemaId = Default::default();
+
 		// sign the schema in benchmarks
 		let keypair = sr25519::Pair::from_string("//Alice", None).unwrap();
-		let sig: T::Signature = keypair.sign(&schema.encode()).into();
 		let pub_key: T::Public = keypair.public().into();
-		//create random hash
-		let hash = H256::random();
 
 		let schema: VerifiableCredentialSchema<T::Public, T::Moment> = VerifiableCredentialSchema {
 			name: name.clone(),
@@ -175,12 +177,14 @@ benchmarks! {
 			nonce,
 		};
 
+		let sig: T::Signature = keypair.sign(&schema.encode()).into();
+
 		assert_ok!(SchemaRegistry::<T>::create_schema(RawOrigin::Signed(caller.clone()).into(), name, pub_key, false,
 									vec![mandatory_fields], Some(expiration_date), vec![claim.clone()], 
-									vec![claim.clone()], vec![claim.clone()], b"metadata".to_vec(), sig.clone(), hash.clone(), nonce));
-	}:  _(RawOrigin::Signed(caller.clone()), hash.clone())
+									vec![claim.clone()], vec![claim.clone()], b"metadata".to_vec(), sig.clone(), asset_id.clone(), nonce));
+	}:  _(RawOrigin::Signed(caller.clone()), asset_id.clone())
 	verify {
-		assert_eq!(SchemaStore::<T>::get(hash.clone()), None);
+		assert_eq!(SchemaStore::<T>::get(asset_id.clone()), None);
 	}
 
 	create_credential{
@@ -221,13 +225,11 @@ benchmarks! {
 		};
 		let nonce = 2u64;
 		let schema = "VerifiableCredentialSchema".encode();
-
-		// sign the schema in benchmarks
+		//create random credential_id
+		let asset_id: T::CredentialId = Default::default();
+		// sign the credential in benchmarks
 		let keypair = sr25519::Pair::from_string("//Alice", None).unwrap();
-		let sig: T::Signature = keypair.sign(&schema.encode()).into();
 		let pub_key: T::Public = keypair.public().into();
-		//create random hash
-		let hash = H256::random();
 
 		let credential: VerifiableCredential<T::Public, T::Moment>  = VerifiableCredential{
 			context: context.clone(),
@@ -240,11 +242,12 @@ benchmarks! {
 			nonce: nonce.clone()
 		};
 
-		// Encode and sign the schema message.
+		let sig: T::Signature = keypair.sign(&credential.encode()).into();
+
 	}:  _(RawOrigin::Signed(caller.clone()), context.clone(), schema.clone(), 
-				pub_key.clone(),  Some(expiration_date),subject.clone(), credential_holder.clone(), sig.clone(), nonce, hash.clone() )
+				pub_key.clone(),  Some(expiration_date),subject.clone(), credential_holder.clone(), sig.clone(), nonce, asset_id.clone() )
 	verify {
-		assert_eq!(CredentialStore::<T>::get(hash.clone()), Some((sig.clone(), credential.clone())));
+		assert_eq!(CredentialStore::<T>::get(asset_id.clone()), Some((sig.clone(), credential.clone())));
 	}
 	update_credential{
 		let s in 0 .. 100;
@@ -283,14 +286,13 @@ benchmarks! {
 			claim: vec![claim.clone()],
 		};
 		let nonce = 2u64;
-		// Encode and sign the credential.
 		let schema = "VerifiableCredentialSchema".encode();
-		// sign the schema in benchmarks
+		//create random credential_id
+		let asset_id: T::CredentialId = Default::default();
+		// sign the credential in benchmarks
 		let keypair = sr25519::Pair::from_string("//Alice", None).unwrap();
-		let sig: T::Signature = keypair.sign(&schema.encode()).into();
 		let pub_key: T::Public = keypair.public().into();
-		//create random hash
-		let hash = H256::random();
+
 		let credential: VerifiableCredential<T::Public, T::Moment>  = VerifiableCredential{
 			context: context.clone(),
 			schema: schema.clone(),
@@ -301,12 +303,27 @@ benchmarks! {
 			credential_holder: credential_holder.clone(),
 			nonce: nonce.clone()
 		};
+
+		let credential2: VerifiableCredential<T::Public, T::Moment>  = VerifiableCredential{
+			context: context.clone(),
+			schema: schema.clone(),
+			issuer: pub_key.clone(),
+			issuance_date: Some(Default::default()),
+			expiration_date: Some(expiration_date),
+			subject: subject.clone(),
+			credential_holder: credential_holder2.clone(),
+			nonce: nonce.clone()
+		};
+
+		let sig: T::Signature = keypair.sign(&credential.encode()).into();
+		let sig2: T::Signature = keypair.sign(&credential2.encode()).into();
+
 		assert_ok!(SchemaRegistry::<T>::create_credential(RawOrigin::Signed(caller.clone()).into(), context.clone(), schema.clone(), 
-				pub_key.clone(), Some(expiration_date), subject.clone(), credential_holder2.clone(),sig.clone(), nonce, hash.clone()));
+				pub_key.clone(), Some(expiration_date), subject.clone(), credential_holder.clone(),sig.clone(), nonce, asset_id.clone()));
 		// Encode and sign the schema message.
-	}:  _(RawOrigin::Signed(caller.clone()), hash.clone(),(sig.clone(), credential.clone()))
+	}:  _(RawOrigin::Signed(caller.clone()), asset_id.clone(),(sig2.clone(), credential2.clone()))
 	verify {
-		assert_eq!(CredentialStore::<T>::get(hash.clone()), Some((sig.clone(), credential.clone())));
+		assert_eq!(CredentialStore::<T>::get(asset_id.clone()), Some((sig2.clone(), credential2.clone())));
 	}
 	delete_credential{
 		let s in 0 .. 100;
@@ -345,14 +362,14 @@ benchmarks! {
 			claim: vec![claim.clone()],
 		};
 		let nonce = 2u64;
-		// sign the schema in benchmarks
-		let keypair = sr25519::Pair::from_string("//Alice", None).unwrap();
-		let sig: T::Signature = keypair.sign(&schema.encode()).into();
-		let pub_key: T::Public = keypair.public().into();
-		//create random hash
-		let hash = H256::random();
-		// Encode and sign the credential.
+
+		//create random credential_id
+		let asset_id: T::CredentialId = Default::default();
 		let schema = "VerifiableCredentialSchema".encode();
+		// sign the credential in benchmarks
+		let keypair = sr25519::Pair::from_string("//Alice", None).unwrap();
+		let pub_key: T::Public = keypair.public().into();
+
 		let credential: VerifiableCredential<T::Public, T::Moment>  = VerifiableCredential{
 			context: context.clone(),
 			schema: schema.clone(),
@@ -363,12 +380,15 @@ benchmarks! {
 			credential_holder: credential_holder.clone(),
 			nonce: nonce.clone()
 		};
+
+		let sig: T::Signature = keypair.sign(&credential.encode()).into();
+
 		assert_ok!(SchemaRegistry::<T>::create_credential(RawOrigin::Signed(caller.clone()).into(), context.clone(), schema.clone(), 
-				pub_key, Some(expiration_date), subject.clone(), credential_holder2.clone(),sig.clone(), nonce, hash.clone()));
+				pub_key, Some(expiration_date), subject.clone(), credential_holder.clone(),sig.clone(), nonce, asset_id.clone()));
 		// Encode and sign the schema message.
-	}:  _(RawOrigin::Signed(caller.clone()), hash.clone())
+	}:  _(RawOrigin::Signed(caller.clone()), asset_id.clone())
 	verify {
-		assert_eq!(CredentialStore::<T>::get(hash.clone()), None);
+		assert_eq!(CredentialStore::<T>::get(asset_id.clone()), None);
 	}
 
 	impl_benchmark_test_suite!(SchemaRegistry, crate::mock::new_test_ext(), crate::mock::Test);

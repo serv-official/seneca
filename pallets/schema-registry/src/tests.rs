@@ -46,7 +46,7 @@ fn it_works_for_create_schema() {
 			metadata: b"metadata".to_vec(),
 			nonce,
 		};
-		let rand_hash = random_hash();
+		let asset_id = 0u32;
 		//dbg!("Schema: {:?}", schema);
 		let binding = schema.encode();
 		let vc_bytes = binding.as_slice();
@@ -54,7 +54,7 @@ fn it_works_for_create_schema() {
 		// Dispatch a signed create schema extrinsic.
 		assert_ok!(SchemaRegistry::create_schema(RawOrigin::Signed(account_id).into(), name.clone(), account_id.clone(), false,  
 												vec![mandatory_fields.clone()], Some(expiration_date), vec![claim.clone()], 
-												vec![claim.clone()], vec![claim.clone()], b"metadata".to_vec(), data_sig.clone(), rand_hash, nonce, ));
+												vec![claim.clone()], vec![claim.clone()], b"metadata".to_vec(), data_sig.clone(), asset_id, nonce, ));
 
 	});
 
@@ -93,11 +93,11 @@ fn it_works_for_create_credential() {
 			credential_holder: credential_holder.clone(),
 			nonce: nonce.clone(),
 		};
-		let rand_hash = random_hash();
+		let asset_id = 0u32;
 		let data_sig = account_pair.sign(&credential.encode());
 		// Dispatch a signed create schema extrinsic.
 		assert_ok!(SchemaRegistry::create_credential(RawOrigin::Signed(account_pub).into(), context.clone(), schema.clone(), 
-													account_pub, Some(1702379816u64),subject.clone(),credential_holder.clone(),data_sig.clone(), nonce, rand_hash));
+													account_pub, Some(1702379816u64),subject.clone(),credential_holder.clone(),data_sig.clone(), nonce, asset_id));
 
 	});
 
@@ -156,13 +156,13 @@ fn it_works_for_update_schema() {
 		};
 		let data_sig = account_pair.sign(&schema.encode());
 		let updated_sig = account_pair.sign(&updated_schema.encode());
-		let rand_hash = random_hash();
+		let asset_id = 0u32;
 		// Dispatch a signed extrinsic.
 		assert_ok!(SchemaRegistry::create_schema(RawOrigin::Signed(account_pub).into(), name, account_pub.clone(), false,
 												vec![mandatory_fields], Some(expiration_date), vec![claim.clone()], 
-												vec![claim.clone()], vec![claim.clone()], b"metadata".to_vec(), data_sig.clone(),rand_hash, nonce));
-		assert_ok!(SchemaRegistry::update_schema(RawOrigin::Signed(account_pub).into(), rand_hash, (updated_sig.clone(), updated_schema.clone())));
-		assert_eq!(SchemaRegistry::schema_registry(rand_hash.clone()), Some((updated_sig, updated_schema)));
+												vec![claim.clone()], vec![claim.clone()], b"metadata".to_vec(), data_sig.clone(),asset_id, nonce));
+		assert_ok!(SchemaRegistry::update_schema(RawOrigin::Signed(account_pub).into(), asset_id, (updated_sig.clone(), updated_schema.clone())));
+		assert_eq!(SchemaRegistry::schema_registry(asset_id.clone()), Some((updated_sig, updated_schema)));
 
 	})
 }
@@ -213,13 +213,13 @@ fn it_works_for_update_credential() {
 	};
 		let data_sig = account_pair.sign(&credential.encode());
 		let updated_sig = account_pair.sign(&updated_credential.encode());
-		let rand_hash = random_hash();
+		let asset_id = 0u32;
 		// Dispatch a signed create schema extrinsic.
 		assert_ok!(SchemaRegistry::create_credential(RawOrigin::Signed(account_pub).into(), context.clone(), schema.clone(), 
 													account_pub.clone(), Some(1702479816u64),subject.clone(), credential_holder.clone(),data_sig.clone(),
-													nonce.clone(), rand_hash));
-		assert_ok!(SchemaRegistry::update_credential(RawOrigin::Signed(account_pub).into(), rand_hash.clone(),(updated_sig.clone(), credential.clone())));
-		assert_eq!(SchemaRegistry::credential_registry(rand_hash.clone()), Some((updated_sig, credential)));
+													nonce.clone(), asset_id));
+		assert_ok!(SchemaRegistry::update_credential(RawOrigin::Signed(account_pub).into(), asset_id.clone(),(updated_sig.clone(), credential.clone())));
+		assert_eq!(SchemaRegistry::credential_registry(asset_id.clone()), Some((updated_sig, credential)));
 
 	})
 }
@@ -262,15 +262,15 @@ fn it_works_for_delete_schema() {
 			nonce,
 		};
 		let data_sig = account_pair.sign(&schema.encode());
-		let rand_hash = random_hash();
+		let asset_id = 0u32;
 		// Dispatch a signed create schema extrinsic.
 		assert_ok!(SchemaRegistry::create_schema(RawOrigin::Signed(account_pub).into(), name, account_pub.clone(), false, 
 												vec![mandatory_fields], Some(expiration_date), vec![claim.clone()], 
-												vec![claim.clone()], vec![claim.clone()], b"metadata".to_vec(), data_sig.clone(), rand_hash, nonce));
+												vec![claim.clone()], vec![claim.clone()], b"metadata".to_vec(), data_sig.clone(), asset_id, nonce));
 		// Dispatch a signed extrinsic.
-		assert_ok!(SchemaRegistry::delete_schema(RawOrigin::Signed(account_pub).into(), rand_hash.clone()));
+		assert_ok!(SchemaRegistry::delete_schema(RawOrigin::Signed(account_pub).into(), asset_id.clone()));
 		// Read pallet storage and assert an expected result.
-		assert_eq!(SchemaRegistry::schema_registry(rand_hash.clone()), None);
+		assert_eq!(SchemaRegistry::schema_registry(asset_id.clone()), None);
 	});
 }
 
@@ -307,15 +307,15 @@ fn it_works_for_delete_credential() {
 			credential_holder: credential_holder.clone(),
 			nonce: nonce.clone(),
 	};
-	let rand_hash = random_hash();
+	let asset_id = 0u32;
 	let data_sig = account_pair.sign(&credential.encode());
-		// Dispatch a signed create schema extrinsic.
-		assert_ok!(SchemaRegistry::create_credential(RawOrigin::Signed(account_pub).into(),context.clone(), schema.clone(), 
-													account_pub.clone(), Some(1702379816u64),subject.clone(), credential_holder.clone(),data_sig.clone(), 
-													nonce, rand_hash));
-		// Dispatch a signed extrinsic.
-		assert_ok!(SchemaRegistry::delete_credential(RawOrigin::Signed(account_pub).into(), rand_hash.clone()));
-		// Read pallet storage and assert an expected result.
-		assert_eq!(SchemaRegistry::credential_registry(rand_hash.clone()), None);
+	// Dispatch a signed create schema extrinsic.
+	assert_ok!(SchemaRegistry::create_credential(RawOrigin::Signed(account_pub).into(),context.clone(), schema.clone(), 
+												account_pub.clone(), Some(1702379816u64),subject.clone(), credential_holder.clone(),data_sig.clone(), 
+												nonce, asset_id));
+	// Dispatch a signed extrinsic.
+	assert_ok!(SchemaRegistry::delete_credential(RawOrigin::Signed(account_pub).into(), asset_id.clone()));
+	// Read pallet storage and assert an expected result.
+	assert_eq!(SchemaRegistry::credential_registry(asset_id.clone()), None);
 	});
 }

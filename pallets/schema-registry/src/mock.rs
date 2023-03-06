@@ -80,6 +80,8 @@ impl pallet_schema_registry::Config for Test {
     type Signature = sp_core::sr25519::Signature;
     type Moment = Moment;
     type Timestamp = Timestamp;
+	type SchemaId = u32;
+	type CredentialId = u32;
 }
 // Build genesis storage according to the mock runtime.
 // Build genesis storage according to the mock runtime.
@@ -89,10 +91,6 @@ pub fn new_test_ext() -> sp_io::TestExternalities {
 
 pub fn account_pair(s: &str) -> sr25519::Pair {
     sr25519::Pair::from_string(&format!("//{}", s), None).expect("static values are valid; qed")
-}
-
-pub fn random_hash() -> H256 {
-	H256::random()
 }
 
 

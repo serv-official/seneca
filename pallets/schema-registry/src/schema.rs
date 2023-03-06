@@ -2,7 +2,7 @@ use crate::types::*;
 use frame_support::{dispatch::DispatchResult};
 use scale_info::prelude::vec::Vec;
 
-pub trait Schema<Public, Moment, Signature, Hash> {
+pub trait Schema<Public, Moment, Signature, SchemaId, CredentialId> {
     fn create_verifiable_schema(
         name: &Vec<u8>,
         creator: &Public,
@@ -16,7 +16,7 @@ pub trait Schema<Public, Moment, Signature, Hash> {
         metadata: &Vec<u8>,
         signature: &Signature,
         nonce: &u64,
-        random_hash: &Hash,
+        id: &SchemaId,
     ) -> DispatchResult;
     fn create_verifiable_credential(
         context: &Vec<u8>,
@@ -28,21 +28,21 @@ pub trait Schema<Public, Moment, Signature, Hash> {
         credential_holder: &Vec<u8>,
         signature: &Signature,
         nonce: &u64,
-        random_hash: &Hash,
+        id: &CredentialId,
     ) -> DispatchResult;
     fn update_verifiable_schema(
-        old_schema_key: &Hash, 
+        old_schema_key: &SchemaId, 
         new_data: &(Signature, VerifiableCredentialSchema<Public, Moment>),
     ) -> DispatchResult;
     fn update_verifiable_credential(
-        old_credential_sig: &Hash, 
+        old_credential_sig: &CredentialId, 
         new_data: &(Signature, VerifiableCredential<Public, Moment>)
     ) -> DispatchResult;
     fn delete_verifiable_schema(
-        key: &Hash,
+        key: &SchemaId,
     ) -> DispatchResult;
     fn delete_verifiable_credential(
-        key: &Hash,
+        key: &CredentialId,
     ) -> DispatchResult;
     fn is_valid_signer(data: &[u8], sig: &Signature, from: &Public) -> DispatchResult;
 }
