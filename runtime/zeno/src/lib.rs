@@ -545,6 +545,8 @@ impl pallet_schema_registry::Config for Runtime {
 	type Signature = Signature;
 	type Timestamp = pallet_timestamp::Pallet<Runtime>;
 	type WeightInfo = pallet_schema_registry::weights::SchemaRegistryWeightInfo<Runtime>;
+	type SchemaId = u32;
+	type CredentialId = u32;
 }
 
 // Create the runtime by composing the FRAME pallets that were previously configured.
