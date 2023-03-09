@@ -42,6 +42,7 @@ std = [
 	"sp-application-crypto/std",
 	"sp-std/std",
 	"sp-io/std",
+	"sp-core/std",
 ]
 runtime-benchmarks = [
 	"frame-benchmarking",

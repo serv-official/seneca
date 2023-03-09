@@ -5,7 +5,7 @@ use scale_info::prelude::vec::Vec;
 pub trait Schema<Public, Moment, Signature, SchemaId, CredentialId> {
     fn create_verifiable_schema(
         name: &Vec<u8>,
-        creator: &Public,
+        creator: &Vec<u8>,
         public: &bool,
         creation_date: Moment,
         expiration_date: Option<Moment>,
@@ -21,7 +21,7 @@ pub trait Schema<Public, Moment, Signature, SchemaId, CredentialId> {
     fn create_verifiable_credential(
         context: &Vec<u8>,
         schema: &Vec<u8>,
-        issuer: &Public,
+        issuer: &Vec<u8>,
         issuance_date: Option<Moment>,
         expiration_date: Option<Moment>,
         subject: &Subject,
@@ -32,11 +32,11 @@ pub trait Schema<Public, Moment, Signature, SchemaId, CredentialId> {
     ) -> DispatchResult;
     fn update_verifiable_schema(
         old_schema_key: &SchemaId, 
-        new_data: &(Signature, VerifiableCredentialSchema<Public, Moment>),
+        new_data: &(Signature, VerifiableCredentialSchema<Moment>),
     ) -> DispatchResult;
     fn update_verifiable_credential(
         old_credential_sig: &CredentialId, 
-        new_data: &(Signature, VerifiableCredential<Public, Moment>)
+        new_data: &(Signature, VerifiableCredential<Moment>)
     ) -> DispatchResult;
     fn delete_verifiable_schema(
         key: &SchemaId,
@@ -45,4 +45,5 @@ pub trait Schema<Public, Moment, Signature, SchemaId, CredentialId> {
         key: &CredentialId,
     ) -> DispatchResult;
     fn is_valid_signer(data: &[u8], sig: &Signature, from: &Public) -> DispatchResult;
+    fn split_publickey_from_did(did: &Vec<u8>) -> Public;
 }

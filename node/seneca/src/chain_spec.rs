@@ -158,16 +158,9 @@ fn testnet_genesis(
 			balances: endowed_accounts.iter().cloned().map(|x| (x, ENDOWMENT)).collect(),
 		},
 		session: SessionConfig {
-			keys: initial_authorities
-				.iter()
-				.map(|x| {
-					(
-						x.0.clone(),
-						x.0.clone(),
-						session_keys(x.2.clone(), x.3.clone(), x.4.clone()),
-					)
-				})
-				.collect::<Vec<_>>(),
+			keys: initial_authorities.iter().map(|x| {
+				(x.0.clone(), x.0.clone(), session_keys(x.2.clone(), x.3.clone(), x.4.clone()))
+			}).collect::<Vec<_>>(),
 		},
 		aura: AuraConfig {
 			authorities: vec![],
@@ -178,6 +171,7 @@ fn testnet_genesis(
 		validator_set: ValidatorSetConfig {
 			initial_validators: initial_authorities.iter().map(|x| x.0.clone()).collect::<Vec<_>>(),
 		},
+		technical_membership: Default::default(),
 		treasury: Default::default(),
 		council: CouncilConfig::default(),
 		technical_committee: TechnicalCommitteeConfig {

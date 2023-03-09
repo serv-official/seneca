@@ -1,6 +1,7 @@
 [workspace]
 members = [
-    "node",
+    "node/seneca",
+    "node/zeno",
     "pallets/schema-registry",
     "pallets/template",
     "runtime/seneca",

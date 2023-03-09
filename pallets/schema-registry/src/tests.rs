@@ -30,12 +30,13 @@ fn it_works_for_create_schema() {
 			issuance_requirement: Some(vec![issuance_req.clone()]),
 		};
 		let account_pair = account_pair("5NfERrBBRHZb59jVW6UMZZMTSBpikzvhXHDx7jPsiED6n47e");
-		let account_id = account_pair.public().into_account();
+		let signer = account_pair.public().into_account();
+		let account_id = format!("did:seneca:{}",account_pair.public().into_account());
 		let nonce = 2u64;
 		// Encode and sign the schema message.
 		let schema = VerifiableCredentialSchema {
 			name: name.clone(),
-			creator: account_id,
+			creator: account_id.clone().into(),
 			public: false, 
 			creation_date: Timestamp::now(),
 			expiration_date: Some(expiration_date),
@@ -52,7 +53,7 @@ fn it_works_for_create_schema() {
 		let vc_bytes = binding.as_slice();
 		let data_sig = account_pair.sign(&vc_bytes);
 		// Dispatch a signed create schema extrinsic.
-		assert_ok!(SchemaRegistry::create_schema(RawOrigin::Signed(account_id).into(), name.clone(), account_id.clone(), false,  
+		assert_ok!(SchemaRegistry::create_schema(RawOrigin::Signed(signer).into(), name.clone(), account_id.clone().into(), false,  
 												vec![mandatory_fields.clone()], Some(expiration_date), vec![claim.clone()], 
 												vec![claim.clone()], vec![claim.clone()], b"metadata".to_vec(), data_sig.clone(), asset_id, nonce, ));
 
@@ -73,8 +74,8 @@ fn it_works_for_create_credential() {
 			issuance_requirement: None,
 		};
 		let account_pair = account_pair("5NfERrBBRHZb59jVW6UMZZMTSBpikzvhXHDx7jPsiED6n47e");
-		let account_pub = account_pair.public().into_account();
-		
+		let signer = account_pair.public().into_account();
+		let account_id = format!("did:seneca:{}",account_pair.public().into_account());
 		let subject = Subject{
 				id: b"did:seneca:5GFEtniprMeFuh8HcoVrWxz4aQtv6T5V9bkENSnfPYhY4p8H".to_vec(),
 				claim: vec![claim.clone()],
@@ -86,7 +87,7 @@ fn it_works_for_create_credential() {
 		let credential = VerifiableCredential{
 			context: context.clone(),
 			schema: schema.clone(),
-			issuer: account_pub.clone(),
+			issuer: account_id.clone().into(),
 			issuance_date: Some(Timestamp::now()),
 			expiration_date: Some(1702379816u64),
 			subject: subject.clone(),
@@ -96,8 +97,8 @@ fn it_works_for_create_credential() {
 		let asset_id = 0u32;
 		let data_sig = account_pair.sign(&credential.encode());
 		// Dispatch a signed create schema extrinsic.
-		assert_ok!(SchemaRegistry::create_credential(RawOrigin::Signed(account_pub).into(), context.clone(), schema.clone(), 
-													account_pub, Some(1702379816u64),subject.clone(),credential_holder.clone(),data_sig.clone(), nonce, asset_id));
+		assert_ok!(SchemaRegistry::create_credential(RawOrigin::Signed(signer).into(), context.clone(), schema.clone(), 
+													account_id.into(), Some(1702379816u64),subject.clone(),credential_holder.clone(),data_sig.clone(), nonce, asset_id));
 
 	});
 
@@ -125,12 +126,13 @@ fn it_works_for_update_schema() {
 			issuance_requirement: Some(vec![issuance_req.clone()]),
 		};
 		let account_pair = account_pair("5NfERrBBRHZb59jVW6UMZZMTSBpikzvhXHDx7jPsiED6n47e");
-		let account_pub = account_pair.public().into_account();
+		let signer = account_pair.public().into_account();
+		let account_id = format!("did:seneca:{}",account_pair.public().into_account());
 		let nonce = 2u64;
 		// Encode and sign the schema message.
 		let schema = VerifiableCredentialSchema {
 			name: name.clone(),
-			creator: account_pub.clone(),
+			creator: account_id.clone().into(),
 			public: false,
 			creation_date: Timestamp::now(),
 			expiration_date: Some(expiration_date),
@@ -143,7 +145,7 @@ fn it_works_for_update_schema() {
 		};
 		let updated_schema = VerifiableCredentialSchema {
 			name: name.clone(),
-			creator: account_pub.clone(),
+			creator: account_id.clone().into(),
 			public: false,
 			creation_date: Timestamp::now(),
 			expiration_date: Some(expiration_date),
@@ -158,10 +160,10 @@ fn it_works_for_update_schema() {
 		let updated_sig = account_pair.sign(&updated_schema.encode());
 		let asset_id = 0u32;
 		// Dispatch a signed extrinsic.
-		assert_ok!(SchemaRegistry::create_schema(RawOrigin::Signed(account_pub).into(), name, account_pub.clone(), false,
+		assert_ok!(SchemaRegistry::create_schema(RawOrigin::Signed(signer).into(), name, account_id.clone().into(), false,
 												vec![mandatory_fields], Some(expiration_date), vec![claim.clone()], 
 												vec![claim.clone()], vec![claim.clone()], b"metadata".to_vec(), data_sig.clone(),asset_id, nonce));
-		assert_ok!(SchemaRegistry::update_schema(RawOrigin::Signed(account_pub).into(), asset_id, (updated_sig.clone(), updated_schema.clone())));
+		assert_ok!(SchemaRegistry::update_schema(RawOrigin::Signed(signer).into(), asset_id, (updated_sig.clone(), updated_schema.clone())));
 		assert_eq!(SchemaRegistry::schema_registry(asset_id.clone()), Some((updated_sig, updated_schema)));
 
 	})
@@ -180,7 +182,8 @@ fn it_works_for_update_credential() {
 			issuance_requirement: None,
 		};
 		let account_pair = account_pair("5NfERrBBRHZb59jVW6UMZZMTSBpikzvhXHDx7jPsiED6n47e");
-		let account_pub = account_pair.public().into_account();
+		let signer = account_pair.public().into_account();
+		let account_id = format!("did:seneca:{}",account_pair.public().into_account());
 		
 		let subject = Subject{
 			id: b"did:seneca:5GFEtniprMeFuh8HcoVrWxz4aQtv6T5V9bkENSnfPYhY4p8H".to_vec(),
@@ -194,7 +197,7 @@ fn it_works_for_update_credential() {
 		let credential = VerifiableCredential{
 				context: context.clone(),
 				schema: schema.clone(),
-				issuer: account_pub.clone(),
+				issuer: account_id.clone().into(),
 				issuance_date: Some(Timestamp::now()),
 				expiration_date: Some(1702479816u64),
 				subject: subject.clone(),
@@ -204,7 +207,7 @@ fn it_works_for_update_credential() {
 		let updated_credential = VerifiableCredential{
 			context: context.clone(),
 			schema: schema.clone(),
-			issuer: account_pub.clone(),
+			issuer: account_id.clone().into(),
 			issuance_date: Some(Timestamp::now()),
 			expiration_date: Some(1702379816u64),
 			subject: subject.clone(),
@@ -215,10 +218,10 @@ fn it_works_for_update_credential() {
 		let updated_sig = account_pair.sign(&updated_credential.encode());
 		let asset_id = 0u32;
 		// Dispatch a signed create schema extrinsic.
-		assert_ok!(SchemaRegistry::create_credential(RawOrigin::Signed(account_pub).into(), context.clone(), schema.clone(), 
-													account_pub.clone(), Some(1702479816u64),subject.clone(), credential_holder.clone(),data_sig.clone(),
+		assert_ok!(SchemaRegistry::create_credential(RawOrigin::Signed(signer).into(), context.clone(), schema.clone(), 
+													account_id.clone().into(), Some(1702479816u64),subject.clone(), credential_holder.clone(),data_sig.clone(),
 													nonce.clone(), asset_id));
-		assert_ok!(SchemaRegistry::update_credential(RawOrigin::Signed(account_pub).into(), asset_id.clone(),(updated_sig.clone(), credential.clone())));
+		assert_ok!(SchemaRegistry::update_credential(RawOrigin::Signed(signer).into(), asset_id.clone(),(updated_sig.clone(), credential.clone())));
 		assert_eq!(SchemaRegistry::credential_registry(asset_id.clone()), Some((updated_sig, credential)));
 
 	})
@@ -246,11 +249,12 @@ fn it_works_for_delete_schema() {
 			issuance_requirement: Some(vec![issuance_req.clone()]),
 		};
 		let account_pair = account_pair("5NfERrBBRHZb59jVW6UMZZMTSBpikzvhXHDx7jPsiED6n47e");
-		let account_pub = account_pair.public().into_account();
+		let signer = account_pair.public().into_account();
+		let account_id = format!("did:seneca:{}",account_pair.public().into_account());
 		let nonce = 2u64;
 		let schema = VerifiableCredentialSchema {
 			name: name.clone(),
-			creator: account_pub.clone(),
+			creator: account_id.clone().into(),
 			public: false,
 			creation_date: Timestamp::now(),
 			expiration_date: Some(expiration_date),
@@ -264,11 +268,11 @@ fn it_works_for_delete_schema() {
 		let data_sig = account_pair.sign(&schema.encode());
 		let asset_id = 0u32;
 		// Dispatch a signed create schema extrinsic.
-		assert_ok!(SchemaRegistry::create_schema(RawOrigin::Signed(account_pub).into(), name, account_pub.clone(), false, 
+		assert_ok!(SchemaRegistry::create_schema(RawOrigin::Signed(signer).into(), name, account_id.clone().into(), false, 
 												vec![mandatory_fields], Some(expiration_date), vec![claim.clone()], 
 												vec![claim.clone()], vec![claim.clone()], b"metadata".to_vec(), data_sig.clone(), asset_id, nonce));
 		// Dispatch a signed extrinsic.
-		assert_ok!(SchemaRegistry::delete_schema(RawOrigin::Signed(account_pub).into(), asset_id.clone()));
+		assert_ok!(SchemaRegistry::delete_schema(RawOrigin::Signed(signer).into(), asset_id.clone()));
 		// Read pallet storage and assert an expected result.
 		assert_eq!(SchemaRegistry::schema_registry(asset_id.clone()), None);
 	});
@@ -287,7 +291,8 @@ fn it_works_for_delete_credential() {
 			issuance_requirement: None,
 		};
 		let account_pair = account_pair("5NfERrBBRHZb59jVW6UMZZMTSBpikzvhXHDx7jPsiED6n47e");
-		let account_pub = account_pair.public().into_account();
+		let signer = account_pair.public().into_account();
+		let account_id = format!("did:seneca:{}",account_pair.public().into_account());
 		
 		let subject = Subject{
 			id: b"did:seneca:5GFEtniprMeFuh8HcoVrWxz4aQtv6T5V9bkENSnfPYhY4p8H".to_vec(),
@@ -300,7 +305,7 @@ fn it_works_for_delete_credential() {
 		let credential = VerifiableCredential{
 			context: context.clone(),
 			schema: schema.clone(),
-			issuer: account_pub.clone(),
+			issuer: account_id.clone().into(),
 			issuance_date: Some(Timestamp::now()),
 			expiration_date: Some(1702379816u64),
 			subject: subject.clone(),
@@ -310,11 +315,11 @@ fn it_works_for_delete_credential() {
 	let asset_id = 0u32;
 	let data_sig = account_pair.sign(&credential.encode());
 	// Dispatch a signed create schema extrinsic.
-	assert_ok!(SchemaRegistry::create_credential(RawOrigin::Signed(account_pub).into(),context.clone(), schema.clone(), 
-												account_pub.clone(), Some(1702379816u64),subject.clone(), credential_holder.clone(),data_sig.clone(), 
+	assert_ok!(SchemaRegistry::create_credential(RawOrigin::Signed(signer).into(),context.clone(), schema.clone(), 
+												account_id.clone().into(), Some(1702379816u64),subject.clone(), credential_holder.clone(),data_sig.clone(), 
 												nonce, asset_id));
 	// Dispatch a signed extrinsic.
-	assert_ok!(SchemaRegistry::delete_credential(RawOrigin::Signed(account_pub).into(), asset_id.clone()));
+	assert_ok!(SchemaRegistry::delete_credential(RawOrigin::Signed(signer).into(), asset_id.clone()));
 	// Read pallet storage and assert an expected result.
 	assert_eq!(SchemaRegistry::credential_registry(asset_id.clone()), None);
 	});

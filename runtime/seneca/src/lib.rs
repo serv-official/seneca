@@ -207,7 +207,7 @@ parameter_types! {
 
 impl validator_set::Config for Runtime {
 	type RuntimeEvent = RuntimeEvent;
-	type AddRemoveOrigin = EnsureRoot<AccountId>;
+	type AddRemoveOrigin = EnsureRootOrHalfCouncil;
 	type MinAuthorities = MinAuthorities;
 }
 
@@ -401,6 +401,24 @@ impl pallet_collective::Config<TechnicalCollective> for Runtime {
 	type WeightInfo = pallet_collective::weights::SubstrateWeight<Runtime>;
 }
 
+
+type EnsureRootOrHalfCouncil = EitherOfDiverse<
+	EnsureRoot<AccountId>,
+	pallet_collective::EnsureProportionMoreThan<AccountId, CouncilCollective, 1, 2>,
+>;
+impl pallet_membership::Config<pallet_membership::Instance1> for Runtime {
+	type RuntimeEvent = RuntimeEvent;
+	type AddOrigin = EnsureRootOrHalfCouncil;
+	type RemoveOrigin = EnsureRootOrHalfCouncil;
+	type SwapOrigin = EnsureRootOrHalfCouncil;
+	type ResetOrigin = EnsureRootOrHalfCouncil;
+	type PrimeOrigin = EnsureRootOrHalfCouncil;
+	type MembershipInitialized = TechnicalCommittee;
+	type MembershipChanged = TechnicalCommittee;
+	type MaxMembers = TechnicalMaxMembers;
+	type WeightInfo = pallet_membership::weights::SubstrateWeight<Runtime>;
+}
+
 parameter_types! {
 	pub const ProposalBond: Permill = Permill::from_percent(5);
 	pub const ProposalBondMinimum: Balance = 1 * DOLLARS;
@@ -566,6 +584,7 @@ construct_runtime!(
 		TransactionPayment: pallet_transaction_payment,
 		Council: pallet_collective::<Instance1>,
 		TechnicalCommittee: pallet_collective::<Instance2>,
+		TechnicalMembership: pallet_membership::<Instance1>,
 		ImOnline: pallet_im_online,
 		Treasury: pallet_treasury,
 		Session: pallet_session,
