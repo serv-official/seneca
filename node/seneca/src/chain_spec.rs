@@ -4,6 +4,8 @@ use seneca_runtime::{
 	SystemConfig, opaque::SessionKeys, ValidatorSetConfig, SessionConfig, ImOnlineConfig,
 	TechnicalCommitteeConfig, CouncilConfig, WASM_BINARY, 
 };
+use sc_telemetry::TelemetryEndpoints;
+use sc_service::Properties;
 use node_primitives::{AccountId, Balance};
 use sc_service::ChainType;
 use pallet_im_online::sr25519::AuthorityId as ImOnlineId;
@@ -13,7 +15,8 @@ use sp_finality_grandpa::AuthorityId as GrandpaId;
 use sp_runtime::traits::{IdentifyAccount, Verify};
 
 // The URL for the telemetry server.
-// const STAGING_TELEMETRY_URL: &str = "wss://telemetry.polkadot.io/submit/";
+const STAGING_TELEMETRY_URL: &str = "wss://telemetry.polkadot.io/submit/";
+const DEFAULT_PROTOCOL_ID: &str = "zeno";
 
 /// Specialized `ChainSpec`. This is a specialization of the general Substrate ChainSpec type.
 pub type ChainSpec = sc_service::GenericChainSpec<GenesisConfig>;
@@ -50,6 +53,15 @@ pub fn authority_keys_from_seed(seed: &str) -> (AccountId, AccountId, AuraId, Gr
 	)
 }
 
+/// Token
+pub fn zeno_properties() -> Properties {
+	let mut p = Properties::new();
+	p.insert("ss58format".into(), 42.into());
+	p.insert("tokenDecimals".into(), 6_i16.into());
+	p.insert("tokenSymbol".into(), "ZNO".into());
+	p
+}
+
 pub fn development_config() -> Result<ChainSpec, String> {
 	let wasm_binary = WASM_BINARY.ok_or_else(|| "Development wasm not available".to_string())?;
 
@@ -63,7 +75,7 @@ pub fn development_config() -> Result<ChainSpec, String> {
 			testnet_genesis(
 				wasm_binary,
 				// Initial PoA authorities
-				vec![authority_keys_from_seed("Alice")],
+				vec![authority_keys_from_seed("Alice"), authority_keys_from_seed("Bob")],
 				// Sudo account
 				get_account_id_from_seed::<sr25519::Public>("Alice"),
 				// Pre-funded accounts
@@ -81,10 +93,10 @@ pub fn development_config() -> Result<ChainSpec, String> {
 		// Telemetry
 		None,
 		// Protocol ID
-		None,
-		None,
+		Some(DEFAULT_PROTOCOL_ID),
 		// Properties
 		None,
+		Some(zeno_properties()),
 		// Extensions
 		None,
 	))
@@ -127,12 +139,15 @@ pub fn local_testnet_config() -> Result<ChainSpec, String> {
 		// Bootnodes
 		vec![],
 		// Telemetry
-		None,
+		Some(
+			TelemetryEndpoints::new(vec![(STAGING_TELEMETRY_URL.to_string(), 0)])
+				.expect("Staging telemetry url is valid; qed"),
+		),
 		// Protocol ID
-		None,
+		Some(DEFAULT_PROTOCOL_ID),
 		// Properties
 		None,
-		None,
+		Some(zeno_properties()),
 		// Extensions
 		None,
 	))
