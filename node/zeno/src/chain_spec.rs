@@ -59,7 +59,7 @@ pub fn authority_keys_from_seed(seed: &str) -> (AccountId, AccountId, AuraId, Gr
 pub fn zeno_properties() -> Properties {
 	let mut p = Properties::new();
 	p.insert("ss58format".into(), 42.into());
-	p.insert("tokenDecimals".into(), 15_i16.into());
+	p.insert("tokenDecimals".into(), 6_i16.into());
 	p.insert("tokenSymbol".into(), "ZNO".into());
 	p
 }

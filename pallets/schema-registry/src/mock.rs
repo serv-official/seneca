@@ -73,6 +73,7 @@ impl pallet_timestamp::Config for Test {
 	type WeightInfo = ();
 }
 
+
 impl pallet_schema_registry::Config for Test {
 	type RuntimeEvent = RuntimeEvent;
 	type WeightInfo = ();

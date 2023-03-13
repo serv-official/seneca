@@ -6,6 +6,7 @@ mod mock;
 #[cfg(test)]
 mod tests;
 mod types;
+mod convert;
 pub mod schema;
 
 pub use pallet::*;
@@ -16,19 +17,19 @@ pub mod weights;
 
 #[frame_support::pallet]
 pub mod pallet {
-	#[cfg(feature = "std")]
-	use sp_core::crypto::Ss58Codec;
 	use frame_support::{
 			pallet_prelude::*, ensure,
 			sp_runtime::traits::{Scale, IdentifyAccount, Member, Verify},
 			traits::{Time, IsType},
-		};
+	};
 	use codec::HasCompact;
 	use frame_system::pallet_prelude::*;
 	use scale_info::{prelude::vec::Vec, StaticTypeInfo };
 	use crate::weights::WeightInfo;
 	use crate::types::*;
 	use crate::schema::Schema;
+	use crate::convert::*;
+
 
 	#[pallet::pallet]
 	#[pallet::without_storage_info]
@@ -40,7 +41,12 @@ pub mod pallet {
 	pub trait Config: frame_system::Config {
 		/// Because this pallet emits events, it depends on the runtime's definition of an event.
 		type RuntimeEvent: From<Event<Self>> + IsType<<Self as frame_system::Config>::RuntimeEvent>;
-		type Public: IdentifyAccount<AccountId = Self::AccountId> + Encode + Decode + Member + From<sp_core::sr25519::Public> + TypeInfo;
+		type Public: IdentifyAccount<AccountId = Self::AccountId> 
+		+ Encode 
+		+ Decode 
+		+ Member 
+		+ From<sp_core::sr25519::Public>  
+		+ TypeInfo;
 		type Signature: Verify<Signer = Self::Public> + Member + Parameter + Decode + Encode + From<sp_core::sr25519::Signature> + TypeInfo;
 		type Moment: Parameter
 		+ Default
@@ -229,7 +235,7 @@ pub mod pallet {
 	}
 
 	impl<T: Config>
-	Schema<T::Public, T::Moment, T::Signature, T::SchemaId, T::CredentialId>
+	Schema<T::AccountId, T::Moment, T::Signature, T::SchemaId, T::CredentialId>
 	for Pallet<T>
 	{
 		// Function to create a new schema
@@ -334,19 +340,20 @@ pub mod pallet {
 			Ok(())
 		}
 
-		fn is_valid_signer(data: &[u8], sig: &T::Signature, from: &T::Public) -> DispatchResult{
-			ensure!(sig.verify(data, &from.clone().into_account()), <Error<T>>::SignatureVerifyError);
+		fn is_valid_signer(data: &[u8], sig: &T::Signature, from: &T::AccountId) -> DispatchResult{
+			ensure!(sig.verify(data, from), <Error<T>>::SignatureVerifyError);
 			Ok(())
 		}
-
-		fn split_publickey_from_did(did: &Vec<u8>) -> T::Public {
+		
+		#[inline]
+		fn split_publickey_from_did(did: &Vec<u8>) -> T::AccountId {
 			let did_string = sp_std::str::from_utf8(did).unwrap();
 			let did_vec: Vec<&str> = did_string.split(":").collect();
-			let pub_key = sp_core::sr25519::Public::from_ss58check(did_vec[2]).unwrap();
-			T::Public::from(pub_key)
-			
+			let public_key_str = did_vec[2].trim();
+			let pub_key = convert_string_to_accountid(public_key_str);
+			pub_key
 		}
-	}
 
+	}
 
 }

@@ -2,7 +2,7 @@ use crate::types::*;
 use frame_support::{dispatch::DispatchResult};
 use scale_info::prelude::vec::Vec;
 
-pub trait Schema<Public, Moment, Signature, SchemaId, CredentialId> {
+pub trait Schema<AccountId, Moment, Signature, SchemaId, CredentialId> {
     fn create_verifiable_schema(
         name: &Vec<u8>,
         creator: &Vec<u8>,
@@ -44,6 +44,6 @@ pub trait Schema<Public, Moment, Signature, SchemaId, CredentialId> {
     fn delete_verifiable_credential(
         key: &CredentialId,
     ) -> DispatchResult;
-    fn is_valid_signer(data: &[u8], sig: &Signature, from: &Public) -> DispatchResult;
-    fn split_publickey_from_did(did: &Vec<u8>) -> Public;
+    fn is_valid_signer(data: &[u8], sig: &Signature, from: &AccountId) -> DispatchResult;
+    fn split_publickey_from_did(did: &Vec<u8>) -> AccountId;
 }

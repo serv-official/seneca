@@ -30,7 +30,7 @@ fn it_works_for_create_schema() {
 			issuance_requirement: Some(vec![issuance_req.clone()]),
 		};
 		let account_pair = account_pair("5NfERrBBRHZb59jVW6UMZZMTSBpikzvhXHDx7jPsiED6n47e");
-		let signer = account_pair.public().into_account();
+		let signer = account_pair.public();
 		let account_id = format!("did:seneca:{}",account_pair.public().into_account());
 		let nonce = 2u64;
 		// Encode and sign the schema message.
@@ -74,8 +74,10 @@ fn it_works_for_create_credential() {
 			issuance_requirement: None,
 		};
 		let account_pair = account_pair("5NfERrBBRHZb59jVW6UMZZMTSBpikzvhXHDx7jPsiED6n47e");
-		let signer = account_pair.public().into_account();
-		let account_id = format!("did:seneca:{}",account_pair.public().into_account());
+		let signer = account_pair.public();
+		println!("Signer: {}", signer);
+		let account_id = format!("did:seneca:{}",account_pair.public().to_string());
+		println!("account_id: {}", account_id.clone());
 		let subject = Subject{
 				id: b"did:seneca:5GFEtniprMeFuh8HcoVrWxz4aQtv6T5V9bkENSnfPYhY4p8H".to_vec(),
 				claim: vec![claim.clone()],
@@ -126,7 +128,7 @@ fn it_works_for_update_schema() {
 			issuance_requirement: Some(vec![issuance_req.clone()]),
 		};
 		let account_pair = account_pair("5NfERrBBRHZb59jVW6UMZZMTSBpikzvhXHDx7jPsiED6n47e");
-		let signer = account_pair.public().into_account();
+		let signer = account_pair.public();
 		let account_id = format!("did:seneca:{}",account_pair.public().into_account());
 		let nonce = 2u64;
 		// Encode and sign the schema message.
@@ -182,7 +184,7 @@ fn it_works_for_update_credential() {
 			issuance_requirement: None,
 		};
 		let account_pair = account_pair("5NfERrBBRHZb59jVW6UMZZMTSBpikzvhXHDx7jPsiED6n47e");
-		let signer = account_pair.public().into_account();
+		let signer = account_pair.public();
 		let account_id = format!("did:seneca:{}",account_pair.public().into_account());
 		
 		let subject = Subject{
@@ -249,7 +251,7 @@ fn it_works_for_delete_schema() {
 			issuance_requirement: Some(vec![issuance_req.clone()]),
 		};
 		let account_pair = account_pair("5NfERrBBRHZb59jVW6UMZZMTSBpikzvhXHDx7jPsiED6n47e");
-		let signer = account_pair.public().into_account();
+		let signer = account_pair.public();
 		let account_id = format!("did:seneca:{}",account_pair.public().into_account());
 		let nonce = 2u64;
 		let schema = VerifiableCredentialSchema {
@@ -291,7 +293,7 @@ fn it_works_for_delete_credential() {
 			issuance_requirement: None,
 		};
 		let account_pair = account_pair("5NfERrBBRHZb59jVW6UMZZMTSBpikzvhXHDx7jPsiED6n47e");
-		let signer = account_pair.public().into_account();
+		let signer = account_pair.public();
 		let account_id = format!("did:seneca:{}",account_pair.public().into_account());
 		
 		let subject = Subject{
