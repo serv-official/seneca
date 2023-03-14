@@ -1,8 +1,11 @@
 [workspace]
 members = [
-    "node",
+    "node/seneca",
+    "node/zeno",
     "pallets/schema-registry",
-    "runtime",
+    "pallets/template",
+    "runtime/seneca",
+    "runtime/zeno",
 ]
 
 [profile.release]
@@ -19,4 +22,3 @@ inherits = "release"
 debug = 1 # debug symbols are useful for profilers
 debug-assertions = true
 overflow-checks = true
-        

@@ -1,9 +1,9 @@
-# Serv Network &middot; [![GitHub license](https://img.shields.io/badge/license-GPL3%2FApache2-blue)](#LICENSE) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](docs/CONTRIBUTING.adoc) [![Substrate](https://img.shields.io/badge/v.4-Substrate-blue)](https://joinserv.com/)
+# Seneca Network &middot; [![GitHub license](https://img.shields.io/badge/license-GPL3%2FApache2-blue)](#LICENSE) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](docs/CONTRIBUTING.adoc) [![Substrate](https://img.shields.io/badge/v.4-Substrate-blue)](https://joinserv.com/)
 <div align="center">
   <p align="center">
     <img src="/docs/media/serv.png">
   </p>
-  <strong>Implementation of the serv network node <a href="https://joinserv.com">joinserv.com</a>. Built using <a href="https://github.com/paritytech/substrate">Substrate Framework</a>.</strong> 🚀
+  <strong>Implementation of the seneca network node <a href="https://seneca.tech">seneca.tech</a>. Built using <a href="https://github.com/paritytech/substrate">Substrate Framework</a>.</strong> 🚀
 
   <h3>
     <a href="https://docs.substrate.io">Docs</a> 📚
@@ -15,10 +15,11 @@
 
 ## 🚴 Features
 
-* WASM Smart contract support
-* NPoS
-* Onchain governance
+* Verifiable Credentials
 * DID support
+* WASM Smart contract support
+* POA with plans to upgrade to POASI(Proof of Algorithmically Staked Identity Consensus)
+* Onchain governance
 
 **Notes:** The code is un-audited and still under active development, use it at your own risk.
 
@@ -38,7 +39,7 @@ Use the following command to build the node and run it after build successfully:
 
 ```sh
 cargo build --release
-./target/release/serv --dev
+./target/release/seneca-node --dev
 ```
 
 ### 🕸️ Multi-Node Local Testnet
@@ -86,14 +87,14 @@ Then run the following command to start a single node development chain.
 ./scripts/docker_run.sh
 ```
 
-This command will firstly compile your code, and then start a local development network. You can also replace the default command (`cargo build --release && ./target/release/serv --dev --ws-external`) by appending your own. A few useful ones are as follow.
+This command will firstly compile your code, and then start a local development network. You can also replace the default command (`cargo build --release && ./target/release/seneca-node --dev --ws-external`) by appending your own. A few useful ones are as follow.
 
 ```bash
 # Run Substrate node without re-compiling
-./scripts/docker_run.sh ./target/release/serv --dev --ws-external
+./scripts/docker_run.sh ./target/release/seneca-node --dev --ws-external
 
 # Purge the local dev chain
-./scripts/docker_run.sh ./target/release/serv purge-chain --dev
+./scripts/docker_run.sh ./target/release/seneca-node purge-chain --dev
 
 # Check whether the code is compilable
 ./scripts/docker_run.sh cargo check
@@ -103,7 +104,7 @@ This command will firstly compile your code, and then start a local development 
 Connect as a validator
 * Start your validator node, make sure your node has discovered other peers
   ```shell
-    ./target/release/serv-node \
+    ./target/release/seneca-node \
     --base-path  /tmp/<validator name> \
     --chain  serv-spec-raw.json \
     --bootnodes  /ip4/172.31.23.55/tcp/30333/p2p/12D3KooWCkmvmzEYwdxS7c6zkXT9K8u2PUxfPRogDShH9CrcecB4 \
@@ -120,7 +121,7 @@ Connect as a validator
   | babe      | Sr25519 |
   | imon      | Sr25519 |
   ```
-    ./target/release/serv-node key insert \
+    ./target/release/seneca-node key insert \
     --base-path <path for this validator> \
     --chain <raw relay chainSpec> \
     --scheme <see table> \
