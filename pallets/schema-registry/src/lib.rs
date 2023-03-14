@@ -147,6 +147,7 @@ pub mod pallet {
 		#[pallet::call_index(1)]
 		#[pallet::weight(T::WeightInfo::create_schema())]
 		pub fn create_schema(origin: OriginFor<T>, 
+			#[pallet::compact] id: T::SchemaId,
 			name: Vec<u8>, 
 			creator: Vec<u8>, 
 			public: bool,
@@ -157,7 +158,6 @@ pub mod pallet {
 			credential_claims: Vec<Claim>,			
 			metadata: Vec<u8>,
 			signature: T::Signature,
-			#[pallet::compact] id: T::SchemaId,
 			nonce: u64, 
 			) -> DispatchResult {
 			// Ensure that the caller of the function is signed
@@ -166,13 +166,14 @@ pub mod pallet {
 			// Ensure that the Schema does not already exist
 			ensure!(!SchemaStore::<T>::contains_key(&id), "Schema already exists");
 			// Create a new Schema item
-			Self::create_verifiable_schema(&name, &creator, &public, creation_date, expiration_date, &mandatory_fields, &issuer_claims, &subject_claims, &credential_claims, &metadata, &signature, &nonce, &id)
+			Self::create_verifiable_schema(&id, &name, &creator, &public, creation_date, expiration_date, &mandatory_fields, &issuer_claims, &subject_claims, &credential_claims, &metadata, &signature, &nonce)
 		}
 
 		/// Create a new credential item
 		#[pallet::call_index(2)]
 		#[pallet::weight(T::WeightInfo::create_credential())]
 		pub fn create_credential(origin: OriginFor<T>, 
+			#[pallet::compact] id: T::CredentialId,
 			context: Vec<u8>,
 			schema: Vec<u8>,
 			issuer: Vec<u8>,
@@ -181,7 +182,6 @@ pub mod pallet {
 			credential_holder: Vec<u8>,
 			signature: T::Signature,
 			nonce: u64,
-			#[pallet::compact] id: T::CredentialId,
 			) -> DispatchResult {
 
 			// Ensure that the caller of the function is signed
@@ -189,7 +189,7 @@ pub mod pallet {
 			let issuance_date = Some(T::Timestamp::now());
 			// Ensure that the Credential does not already exist
 			ensure!(!CredentialStore::<T>::contains_key(&id), "Credential already exists");
-			Self::create_verifiable_credential(&context, &schema, &issuer, issuance_date, expiration_date, &subject, &credential_holder, &signature, &nonce, &id)
+			Self::create_verifiable_credential( &id, &context, &schema, &issuer, issuance_date, expiration_date, &subject, &credential_holder, &signature, &nonce)
 		}
 
 		// Function to update an existing schema
@@ -240,6 +240,7 @@ pub mod pallet {
 	{
 		// Function to create a new schema
 		fn create_verifiable_schema(
+			id: &T::SchemaId,
 			name: &Vec<u8>, 
 			creator: &Vec<u8>,
 			public: &bool,
@@ -252,7 +253,6 @@ pub mod pallet {
 			metadata: &Vec<u8>,
 			signature: &T::Signature,
 			nonce: &u64, 
-			id: &T::SchemaId,
 		) -> DispatchResult{
 			let verifiable_credential_schema = VerifiableCredentialSchema {
 				name: name.clone(),
@@ -280,6 +280,7 @@ pub mod pallet {
 		}
 		// create a new credential
 		fn create_verifiable_credential(
+			id: &T::CredentialId,
 			context: &Vec<u8>,
 			schema: &Vec<u8>,
 			issuer: &Vec<u8>,
@@ -289,7 +290,6 @@ pub mod pallet {
 			credential_holder: &Vec<u8>,
 			signature: &T::Signature,
 			nonce: &u64,
-			id: &T::CredentialId,
 		) -> DispatchResult{
 			let verifiable_credential = VerifiableCredential {
 				context: context.clone(),
@@ -345,7 +345,7 @@ pub mod pallet {
 			Ok(())
 		}
 		
-		#[inline]
+		
 		fn split_publickey_from_did(did: &Vec<u8>) -> T::AccountId {
 			let did_string = sp_std::str::from_utf8(did).unwrap();
 			let did_vec: Vec<&str> = did_string.split(":").collect();

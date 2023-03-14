@@ -4,6 +4,7 @@ use scale_info::prelude::vec::Vec;
 
 pub trait Schema<AccountId, Moment, Signature, SchemaId, CredentialId> {
     fn create_verifiable_schema(
+        id: &SchemaId,
         name: &Vec<u8>,
         creator: &Vec<u8>,
         public: &bool,
@@ -16,9 +17,9 @@ pub trait Schema<AccountId, Moment, Signature, SchemaId, CredentialId> {
         metadata: &Vec<u8>,
         signature: &Signature,
         nonce: &u64,
-        id: &SchemaId,
     ) -> DispatchResult;
     fn create_verifiable_credential(
+        id: &CredentialId,
         context: &Vec<u8>,
         schema: &Vec<u8>,
         issuer: &Vec<u8>,
@@ -28,7 +29,6 @@ pub trait Schema<AccountId, Moment, Signature, SchemaId, CredentialId> {
         credential_holder: &Vec<u8>,
         signature: &Signature,
         nonce: &u64,
-        id: &CredentialId,
     ) -> DispatchResult;
     fn update_verifiable_schema(
         old_schema_key: &SchemaId, 
