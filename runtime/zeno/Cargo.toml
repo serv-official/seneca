@@ -18,6 +18,7 @@ scale-info = { version = "2.1.1", default-features = false, features = ["derive"
 smallvec    = "1.6.1"
 log = "0.4.17"
 
+
 node-primitives = { version = "2.0.0", default-features = false, path = "../../primitives" }
 pallet-aura = { default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.37" }
 pallet-balances = { default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.37" }
@@ -27,6 +28,7 @@ pallet-randomness-collective-flip = { default-features = false, git = "https://g
 pallet-sudo = { default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.37" }
 frame-system = { default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.37" }
 frame-try-runtime = { default-features = false, git = "https://github.com/paritytech/substrate.git", optional = true , branch = "polkadot-v0.9.37" }
+pallet-authorship = {default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.37" }
 pallet-timestamp = { default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.37" }
 pallet-staking = {default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.37" }
 pallet-staking-reward-curve = {default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.37" }
@@ -97,6 +99,7 @@ std = [
 	"frame-system-rpc-runtime-api/std",
 	"frame-system/std",
 	"frame-try-runtime/std",
+	"pallet-authorship/std",
 	"pallet-offences/std",
 	"pallet-aura/std",
 	"pallet-balances/std",

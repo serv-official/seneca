@@ -57,7 +57,7 @@ pub fn authority_keys_from_seed(seed: &str) -> (AccountId, AccountId, AuraId, Gr
 pub fn zeno_properties() -> Properties {
 	let mut p = Properties::new();
 	p.insert("ss58format".into(), 42.into());
-	p.insert("tokenDecimals".into(), 6_i16.into());
+	p.insert("tokenDecimals".into(), 15_i16.into());
 	p.insert("tokenSymbol".into(), "ZNO".into());
 	p
 }
@@ -75,7 +75,7 @@ pub fn development_config() -> Result<ChainSpec, String> {
 			testnet_genesis(
 				wasm_binary,
 				// Initial PoA authorities
-				vec![authority_keys_from_seed("Alice"), authority_keys_from_seed("Bob")],
+				vec![authority_keys_from_seed("Alice")],
 				// Sudo account
 				get_account_id_from_seed::<sr25519::Public>("Alice"),
 				// Pre-funded accounts

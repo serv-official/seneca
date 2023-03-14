@@ -17,11 +17,11 @@ use sp_runtime::{
 	create_runtime_str, generic, impl_opaque_keys,
 	generic::Era,
 	traits::{
-		AccountIdLookup, BlakeTwo256, Block as BlockT, NumberFor, One, Verify,
-		OpaqueKeys, SaturatedConversion,
+		AccountIdLookup, BlakeTwo256, Block as BlockT, NumberFor, Verify,
+		OpaqueKeys, SaturatedConversion, Bounded,
 	},
 	transaction_validity::{TransactionSource, TransactionPriority, TransactionValidity},
-	ApplyExtrinsicResult,
+	ApplyExtrinsicResult, Perquintill, FixedPointNumber,
 };
 pub use node_primitives::Signature;
 use node_primitives::{AccountId, Balance, BlockNumber, Hash, Index, Moment};
@@ -39,13 +39,13 @@ pub use frame_support::{
 	dispatch::DispatchClass,
 	traits::{
 		ConstBool, ConstU128, ConstU32, ConstU64, ConstU8, KeyOwnerProofSystem, Randomness, StorageInfo,
-		EqualPrivilegeOnly, Nothing, EitherOfDiverse,
+		EqualPrivilegeOnly, Nothing, EitherOfDiverse, OnUnbalanced, Currency, Imbalance,
 	},
 	weights::{
 		constants::{
 			BlockExecutionWeight, ExtrinsicBaseWeight, RocksDbWeight, WEIGHT_REF_TIME_PER_SECOND,
 		},
-		IdentityFee, Weight,
+		ConstantMultiplier, IdentityFee, Weight,
 	},
 	PalletId, RuntimeDebug, StorageValue,
 };
@@ -54,7 +54,7 @@ pub use pallet_balances::Call as BalancesCall;
 pub use pallet_timestamp::Call as TimestampCall;
 #[cfg(any(feature = "std", test))]
 pub use pallet_staking::StakerStatus;
-use pallet_transaction_payment::{ConstFeeMultiplier, CurrencyAdapter, Multiplier};
+pub use pallet_transaction_payment::{CurrencyAdapter, Multiplier, TargetedFeeAdjustment};
 #[cfg(any(feature = "std", test))]
 pub use sp_runtime::BuildStorage;
 pub use sp_runtime::{Perbill, Permill, Percent};
@@ -85,6 +85,22 @@ pub mod opaque {
 			pub aura: Aura,
 			pub grandpa: Grandpa,
 			pub im_online: ImOnline,
+		}
+	}
+}
+
+type NegativeImbalance = <Balances as Currency<AccountId>>::NegativeImbalance;
+pub struct DealWithFees;
+impl OnUnbalanced<NegativeImbalance> for DealWithFees {
+	fn on_unbalanceds<B>(mut fees_then_tips: impl Iterator<Item = NegativeImbalance>) {
+		if let Some(fees) = fees_then_tips.next() {
+			// for fees, 80% to treasury, 20% to author
+			let mut split = fees.ration(80, 20);
+			if let Some(tips) = fees_then_tips.next() {
+				// for tips, if any, 80% to treasury, 20% to author (though this can be anything)
+				tips.ration_merge_into(80, 20, &mut split);
+			}
+			Treasury::on_unbalanced(split.0);
 		}
 	}
 }
@@ -124,6 +140,7 @@ pub const SLOT_DURATION: u64 = MILLISECS_PER_BLOCK;
 pub const MINUTES: BlockNumber = 60_000 / (MILLISECS_PER_BLOCK as BlockNumber);
 pub const HOURS: BlockNumber = MINUTES * 60;
 pub const DAYS: BlockNumber = HOURS * 24;
+
 
 /// The version information used to identify this runtime when compiled natively.
 #[cfg(feature = "std")]
@@ -335,7 +352,7 @@ impl pallet_im_online::Config for Runtime {
 }
 
 /// Existential deposit.
-pub const EXISTENTIAL_DEPOSIT: u128 = 500;
+pub const EXISTENTIAL_DEPOSIT: u128 = 10 * CENTS;
 
 impl pallet_balances::Config for Runtime {
 	type MaxLocks = ConstU32<50>;
@@ -352,17 +369,29 @@ impl pallet_balances::Config for Runtime {
 }
 
 parameter_types! {
-	pub FeeMultiplier: Multiplier = Multiplier::one();
+	pub const TransactionByteFee: Balance = MILLICENTS;
+	pub const OperationalFeeMultiplier: u8 = 5;
+	pub const TargetBlockFullness: Perquintill = Perquintill::from_percent(25);
+	pub AdjustmentVariable: Multiplier = Multiplier::saturating_from_rational(1, 100_000);
+	pub MinimumMultiplier: Multiplier = Multiplier::saturating_from_rational(1, 1_000_000_000u128);
+	pub MaximumMultiplier: Multiplier = Bounded::max_value();
 }
 
 impl pallet_transaction_payment::Config for Runtime {
 	type RuntimeEvent = RuntimeEvent;
-	type OnChargeTransaction = CurrencyAdapter<Balances, ()>;
-	type OperationalFeeMultiplier = ConstU8<5>;
+	type OnChargeTransaction = CurrencyAdapter<Balances, DealWithFees>;
+	type OperationalFeeMultiplier = OperationalFeeMultiplier;
 	type WeightToFee = IdentityFee<Balance>;
-	type LengthToFee = IdentityFee<Balance>;
-	type FeeMultiplierUpdate = ConstFeeMultiplier<FeeMultiplier>;
+	type LengthToFee = ConstantMultiplier<Balance, TransactionByteFee>;
+	type FeeMultiplierUpdate = TargetedFeeAdjustment<
+		Self,
+		TargetBlockFullness,
+		AdjustmentVariable,
+		MinimumMultiplier,
+		MaximumMultiplier,
+	>;
 }
+
 
 parameter_types! {
 	pub const CouncilMotionDuration: BlockNumber = 5 * DAYS;
