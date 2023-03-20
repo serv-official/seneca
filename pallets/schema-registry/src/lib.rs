@@ -152,6 +152,7 @@ pub mod pallet {
 			creator: Vec<u8>, 
 			public: bool,
 			mandatory_fields: Vec<Attribute>,
+			creation_date: T::Moment,
 			expiration_date: Option<T::Moment>,
 			issuer_claims: Vec<Claim>,
 			subject_claims: Vec<Claim>,
@@ -162,7 +163,6 @@ pub mod pallet {
 			) -> DispatchResult {
 			// Ensure that the caller of the function is signed
 			let _ = ensure_signed(origin)?;
-			let creation_date = T::Timestamp::now();
 			// Ensure that the Schema does not already exist
 			ensure!(!SchemaStore::<T>::contains_key(&id), "Schema already exists");
 			// Create a new Schema item
@@ -177,6 +177,7 @@ pub mod pallet {
 			context: Vec<u8>,
 			schema: Vec<u8>,
 			issuer: Vec<u8>,
+			issuance_date: Option<T::Moment>,
 			expiration_date: Option<T::Moment>,
 			subject: Subject,
 			credential_holder: Vec<u8>,
@@ -186,7 +187,6 @@ pub mod pallet {
 
 			// Ensure that the caller of the function is signed
 			let _ = ensure_signed(origin)?;
-			let issuance_date = Some(T::Timestamp::now());
 			// Ensure that the Credential does not already exist
 			ensure!(!CredentialStore::<T>::contains_key(&id), "Credential already exists");
 			Self::create_verifiable_credential( &id, &context, &schema, &issuer, issuance_date, expiration_date, &subject, &credential_holder, &signature, &nonce)

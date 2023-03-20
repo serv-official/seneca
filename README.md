@@ -1,7 +1,7 @@
 # Seneca Network &middot; [![GitHub license](https://img.shields.io/badge/license-GPL3%2FApache2-blue)](#LICENSE) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](docs/CONTRIBUTING.adoc) [![Substrate](https://img.shields.io/badge/v.4-Substrate-blue)](https://joinserv.com/)
 <div align="center">
   <p align="center">
-    <img src="/docs/media/serv.png">
+    <img src="/docs/media/seneca-bg.png">
   </p>
   <strong>Implementation of the seneca network node <a href="https://seneca.tech">seneca.tech</a>. Built using <a href="https://github.com/paritytech/substrate">Substrate Framework</a>.</strong> 🚀
 
