@@ -33,12 +33,13 @@ fn it_works_for_create_schema() {
 		let signer = account_pair.public();
 		let account_id = format!("did:seneca:{}",account_pair.public().into_account());
 		let nonce = 2u64;
+		let creation_date =  Timestamp::now();
 		// Encode and sign the schema message.
 		let schema = VerifiableCredentialSchema {
 			name: name.clone(),
 			creator: account_id.clone().into(),
 			public: false, 
-			creation_date: Timestamp::now(),
+			creation_date: creation_date.clone(),
 			expiration_date: Some(expiration_date),
 			mandatory_fields: vec![mandatory_fields.clone()],
 			issuer_claims: vec![claim.clone()],
@@ -54,7 +55,7 @@ fn it_works_for_create_schema() {
 		let data_sig = account_pair.sign(&vc_bytes);
 		// Dispatch a signed create schema extrinsic.
 		assert_ok!(SchemaRegistry::create_schema(RawOrigin::Signed(signer).into(),  asset_id, name.clone(), account_id.clone().into(), false,  
-												vec![mandatory_fields.clone()], Some(expiration_date), vec![claim.clone()], 
+												vec![mandatory_fields.clone()], creation_date.clone(), Some(expiration_date), vec![claim.clone()], 
 												vec![claim.clone()], vec![claim.clone()], b"metadata".to_vec(), data_sig.clone(), nonce));
 
 	});
@@ -86,11 +87,12 @@ fn it_works_for_create_credential() {
 		let nonce = 2u64;
 		// Encode and sign the schema message.
 		let schema = "verifiableCredentialSchema".encode();
+		let issuance_date =  Some(Timestamp::now());
 		let credential = VerifiableCredential{
 			context: context.clone(),
 			schema: schema.clone(),
 			issuer: account_id.clone().into(),
-			issuance_date: Some(Timestamp::now()),
+			issuance_date: issuance_date.clone(),
 			expiration_date: Some(1702379816u64),
 			subject: subject.clone(),
 			credential_holder: credential_holder.clone(),
@@ -98,9 +100,10 @@ fn it_works_for_create_credential() {
 		};
 		let asset_id = 0u32;
 		let data_sig = account_pair.sign(&credential.encode());
+		dbg!("data_sig: {:?}", data_sig.clone());
 		// Dispatch a signed create schema extrinsic.
 		assert_ok!(SchemaRegistry::create_credential(RawOrigin::Signed(signer).into(), asset_id,  context.clone(), schema.clone(), 
-													account_id.into(), Some(1702379816u64),subject.clone(),credential_holder.clone(),data_sig.clone(), nonce));
+													account_id.into(), issuance_date.clone(), Some(1702379816u64),subject.clone(),credential_holder.clone(),data_sig.clone(), nonce));
 
 	});
 
@@ -131,12 +134,13 @@ fn it_works_for_update_schema() {
 		let signer = account_pair.public();
 		let account_id = format!("did:seneca:{}",account_pair.public().into_account());
 		let nonce = 2u64;
+		let creation_date = Timestamp::now();
 		// Encode and sign the schema message.
 		let schema = VerifiableCredentialSchema {
 			name: name.clone(),
 			creator: account_id.clone().into(),
 			public: false,
-			creation_date: Timestamp::now(),
+			creation_date: creation_date.clone(),
 			expiration_date: Some(expiration_date),
 			mandatory_fields: vec![mandatory_fields.clone()],
 			issuer_claims: vec![claim.clone()],
@@ -149,7 +153,7 @@ fn it_works_for_update_schema() {
 			name: name.clone(),
 			creator: account_id.clone().into(),
 			public: false,
-			creation_date: Timestamp::now(),
+			creation_date: creation_date.clone(),
 			expiration_date: Some(expiration_date),
 			mandatory_fields: vec![mandatory_fields.clone()],
 			issuer_claims: vec![claim.clone()],
@@ -163,7 +167,7 @@ fn it_works_for_update_schema() {
 		let asset_id = 0u32;
 		// Dispatch a signed extrinsic.
 		assert_ok!(SchemaRegistry::create_schema(RawOrigin::Signed(signer).into(), asset_id, name, account_id.clone().into(), false,
-												vec![mandatory_fields], Some(expiration_date), vec![claim.clone()], 
+												vec![mandatory_fields], creation_date.clone(), Some(expiration_date), vec![claim.clone()], 
 												vec![claim.clone()], vec![claim.clone()], b"metadata".to_vec(), data_sig.clone(), nonce));
 		assert_ok!(SchemaRegistry::update_schema(RawOrigin::Signed(signer).into(), asset_id, (updated_sig.clone(), updated_schema.clone())));
 		assert_eq!(SchemaRegistry::schema_registry(asset_id.clone()), Some((updated_sig, updated_schema)));
@@ -195,12 +199,12 @@ fn it_works_for_update_credential() {
 		// Encode and sign the schema message.
 		let schema = "VerifiableCredentialSchema".encode();
 		let nonce = 2u64;
-
+		let issuance_date =  Some(Timestamp::now());
 		let credential = VerifiableCredential{
 				context: context.clone(),
 				schema: schema.clone(),
 				issuer: account_id.clone().into(),
-				issuance_date: Some(Timestamp::now()),
+				issuance_date: issuance_date.clone(),
 				expiration_date: Some(1702479816u64),
 				subject: subject.clone(),
 				credential_holder: credential_holder.clone(),
@@ -210,7 +214,7 @@ fn it_works_for_update_credential() {
 			context: context.clone(),
 			schema: schema.clone(),
 			issuer: account_id.clone().into(),
-			issuance_date: Some(Timestamp::now()),
+			issuance_date: issuance_date.clone(),
 			expiration_date: Some(1702379816u64),
 			subject: subject.clone(),
 			credential_holder: credential_holder.clone(),
@@ -221,7 +225,7 @@ fn it_works_for_update_credential() {
 		let asset_id = 0u32;
 		// Dispatch a signed create schema extrinsic.
 		assert_ok!(SchemaRegistry::create_credential(RawOrigin::Signed(signer).into(), asset_id, context.clone(), schema.clone(), 
-													account_id.clone().into(), Some(1702479816u64),subject.clone(), credential_holder.clone(),data_sig.clone(),
+													account_id.clone().into(), issuance_date.clone(), Some(1702479816u64),subject.clone(), credential_holder.clone(),data_sig.clone(),
 													nonce.clone()));
 		assert_ok!(SchemaRegistry::update_credential(RawOrigin::Signed(signer).into(), asset_id.clone(),(updated_sig.clone(), credential.clone())));
 		assert_eq!(SchemaRegistry::credential_registry(asset_id.clone()), Some((updated_sig, credential)));
@@ -254,11 +258,12 @@ fn it_works_for_delete_schema() {
 		let signer = account_pair.public();
 		let account_id = format!("did:seneca:{}",account_pair.public().into_account());
 		let nonce = 2u64;
+		let creation_date = Timestamp::now();
 		let schema = VerifiableCredentialSchema {
 			name: name.clone(),
 			creator: account_id.clone().into(),
 			public: false,
-			creation_date: Timestamp::now(),
+			creation_date: creation_date.clone(),
 			expiration_date: Some(expiration_date),
 			mandatory_fields: vec![mandatory_fields.clone()],
 			issuer_claims: vec![claim.clone()],
@@ -271,7 +276,7 @@ fn it_works_for_delete_schema() {
 		let asset_id = 0u32;
 		// Dispatch a signed create schema extrinsic.
 		assert_ok!(SchemaRegistry::create_schema(RawOrigin::Signed(signer).into(), asset_id, name, account_id.clone().into(), false, 
-												vec![mandatory_fields], Some(expiration_date), vec![claim.clone()], 
+												vec![mandatory_fields], creation_date.clone(), Some(expiration_date), vec![claim.clone()], 
 												vec![claim.clone()], vec![claim.clone()], b"metadata".to_vec(), data_sig.clone(), nonce));
 		// Dispatch a signed extrinsic.
 		assert_ok!(SchemaRegistry::delete_schema(RawOrigin::Signed(signer).into(), asset_id.clone()));
@@ -302,13 +307,14 @@ fn it_works_for_delete_credential() {
 		};
 		let nonce = 2u64;
 		let credential_holder = b"did:seneca:5GFEtniprMeFuh8HcoVrWxz4aQtv6T5V9bkENSnfPYhY4p8H".to_vec();
+		let issuance_date = Some(Timestamp::now());
 		// Encode and sign the schema message.
 		let schema = "VerefiableCredentialSchema".encode();
 		let credential = VerifiableCredential{
 			context: context.clone(),
 			schema: schema.clone(),
 			issuer: account_id.clone().into(),
-			issuance_date: Some(Timestamp::now()),
+			issuance_date: issuance_date.clone(),
 			expiration_date: Some(1702379816u64),
 			subject: subject.clone(),
 			credential_holder: credential_holder.clone(),
@@ -318,7 +324,7 @@ fn it_works_for_delete_credential() {
 	let data_sig = account_pair.sign(&credential.encode());
 	// Dispatch a signed create schema extrinsic.
 	assert_ok!(SchemaRegistry::create_credential(RawOrigin::Signed(signer).into(), asset_id,context.clone(), schema.clone(), 
-												account_id.clone().into(), Some(1702379816u64),subject.clone(), credential_holder.clone(),data_sig.clone(), 
+												account_id.clone().into(), issuance_date.clone(), Some(1702379816u64),subject.clone(), credential_holder.clone(),data_sig.clone(), 
 												nonce));
 	// Dispatch a signed extrinsic.
 	assert_ok!(SchemaRegistry::delete_credential(RawOrigin::Signed(signer).into(), asset_id.clone()));
