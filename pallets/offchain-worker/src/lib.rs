@@ -34,11 +34,11 @@
 //! ## Overview
 //!
 //! In this example we are going to build a very simplistic, naive and definitely NOT
-//! production-ready oracle for BTC/USD price.
-//! Offchain Worker (OCW) will be triggered after every block, fetch the current price
+//! production-ready oracle for BTC/USD credential.
+//! Offchain Worker (OCW) will be triggered after every block, fetch the current credential
 //! and prepare either signed or unsigned transaction to feed the result back on chain.
 //! The on-chain logic will simply aggregate the results and store last `64` values to compute
-//! the average price.
+//! the average credential.
 //! Additional logic in OCW is put in place to prevent spamming the network with both signed
 //! and unsigned transactions, and custom `UnsignedValidator` makes sure that there is only
 //! one unsigned transaction floating in the network.
@@ -78,7 +78,7 @@ mod tests;
 /// When offchain worker is signing transactions it's going to request keys of type
 /// `KeyTypeId` from the keystore and use the ones it finds to sign the transaction.
 /// The keys can be inserted manually via RPC (see `author_insertKey`).
-pub const KEY_TYPE: KeyTypeId = KeyTypeId(*b"btc!");
+pub const KEY_TYPE: KeyTypeId = KeyTypeId(*b"offchain-credential-validations");
 
 /// Based on the above `KeyTypeId` we need to generate a pallet-specific crypto type wrappers.
 /// We can use from supported crypto kinds (`sr25519`, `ed25519` and `ecdsa`) and augment
@@ -152,9 +152,9 @@ pub mod pallet {
 		#[pallet::constant]
 		type UnsignedPriority: Get<TransactionPriority>;
 
-		/// Maximum number of prices.
+		/// Maximum number of credentials.
 		#[pallet::constant]
-		type MaxPrices: Get<u32>;
+		type MaxCredentials: Get<u32>;
 	}
 
 	#[pallet::pallet]
@@ -177,7 +177,7 @@ pub mod pallet {
 			// significantly. You can use `RuntimeDebug` custom derive to hide details of the types
 			// in WASM. The `sp-api` crate also provides a feature `disable-logging` to disable
 			// all logging and thus, remove any logging from the WASM.
-			log::info!("Hello World from offchain workers!");
+			log::info!("Hello from credential-validation offchain worker");
 
 			// Since off-chain workers are just part of the runtime code, they have direct access
 			// to the storage and other included pallets.
@@ -188,24 +188,24 @@ pub mod pallet {
 
 			// It's a good practice to keep `fn offchain_worker()` function minimal, and move most
 			// of the code to separate `impl` block.
-			// Here we call a helper function to calculate current average price.
+			// Here we call a helper function to calculate current average credential.
 			// This function reads storage entries of the current state.
-			let average: Option<u32> = Self::average_price();
-			log::debug!("Current price: {:?}", average);
+			let average: Option<u32> = Self::average_credential();
+			log::debug!("Current credential: {:?}", average);
 
 			// For this example we are going to send both signed and unsigned transactions
 			// depending on the block number.
 			// Usually it's enough to choose one or the other.
 			let should_send = Self::choose_transaction_type(block_number);
 			let res = match should_send {
-				TransactionType::Signed => Self::fetch_price_and_send_signed(),
+				TransactionType::Signed => Self::fetch_credential_and_send_signed(),
 				TransactionType::UnsignedForAny => {
-					Self::fetch_price_and_send_unsigned_for_any_account(block_number)
+					Self::fetch_credential_and_send_unsigned_for_any_account(block_number)
 				},
 				TransactionType::UnsignedForAll => {
-					Self::fetch_price_and_send_unsigned_for_all_accounts(block_number)
+					Self::fetch_credential_and_send_unsigned_for_all_accounts(block_number)
 				},
-				TransactionType::Raw => Self::fetch_price_and_send_raw_unsigned(block_number),
+				TransactionType::Raw => Self::fetch_credential_and_send_raw_unsigned(block_number),
 				TransactionType::None => Ok(()),
 			};
 			if let Err(e) = res {
@@ -217,33 +217,33 @@ pub mod pallet {
 	/// A public part of the pallet.
 	#[pallet::call]
 	impl<T: Config> Pallet<T> {
-		/// Submit new price to the list.
+		/// Submit new credential to the list.
 		///
 		/// This method is a public function of the module and can be called from within
-		/// a transaction. It appends given `price` to current list of prices.
+		/// a transaction. It appends given `credential` to current list of credentials.
 		/// In our example the `offchain worker` will create, sign & submit a transaction that
-		/// calls this function passing the price.
+		/// calls this function passing the credential.
 		///
 		/// The transaction needs to be signed (see `ensure_signed`) check, so that the caller
 		/// pays a fee to execute it.
 		/// This makes sure that it's not easy (or rather cheap) to attack the chain by submitting
-		/// excesive transactions, but note that it doesn't ensure the price oracle is actually
+		/// excesive transactions, but note that it doesn't ensure the credential oracle is actually
 		/// working and receives (and provides) meaningful data.
 		/// This example is not focused on correctness of the oracle itself, but rather its
 		/// purpose is to showcase offchain worker capabilities.
 		#[pallet::call_index(0)]
 		#[pallet::weight(0)]
-		pub fn submit_price(origin: OriginFor<T>, price: u32) -> DispatchResultWithPostInfo {
+		pub fn submit_credential(origin: OriginFor<T>, credential: u32) -> DispatchResultWithPostInfo {
 			// Retrieve sender of the transaction.
 			let who = ensure_signed(origin)?;
-			// Add the price to the on-chain list.
-			Self::add_price(Some(who), price);
+			// Add the credential to the on-chain list.
+			Self::add_credential(Some(who), credential);
 			Ok(().into())
 		}
 
-		/// Submit new price to the list via unsigned transaction.
+		/// Submit new credential to the list via unsigned transaction.
 		///
-		/// Works exactly like the `submit_price` function, but since we allow sending the
+		/// Works exactly like the `submit_credential` function, but since we allow sending the
 		/// transaction without a signature, and hence without paying any fees,
 		/// we need a way to make sure that only some transactions are accepted.
 		/// This function can be called only once every `T::UnsignedInterval` blocks.
@@ -259,15 +259,15 @@ pub mod pallet {
 		/// purpose is to showcase offchain worker capabilities.
 		#[pallet::call_index(1)]
 		#[pallet::weight(0)]
-		pub fn submit_price_unsigned(
+		pub fn submit_credential_unsigned(
 			origin: OriginFor<T>,
 			_block_number: T::BlockNumber,
-			price: u32,
+			credential: u32,
 		) -> DispatchResultWithPostInfo {
 			// This ensures that the function can only be called via unsigned transaction.
 			ensure_none(origin)?;
-			// Add the price to the on-chain list, but mark it as coming from an empty address.
-			Self::add_price(None, price);
+			// Add the credential to the on-chain list, but mark it as coming from an empty address.
+			Self::add_credential(None, credential);
 			// now increment the block number at which we expect next unsigned transaction.
 			let current_block = <system::Pallet<T>>::block_number();
 			<NextUnsignedAt<T>>::put(current_block + T::UnsignedInterval::get());
@@ -276,15 +276,15 @@ pub mod pallet {
 
 		#[pallet::call_index(2)]
 		#[pallet::weight(0)]
-		pub fn submit_price_unsigned_with_signed_payload(
+		pub fn submit_credential_unsigned_with_signed_payload(
 			origin: OriginFor<T>,
-			price_payload: PricePayload<T::Public, T::BlockNumber>,
+			credential_payload: CredentialPayload<T::Public, T::BlockNumber>,
 			_signature: T::Signature,
 		) -> DispatchResultWithPostInfo {
 			// This ensures that the function can only be called via unsigned transaction.
 			ensure_none(origin)?;
-			// Add the price to the on-chain list, but mark it as coming from an empty address.
-			Self::add_price(None, price_payload.price);
+			// Add the credential to the on-chain list, but mark it as coming from an empty address.
+			Self::add_credential(None, credential_payload.credential);
 			// now increment the block number at which we expect next unsigned transaction.
 			let current_block = <system::Pallet<T>>::block_number();
 			<NextUnsignedAt<T>>::put(current_block + T::UnsignedInterval::get());
@@ -296,8 +296,8 @@ pub mod pallet {
 	#[pallet::event]
 	#[pallet::generate_deposit(pub(super) fn deposit_event)]
 	pub enum Event<T: Config> {
-		/// Event generated when new price is accepted to contribute to the average.
-		NewPrice { price: u32, maybe_who: Option<T::AccountId> },
+		/// Event generated when new credential is accepted to contribute to the average.
+		NewCredential { credential: u32, maybe_who: Option<T::AccountId> },
 	}
 
 	#[pallet::validate_unsigned]
@@ -311,8 +311,8 @@ pub mod pallet {
 		/// are being whitelisted and marked as valid.
 		fn validate_unsigned(_source: TransactionSource, call: &Self::Call) -> TransactionValidity {
 			// Firstly let's check that we call the right function.
-			if let Call::submit_price_unsigned_with_signed_payload {
-				price_payload: ref payload,
+			if let Call::submit_credential_unsigned_with_signed_payload {
+				credential_payload: ref payload,
 				ref signature,
 			} = call
 			{
@@ -321,21 +321,21 @@ pub mod pallet {
 				if !signature_valid {
 					return InvalidTransaction::BadProof.into();
 				}
-				Self::validate_transaction_parameters(&payload.block_number, &payload.price)
-			} else if let Call::submit_price_unsigned { block_number, price: new_price } = call {
-				Self::validate_transaction_parameters(block_number, new_price)
+				Self::validate_transaction_parameters(&payload.block_number, &payload.credential)
+			} else if let Call::submit_credential_unsigned { block_number, credential: new_credential } = call {
+				Self::validate_transaction_parameters(block_number, new_credential)
 			} else {
 				InvalidTransaction::Call.into()
 			}
 		}
 	}
 
-	/// A vector of recently submitted prices.
+	/// A vector of recently submitted credentials.
 	///
-	/// This is used to calculate average price, should have bounded size.
+	/// This is used to calculate average credential, should have bounded size.
 	#[pallet::storage]
-	#[pallet::getter(fn prices)]
-	pub(super) type Prices<T: Config> = StorageValue<_, BoundedVec<u32, T::MaxPrices>, ValueQuery>;
+	#[pallet::getter(fn credentials)]
+	pub(super) type Credentials<T: Config> = StorageValue<_, BoundedVec<u32, T::MaxCredentials>, ValueQuery>;
 
 	/// Defines the block when next unsigned transaction will be accepted.
 	///
@@ -347,16 +347,16 @@ pub mod pallet {
 	pub(super) type NextUnsignedAt<T: Config> = StorageValue<_, T::BlockNumber, ValueQuery>;
 }
 
-/// Payload used by this example crate to hold price
+/// Payload used by this example crate to hold Credential
 /// data required to submit a transaction.
 #[derive(Encode, Decode, Clone, PartialEq, Eq, RuntimeDebug, scale_info::TypeInfo)]
-pub struct PricePayload<Public, BlockNumber> {
+pub struct CredentialPayload<Public, BlockNumber> {
 	block_number: BlockNumber,
-	price: u32,
+	credential: u32,
 	public: Public,
 }
 
-impl<T: SigningTypes> SignedPayload<T> for PricePayload<T::Public, T::BlockNumber> {
+impl<T: SigningTypes> SignedPayload<T> for CredentialPayload<T::Public, T::BlockNumber> {
 	fn public(&self) -> T::Public {
 		self.public.clone()
 	}
@@ -442,32 +442,32 @@ impl<T: Config> Pallet<T> {
 		}
 	}
 
-	/// A helper function to fetch the price and send signed transaction.
-	fn fetch_price_and_send_signed() -> Result<(), &'static str> {
+	/// A helper function to fetch the credential and send signed transaction.
+	fn fetch_credential_and_send_signed() -> Result<(), &'static str> {
 		let signer = Signer::<T, T::AuthorityId>::all_accounts();
 		if !signer.can_sign() {
 			return Err(
 				"No local accounts available. Consider adding one via `author_insertKey` RPC.",
 			);
 		}
-		// Make an external HTTP request to fetch the current price.
+		// Make an external HTTP request to fetch the current credential.
 		// Note this call will block until response is received.
-		let price = Self::fetch_price().map_err(|_| "Failed to fetch price")?;
+		let credential = Self::fetch_credential().map_err(|_| "Failed to fetch credential")?;
 
 		// Using `send_signed_transaction` associated type we create and submit a transaction
 		// representing the call, we've just created.
 		// Submit signed will return a vector of results for all accounts that were found in the
 		// local keystore with expected `KEY_TYPE`.
 		let results = signer.send_signed_transaction(|_account| {
-			// Received price is wrapped into a call to `submit_price` public function of this
+			// Received credential is wrapped into a call to `submit_credential` public function of this
 			// pallet. This means that the transaction, when executed, will simply call that
-			// function passing `price` as an argument.
-			Call::submit_price { price }
+			// function passing `credential` as an argument.
+			Call::submit_credential { credential }
 		});
 
 		for (acc, res) in &results {
 			match res {
-				Ok(()) => log::info!("[{:?}] Submitted price of {} cents", acc.id, price),
+				Ok(()) => log::info!("[{:?}] Submitted credential of {} cents", acc.id, credential),
 				Err(e) => log::error!("[{:?}] Failed to submit transaction: {:?}", acc.id, e),
 			}
 		}
@@ -475,23 +475,23 @@ impl<T: Config> Pallet<T> {
 		Ok(())
 	}
 
-	/// A helper function to fetch the price and send a raw unsigned transaction.
-	fn fetch_price_and_send_raw_unsigned(block_number: T::BlockNumber) -> Result<(), &'static str> {
-		// Make sure we don't fetch the price if unsigned transaction is going to be rejected
+	/// A helper function to fetch the credential and send a raw unsigned transaction.
+	fn fetch_credential_and_send_raw_unsigned(block_number: T::BlockNumber) -> Result<(), &'static str> {
+		// Make sure we don't fetch the credential if unsigned transaction is going to be rejected
 		// anyway.
 		let next_unsigned_at = <NextUnsignedAt<T>>::get();
 		if next_unsigned_at > block_number {
 			return Err("Too early to send unsigned transaction");
 		}
 
-		// Make an external HTTP request to fetch the current price.
+		// Make an external HTTP request to fetch the current credential.
 		// Note this call will block until response is received.
-		let price = Self::fetch_price().map_err(|_| "Failed to fetch price")?;
+		let credential = Self::fetch_credential().map_err(|_| "Failed to fetch credential")?;
 
-		// Received price is wrapped into a call to `submit_price_unsigned` public function of this
+		// Received credential is wrapped into a call to `submit_credential_unsigned` public function of this
 		// pallet. This means that the transaction, when executed, will simply call that function
-		// passing `price` as an argument.
-		let call = Call::submit_price_unsigned { block_number, price };
+		// passing `credential` as an argument.
+		let call = Call::submit_credential_unsigned { block_number, credential };
 
 		// Now let's create a transaction out of this call and submit it to the pool.
 		// Here we showcase two ways to send an unsigned transaction / unsigned payload (raw)
@@ -507,27 +507,27 @@ impl<T: Config> Pallet<T> {
 		Ok(())
 	}
 
-	/// A helper function to fetch the price, sign payload and send an unsigned transaction
-	fn fetch_price_and_send_unsigned_for_any_account(
+	/// A helper function to fetch the credential, sign payload and send an unsigned transaction
+	fn fetch_credential_and_send_unsigned_for_any_account(
 		block_number: T::BlockNumber,
 	) -> Result<(), &'static str> {
-		// Make sure we don't fetch the price if unsigned transaction is going to be rejected
+		// Make sure we don't fetch the credential if unsigned transaction is going to be rejected
 		// anyway.
 		let next_unsigned_at = <NextUnsignedAt<T>>::get();
 		if next_unsigned_at > block_number {
 			return Err("Too early to send unsigned transaction");
 		}
 
-		// Make an external HTTP request to fetch the current price.
+		// Make an external HTTP request to fetch the current credential.
 		// Note this call will block until response is received.
-		let price = Self::fetch_price().map_err(|_| "Failed to fetch price")?;
+		let credential = Self::fetch_credential().map_err(|_| "Failed to fetch credential")?;
 
 		// -- Sign using any account
 		let (_, result) = Signer::<T, T::AuthorityId>::any_account()
 			.send_unsigned_transaction(
-				|account| PricePayload { price, block_number, public: account.public.clone() },
-				|payload, signature| Call::submit_price_unsigned_with_signed_payload {
-					price_payload: payload,
+				|account| CredentialPayload { credential, block_number, public: account.public.clone() },
+				|payload, signature| Call::submit_credential_unsigned_with_signed_payload {
+					credential_payload: payload,
 					signature,
 				},
 			)
@@ -537,27 +537,27 @@ impl<T: Config> Pallet<T> {
 		Ok(())
 	}
 
-	/// A helper function to fetch the price, sign payload and send an unsigned transaction
-	fn fetch_price_and_send_unsigned_for_all_accounts(
+	/// A helper function to fetch the credential, sign payload and send an unsigned transaction
+	fn fetch_credential_and_send_unsigned_for_all_accounts(
 		block_number: T::BlockNumber,
 	) -> Result<(), &'static str> {
-		// Make sure we don't fetch the price if unsigned transaction is going to be rejected
+		// Make sure we don't fetch the credential if unsigned transaction is going to be rejected
 		// anyway.
 		let next_unsigned_at = <NextUnsignedAt<T>>::get();
 		if next_unsigned_at > block_number {
 			return Err("Too early to send unsigned transaction");
 		}
 
-		// Make an external HTTP request to fetch the current price.
+		// Make an external HTTP request to fetch the current credential.
 		// Note this call will block until response is received.
-		let price = Self::fetch_price().map_err(|_| "Failed to fetch price")?;
+		let credential = Self::fetch_credential().map_err(|_| "Failed to fetch credential")?;
 
 		// -- Sign using all accounts
 		let transaction_results = Signer::<T, T::AuthorityId>::all_accounts()
 			.send_unsigned_transaction(
-				|account| PricePayload { price, block_number, public: account.public.clone() },
-				|payload, signature| Call::submit_price_unsigned_with_signed_payload {
-					price_payload: payload,
+				|account| CredentialPayload { credential, block_number, public: account.public.clone() },
+				|payload, signature| Call::submit_credential_unsigned_with_signed_payload {
+					credential_payload: payload,
 					signature,
 				},
 			);
@@ -570,8 +570,8 @@ impl<T: Config> Pallet<T> {
 		Ok(())
 	}
 
-	/// Fetch current price and return the result in cents.
-	fn fetch_price() -> Result<u32, http::Error> {
+	/// Fetch current credential and return the result in cents.
+	fn fetch_credential() -> Result<u32, http::Error> {
 		// We want to keep the offchain worker execution time reasonable, so we set a hard-coded
 		// deadline to 2s to complete the external call.
 		// You can also wait idefinitely for the response, however you may still get a timeout
@@ -583,7 +583,7 @@ impl<T: Config> Pallet<T> {
 		// since we are running in a custom WASM execution environment we can't simply
 		// import the library here.
 		let request =
-			http::Request::get("https://min-api.cryptocompare.com/data/price?fsym=BTC&tsyms=USD");
+			http::Request::get("https://min-api.cryptocompare.com/data/credential?fsym=BTC&tsyms=USD");
 		// We set the deadline for sending of the request, note that awaiting response can
 		// have a separate deadline. Next we send the request, before that it's also possible
 		// to alter request headers or stream body content in case of non-GET requests.
@@ -613,25 +613,25 @@ impl<T: Config> Pallet<T> {
 			http::Error::Unknown
 		})?;
 
-		let price = match Self::parse_price(body_str) {
-			Some(price) => Ok(price),
+		let credential = match Self::parse_credential(body_str) {
+			Some(credential) => Ok(credential),
 			None => {
-				log::warn!("Unable to extract price from the response: {:?}", body_str);
+				log::warn!("Unable to extract credential from the response: {:?}", body_str);
 				Err(http::Error::Unknown)
 			},
 		}?;
 
-		log::warn!("Got price: {} cents", price);
+		log::warn!("Got credential: {} cents", credential);
 
-		Ok(price)
+		Ok(credential)
 	}
 
-	/// Parse the price from the given JSON string using `lite-json`.
+	/// Parse the credential from the given JSON string using `lite-json`.
 	///
-	/// Returns `None` when parsing failed or `Some(price in cents)` when parsing is successful.
-	fn parse_price(price_str: &str) -> Option<u32> {
-		let val = lite_json::parse_json(price_str);
-		let price = match val.ok()? {
+	/// Returns `None` when parsing failed or `Some(credential in cents)` when parsing is successful.
+	fn parse_credential(credential_str: &str) -> Option<u32> {
+		let val = lite_json::parse_json(credential_str);
+		let credential = match val.ok()? {
 			JsonValue::Object(obj) => {
 				let (_, v) = obj.into_iter().find(|(k, _)| k.iter().copied().eq("USD".chars()))?;
 				match v {
@@ -642,39 +642,39 @@ impl<T: Config> Pallet<T> {
 			_ => return None,
 		};
 
-		let exp = price.fraction_length.saturating_sub(2);
-		Some(price.integer as u32 * 100 + (price.fraction / 10_u64.pow(exp)) as u32)
+		let exp = credential.fraction_length.saturating_sub(2);
+		Some(credential.integer as u32 * 100 + (credential.fraction / 10_u64.pow(exp)) as u32)
 	}
 
-	/// Add new price to the list.
-	fn add_price(maybe_who: Option<T::AccountId>, price: u32) {
-		log::info!("Adding to the average: {}", price);
-		<Prices<T>>::mutate(|prices| {
-			if prices.try_push(price).is_err() {
-				prices[(price % T::MaxPrices::get()) as usize] = price;
+	/// Add new credential to the list.
+	fn add_credential(maybe_who: Option<T::AccountId>, credential: u32) {
+		log::info!("Adding to the average: {}", credential);
+		<Credentials<T>>::mutate(|credentials| {
+			if credentials.try_push(credential).is_err() {
+				credentials[(credential % T::MaxCredentials::get()) as usize] = credential;
 			}
 		});
 
-		let average = Self::average_price()
+		let average = Self::average_credential()
 			.expect("The average is not empty, because it was just mutated; qed");
-		log::info!("Current average price is: {}", average);
-		// here we are raising the NewPrice event
-		Self::deposit_event(Event::NewPrice { price, maybe_who });
+		log::info!("Current average credential is: {}", average);
+		// here we are raising the NewCredential event
+		Self::deposit_event(Event::NewCredential { credential, maybe_who });
 	}
 
-	/// Calculate current average price.
-	fn average_price() -> Option<u32> {
-		let prices = <Prices<T>>::get();
-		if prices.is_empty() {
+	/// Calculate current average credential.
+	fn average_credential() -> Option<u32> {
+		let credentials = <Credentials<T>>::get();
+		if credentials.is_empty() {
 			None
 		} else {
-			Some(prices.iter().fold(0_u32, |a, b| a.saturating_add(*b)) / prices.len() as u32)
+			Some(credentials.iter().fold(0_u32, |a, b| a.saturating_add(*b)) / credentials.len() as u32)
 		}
 	}
 
 	fn validate_transaction_parameters(
 		block_number: &T::BlockNumber,
-		new_price: &u32,
+		new_credential: &u32,
 	) -> TransactionValidity {
 		// Now let's check if the transaction has any chance to succeed.
 		let next_unsigned_at = <NextUnsignedAt<T>>::get();
@@ -692,8 +692,8 @@ impl<T: Config> Pallet<T> {
 		// Note this doesn't make much sense when building an actual oracle, but this example
 		// is here mostly to show off offchain workers capabilities, not about building an
 		// oracle.
-		let avg_price = Self::average_price()
-			.map(|price| if &price > new_price { price - new_price } else { new_price - price })
+		let avg_credential = Self::average_credential()
+			.map(|credential| if &credential > new_credential { credential - new_credential } else { new_credential - credential })
 			.unwrap_or(0);
 
 		ValidTransaction::with_tag_prefix("ExampleOffchainWorker")
@@ -701,7 +701,7 @@ impl<T: Config> Pallet<T> {
 			// transactions in the pool. Next we tweak the priority depending on how much
 			// it differs from the current average. (the more it differs the more priority it
 			// has).
-			.priority(T::UnsignedPriority::get().saturating_add(avg_price as _))
+			.priority(T::UnsignedPriority::get().saturating_add(avg_credential as _))
 			// This transaction does not require anything else to go before into the pool.
 			// In theory we could require `previous_unsigned_at` transaction to go first,
 			// but it's not necessary in our case.
