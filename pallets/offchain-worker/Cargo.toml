@@ -1,7 +1,7 @@
 [package]
-name = "pallet-template"
+name = "pallet-off"
 version = "4.0.0-dev"
-description = "FRAME pallet template for defining custom runtime logic."
+description = "FRAME pallet template for executing an offchain worker in Seneca"
 authors = ["Seneca Devs <https://github.com/serv-official>"]
 homepage = "https://substrate.io"
 edition = "2021"
