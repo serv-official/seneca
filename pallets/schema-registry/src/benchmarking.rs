@@ -43,11 +43,11 @@ benchmarks! {
 		let schema_id: T::SchemaId = Default::default();
 		let keypair = sr25519::Pair::from_string("//Alice", None).unwrap();
 		let pub_key: T::Public = keypair.public().into();
-		let account_id = format!("did:seneca:{}",keypair.public().into_account());
+		let account_id = format!("did:seneca:{}",keypair.public());
 		let creation_date: T::Moment = Default::default();
 		let schema: VerifiableCredentialSchema<T::Moment> = VerifiableCredentialSchema {
 			name: name.clone(),
-			creator: account_id.clone().into_bytes(),
+			creator: account_id.clone().encode(),
 			public: false,
 			creation_date: creation_date.clone(),
 			expiration_date: Some(expiration_date),
@@ -63,7 +63,7 @@ benchmarks! {
 		let sig: T::Signature = keypair.sign(&schema.encode()).into();
 
 		// Encode and sign the schema message.
-	}:  _(RawOrigin::Signed(caller), schema_id.clone(), name.clone(), account_id.clone().into_bytes(), false,
+	}:  _(RawOrigin::Signed(caller), schema_id.clone(), name.clone(), account_id.clone().encode(), false,
 			vec![mandatory_fields.clone()], creation_date, Some(expiration_date), vec![claim.clone()], 
 			vec![claim.clone()], vec![claim.clone()], b"metadata".to_vec(), sig.clone(),nonce )
 	verify {
@@ -96,11 +96,11 @@ benchmarks! {
 		let schema_id: T::SchemaId = Default::default();
 		let keypair = sr25519::Pair::from_string("//Alice", None).unwrap();
 		let pub_key: T::Public = keypair.public().into();
-		let account_id = format!("did:seneca:{}",keypair.public().into_account());
+		let account_id = format!("did:seneca:{}",keypair.public());
 		let creation_date: T::Moment =  Default::default();
 		let schema: VerifiableCredentialSchema<T::Moment> = VerifiableCredentialSchema {
 			name: name.clone(),
-			creator: account_id.clone().into_bytes(),
+			creator: account_id.clone().encode(),
 			public: false,
 			creation_date: creation_date.clone(),
 			expiration_date: Some(expiration_date),
@@ -113,7 +113,7 @@ benchmarks! {
 		};
 		let updated_schema = VerifiableCredentialSchema {
 			name: name.clone(),
-			creator: account_id.clone().into_bytes(),
+			creator: account_id.clone().encode(),
 			public: false,
 			creation_date: creation_date.clone(),
 			expiration_date: Some(expiration_date),
@@ -128,7 +128,7 @@ benchmarks! {
 		// sign the schema in benchmarks
 		let sig: T::Signature = keypair.sign(&schema.encode()).into();
 
-		assert_ok!(SchemaRegistry::<T>::create_schema(RawOrigin::Signed(caller.clone()).into(), schema_id.clone(), name, account_id.clone().into_bytes(), false,
+		assert_ok!(SchemaRegistry::<T>::create_schema(RawOrigin::Signed(caller.clone()).into(), schema_id.clone(), name, account_id.clone().encode(), false,
 									vec![mandatory_fields], creation_date.clone(), Some(expiration_date), vec![claim.clone()], 
 									vec![claim.clone()], vec![claim.clone()], b"metadata".to_vec(), sig.clone(), nonce));
 	}:  _(RawOrigin::Signed(caller), schema_id.clone(), (sig.clone(), updated_schema.clone()))
@@ -166,11 +166,11 @@ benchmarks! {
 		// sign the schema in benchmarks
 		let keypair = sr25519::Pair::from_string("//Alice", None).unwrap();
 		let pub_key: T::Public = keypair.public().into();
-		let account_id = format!("did:seneca:{}",keypair.public().into_account());
+		let account_id = format!("did:seneca:{}",keypair.public());
 		let creation_date: T::Moment  = Default::default();
 		let schema: VerifiableCredentialSchema<T::Moment> = VerifiableCredentialSchema {
 			name: name.clone(),
-			creator: account_id.clone().into_bytes(),
+			creator: account_id.clone().encode(),
 			public: false,
 			creation_date: creation_date.clone(),
 			expiration_date: Some(expiration_date),
@@ -184,7 +184,7 @@ benchmarks! {
 
 		let sig: T::Signature = keypair.sign(&schema.encode()).into();
 
-		assert_ok!(SchemaRegistry::<T>::create_schema(RawOrigin::Signed(caller.clone()).into(), schema_id.clone(), name, account_id.clone().into_bytes(), false,
+		assert_ok!(SchemaRegistry::<T>::create_schema(RawOrigin::Signed(caller.clone()).into(), schema_id.clone(), name, account_id.clone().encode(), false,
 									vec![mandatory_fields], creation_date.clone(), Some(expiration_date), vec![claim.clone()], 
 									vec![claim.clone()], vec![claim.clone()], b"metadata".to_vec(), sig.clone(), nonce));
 	}:  _(RawOrigin::Signed(caller.clone()), schema_id.clone())
@@ -235,12 +235,12 @@ benchmarks! {
 		// sign the credential in benchmarks
 		let keypair = sr25519::Pair::from_string("//Alice", None).unwrap();
 		let pub_key: T::Public = keypair.public().into();
-		let account_id = format!("did:seneca:{}",keypair.public().into_account());
+		let account_id = format!("did:seneca:{}",keypair.public());
 		let issuance_date = Default::default();
 		let credential: VerifiableCredential<T::Moment>  = VerifiableCredential{
 			context: context.clone(),
 			schema: schema.clone(),
-			issuer: account_id.clone().into_bytes(),
+			issuer: account_id.clone().encode(),
 			issuance_date: Some(issuance_date),
 			expiration_date: Some(expiration_date),
 			subject: subject.clone(),
@@ -250,8 +250,8 @@ benchmarks! {
 
 		let sig: T::Signature = keypair.sign(&credential.encode()).into();
 
-	}:  _(RawOrigin::Signed(caller.clone()), context.clone(), schema, 
-				pub_key.clone(),  Some(expiration_date),subject.clone(), credential_holder.clone(), sig.clone(), nonce, credential_id.clone() )
+	}:  _(RawOrigin::Signed(caller.clone()), credential_id.clone(), context.clone(), schema.clone(), 
+				account_id.clone().encode(),  Some(issuance_date), Some(expiration_date),subject.clone(), credential_holder.clone(), sig.clone(), nonce )
 	verify {
 		assert_eq!(CredentialStore::<T>::get(credential_id.clone()), Some((sig.clone(), credential.clone())));
 	}
@@ -299,11 +299,11 @@ benchmarks! {
 		let keypair = sr25519::Pair::from_string("//Alice", None).unwrap();
 		let pub_key: T::Public = keypair.public().into();
 		let issuance_date = Default::default();
-		let account_id = format!("did:seneca:{}",keypair.public().into_account());
+		let account_id = format!("did:seneca:{}",keypair.public());
 		let credential: VerifiableCredential<T::Moment>  = VerifiableCredential{
 			context: context.clone(),
 			schema: schema.clone(),
-			issuer: account_id.clone().into_bytes(),
+			issuer: account_id.encode(),
 			issuance_date: Some(issuance_date),
 			expiration_date: Some(expiration_date),
 			subject: subject.clone(),
@@ -314,7 +314,7 @@ benchmarks! {
 		let credential2: VerifiableCredential<T::Moment>  = VerifiableCredential{
 			context: context.clone(),
 			schema: schema.clone(),
-			issuer: account_id.clone().into_bytes(),
+			issuer: account_id.encode(),
 			issuance_date: Some(issuance_date),
 			expiration_date: Some(expiration_date),
 			subject: subject.clone(),
@@ -325,8 +325,8 @@ benchmarks! {
 		let sig: T::Signature = keypair.sign(&credential.encode()).into();
 		let sig2: T::Signature = keypair.sign(&credential2.encode()).into();
 
-		assert_ok!(SchemaRegistry::<T>::create_credential(RawOrigin::Signed(caller.clone()).into(), context.clone(), schema, 
-				pub_key.clone(), Some(expiration_date), subject.clone(), credential_holder.clone(),sig.clone(), nonce, credential_id.clone()));
+		assert_ok!(SchemaRegistry::<T>::create_credential(RawOrigin::Signed(caller.clone()).into(), credential_id, context.clone(), schema.clone(), account_id.encode(),
+				Some(issuance_date), Some(expiration_date), subject.clone(), credential_holder.clone(),sig.clone(), nonce));
 		// Encode and sign the schema message.
 	}:  _(RawOrigin::Signed(caller.clone()), credential_id.clone(),(sig2.clone(), credential2.clone()))
 	verify {
@@ -376,11 +376,11 @@ benchmarks! {
 		let keypair = sr25519::Pair::from_string("//Alice", None).unwrap();
 		let pub_key: T::Public = keypair.public().into();
 		let issuance_date: T::Moment = Default::default();
-		let account_id = format!("did:seneca:{}",keypair.public().into_account());
+		let account_id = format!("did:seneca:{}",keypair.public());
 		let credential: VerifiableCredential<T::Moment>  = VerifiableCredential{
 			context: context.clone(),
 			schema: schema.clone(),
-			issuer: account_id.clone().into_bytes(),
+			issuer: account_id.encode(),
 			issuance_date: Some(issuance_date),
 			expiration_date: Some(expiration_date),
 			subject: subject.clone(),
@@ -390,8 +390,8 @@ benchmarks! {
 
 		let sig: T::Signature = keypair.sign(&credential.encode()).into();
 
-		assert_ok!(SchemaRegistry::<T>::create_credential(RawOrigin::Signed(caller.clone()).into(), context.clone(), schema, 
-				pub_key, Some(expiration_date), subject.clone(), credential_holder.clone(),sig.clone(), nonce, credential_id.clone()));
+		assert_ok!(SchemaRegistry::<T>::create_credential(RawOrigin::Signed(caller.clone()).into(), credential_id, context.clone(), schema.clone(), account_id.encode(),
+				Some(issuance_date), Some(expiration_date), subject.clone(), credential_holder.clone(),sig.clone(), nonce));
 		// Encode and sign the schema message.
 	}:  _(RawOrigin::Signed(caller.clone()), credential_id.clone())
 	verify {
