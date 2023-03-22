@@ -48,13 +48,13 @@ fn it_works_for_create_schema() {
 			metadata: b"metadata".to_vec(),
 			nonce,
 		};
-		let asset_id = 0u32;
+		let schema_id = 0u32;
 		//dbg!("Schema: {:?}", schema);
 		let binding = schema.encode();
 		let vc_bytes = binding.as_slice();
 		let data_sig = account_pair.sign(&vc_bytes);
 		// Dispatch a signed create schema extrinsic.
-		assert_ok!(SchemaRegistry::create_schema(RawOrigin::Signed(signer).into(),  asset_id, name.clone(), account_id.clone().into(), false,  
+		assert_ok!(SchemaRegistry::create_schema(RawOrigin::Signed(signer).into(),  schema_id, name.clone(), account_id.clone().into(), false,  
 												vec![mandatory_fields.clone()], creation_date.clone(), Some(expiration_date), vec![claim.clone()], 
 												vec![claim.clone()], vec![claim.clone()], b"metadata".to_vec(), data_sig.clone(), nonce));
 
@@ -98,11 +98,11 @@ fn it_works_for_create_credential() {
 			credential_holder: credential_holder.clone(),
 			nonce: nonce.clone(),
 		};
-		let asset_id = 0u32;
+		let schema_id = 0u32;
 		let data_sig = account_pair.sign(&credential.encode());
 		dbg!("data_sig: {:?}", data_sig.clone());
 		// Dispatch a signed create schema extrinsic.
-		assert_ok!(SchemaRegistry::create_credential(RawOrigin::Signed(signer).into(), asset_id,  context.clone(), schema.clone(), 
+		assert_ok!(SchemaRegistry::create_credential(RawOrigin::Signed(signer).into(), schema_id,  context.clone(), schema.clone(), 
 													account_id.into(), issuance_date.clone(), Some(1702379816u64),subject.clone(),credential_holder.clone(),data_sig.clone(), nonce));
 
 	});
@@ -164,13 +164,13 @@ fn it_works_for_update_schema() {
 		};
 		let data_sig = account_pair.sign(&schema.encode());
 		let updated_sig = account_pair.sign(&updated_schema.encode());
-		let asset_id = 0u32;
+		let schema_id = 0u32;
 		// Dispatch a signed extrinsic.
-		assert_ok!(SchemaRegistry::create_schema(RawOrigin::Signed(signer).into(), asset_id, name, account_id.clone().into(), false,
+		assert_ok!(SchemaRegistry::create_schema(RawOrigin::Signed(signer).into(), schema_id, name, account_id.clone().into(), false,
 												vec![mandatory_fields], creation_date.clone(), Some(expiration_date), vec![claim.clone()], 
 												vec![claim.clone()], vec![claim.clone()], b"metadata".to_vec(), data_sig.clone(), nonce));
-		assert_ok!(SchemaRegistry::update_schema(RawOrigin::Signed(signer).into(), asset_id, (updated_sig.clone(), updated_schema.clone())));
-		assert_eq!(SchemaRegistry::schema_registry(asset_id.clone()), Some((updated_sig, updated_schema)));
+		assert_ok!(SchemaRegistry::update_schema(RawOrigin::Signed(signer).into(), schema_id, (updated_sig.clone(), updated_schema.clone())));
+		assert_eq!(SchemaRegistry::schema_registry(schema_id.clone()), Some((updated_sig, updated_schema)));
 
 	})
 }
@@ -222,13 +222,13 @@ fn it_works_for_update_credential() {
 	};
 		let data_sig = account_pair.sign(&credential.encode());
 		let updated_sig = account_pair.sign(&updated_credential.encode());
-		let asset_id = 0u32;
+		let schema_id = 0u32;
 		// Dispatch a signed create schema extrinsic.
-		assert_ok!(SchemaRegistry::create_credential(RawOrigin::Signed(signer).into(), asset_id, context.clone(), schema.clone(), 
+		assert_ok!(SchemaRegistry::create_credential(RawOrigin::Signed(signer).into(), schema_id, context.clone(), schema.clone(), 
 													account_id.clone().into(), issuance_date.clone(), Some(1702479816u64),subject.clone(), credential_holder.clone(),data_sig.clone(),
 													nonce.clone()));
-		assert_ok!(SchemaRegistry::update_credential(RawOrigin::Signed(signer).into(), asset_id.clone(),(updated_sig.clone(), credential.clone())));
-		assert_eq!(SchemaRegistry::credential_registry(asset_id.clone()), Some((updated_sig, credential)));
+		assert_ok!(SchemaRegistry::update_credential(RawOrigin::Signed(signer).into(), schema_id.clone(),(updated_sig.clone(), credential.clone())));
+		assert_eq!(SchemaRegistry::credential_registry(schema_id.clone()), Some((updated_sig, credential)));
 
 	})
 }
@@ -273,15 +273,15 @@ fn it_works_for_delete_schema() {
 			nonce,
 		};
 		let data_sig = account_pair.sign(&schema.encode());
-		let asset_id = 0u32;
+		let schema_id = 0u32;
 		// Dispatch a signed create schema extrinsic.
-		assert_ok!(SchemaRegistry::create_schema(RawOrigin::Signed(signer).into(), asset_id, name, account_id.clone().into(), false, 
+		assert_ok!(SchemaRegistry::create_schema(RawOrigin::Signed(signer).into(), schema_id, name, account_id.clone().into(), false, 
 												vec![mandatory_fields], creation_date.clone(), Some(expiration_date), vec![claim.clone()], 
 												vec![claim.clone()], vec![claim.clone()], b"metadata".to_vec(), data_sig.clone(), nonce));
 		// Dispatch a signed extrinsic.
-		assert_ok!(SchemaRegistry::delete_schema(RawOrigin::Signed(signer).into(), asset_id.clone()));
+		assert_ok!(SchemaRegistry::delete_schema(RawOrigin::Signed(signer).into(), schema_id.clone()));
 		// Read pallet storage and assert an expected result.
-		assert_eq!(SchemaRegistry::schema_registry(asset_id.clone()), None);
+		assert_eq!(SchemaRegistry::schema_registry(schema_id.clone()), None);
 	});
 }
 
@@ -320,15 +320,15 @@ fn it_works_for_delete_credential() {
 			credential_holder: credential_holder.clone(),
 			nonce: nonce.clone(),
 	};
-	let asset_id = 0u32;
+	let schema_id = 0u32;
 	let data_sig = account_pair.sign(&credential.encode());
 	// Dispatch a signed create schema extrinsic.
-	assert_ok!(SchemaRegistry::create_credential(RawOrigin::Signed(signer).into(), asset_id,context.clone(), schema.clone(), 
+	assert_ok!(SchemaRegistry::create_credential(RawOrigin::Signed(signer).into(), schema_id,context.clone(), schema.clone(), 
 												account_id.clone().into(), issuance_date.clone(), Some(1702379816u64),subject.clone(), credential_holder.clone(),data_sig.clone(), 
 												nonce));
 	// Dispatch a signed extrinsic.
-	assert_ok!(SchemaRegistry::delete_credential(RawOrigin::Signed(signer).into(), asset_id.clone()));
+	assert_ok!(SchemaRegistry::delete_credential(RawOrigin::Signed(signer).into(), schema_id.clone()));
 	// Read pallet storage and assert an expected result.
-	assert_eq!(SchemaRegistry::credential_registry(asset_id.clone()), None);
+	assert_eq!(SchemaRegistry::credential_registry(schema_id.clone()), None);
 	});
 }
