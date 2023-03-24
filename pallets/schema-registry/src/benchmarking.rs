@@ -3,7 +3,9 @@ use super::*;
 #[allow(unused)]
 use crate::Pallet as SchemaRegistry;
 use codec::Encode;
-use sp_core::{Pair, sr25519};
+use sp_core::sr25519;
+use sp_core::Pair;
+use scale_info::prelude::format;
 use frame_benchmarking::{benchmarks, whitelisted_caller};
 use frame_system::RawOrigin;
 use scale_info::prelude::vec;
