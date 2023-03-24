@@ -29,7 +29,7 @@ fn it_works_for_create_schema() {
 			claim_type: ClaimType::IssuerClaim,
 			issuance_requirement: Some(vec![issuance_req.clone()]),
 		};
-		let account_pair = account_pair("5NfERrBBRHZb59jVW6UMZZMTSBpikzvhXHDx7jPsiED6n47e");
+		let account_pair = account_pair("Alice");
 		let signer = account_pair.public();
 		let account_id = format!("did:seneca:{}",account_pair.public().into_account());
 		let nonce = 2u64;
@@ -74,11 +74,12 @@ fn it_works_for_create_credential() {
 			claim_type: ClaimType::CredentialClaim,
 			issuance_requirement: None,
 		};
-		let account_pair = account_pair("5NfERrBBRHZb59jVW6UMZZMTSBpikzvhXHDx7jPsiED6n47e");
+		let account_pair = account_pair("Alice");
 		let signer = account_pair.public();
 		println!("Signer: {}", signer);
 		let account_id = format!("did:seneca:{}",account_pair.public().to_string());
 		println!("account_id: {}", account_id.clone());
+		println!("account_id bytes: {:#?}", account_id.clone().encode());
 		let subject = Subject{
 				id: b"did:seneca:5GFEtniprMeFuh8HcoVrWxz4aQtv6T5V9bkENSnfPYhY4p8H".to_vec(),
 				claim: vec![claim.clone()],
@@ -130,7 +131,7 @@ fn it_works_for_update_schema() {
 			claim_type: ClaimType::IssuerClaim,
 			issuance_requirement: Some(vec![issuance_req.clone()]),
 		};
-		let account_pair = account_pair("5NfERrBBRHZb59jVW6UMZZMTSBpikzvhXHDx7jPsiED6n47e");
+		let account_pair = account_pair("Alice");
 		let signer = account_pair.public();
 		let account_id = format!("did:seneca:{}",account_pair.public().into_account());
 		let nonce = 2u64;
@@ -187,7 +188,7 @@ fn it_works_for_update_credential() {
 			claim_type: ClaimType::CredentialClaim,
 			issuance_requirement: None,
 		};
-		let account_pair = account_pair("5NfERrBBRHZb59jVW6UMZZMTSBpikzvhXHDx7jPsiED6n47e");
+		let account_pair = account_pair("Alice");
 		let signer = account_pair.public();
 		let account_id = format!("did:seneca:{}",account_pair.public().into_account());
 		
@@ -254,7 +255,7 @@ fn it_works_for_delete_schema() {
 			claim_type: ClaimType::CredentialClaim,
 			issuance_requirement: Some(vec![issuance_req.clone()]),
 		};
-		let account_pair = account_pair("5NfERrBBRHZb59jVW6UMZZMTSBpikzvhXHDx7jPsiED6n47e");
+		let account_pair = account_pair("Alice");
 		let signer = account_pair.public();
 		let account_id = format!("did:seneca:{}",account_pair.public().into_account());
 		let nonce = 2u64;
@@ -297,7 +298,7 @@ fn it_works_for_delete_credential() {
 			claim_type: ClaimType::CredentialClaim,
 			issuance_requirement: None,
 		};
-		let account_pair = account_pair("5NfERrBBRHZb59jVW6UMZZMTSBpikzvhXHDx7jPsiED6n47e");
+		let account_pair = account_pair("Alice");
 		let signer = account_pair.public();
 		let account_id = format!("did:seneca:{}",account_pair.public().into_account());
 		

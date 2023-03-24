@@ -350,8 +350,7 @@ pub mod pallet {
 			let did_string = sp_std::str::from_utf8(did).unwrap();
 			let did_vec: Vec<&str> = did_string.split(":").collect();
 			let public_key_str = did_vec[2].trim();
-			let pub_key = convert_string_to_accountid(public_key_str);
-			pub_key
+			convert_string_to_accountid(public_key_str)
 		}
 
 	}
