@@ -54,10 +54,14 @@ use frame_system::{
 		SignedPayload, Signer, SigningTypes, SubmitTransaction,
 	},
 };
+use http::header::{HeaderName, HeaderValue, AUTHORIZATION};
+use http::Method;
 use lite_json::json::JsonValue;
 use reqwest::header::{HeaderMap, HeaderValue, AUTHORIZATION};
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use sp_core::crypto::KeyTypeId;
+use sp_io::offchain::{HttpError, HttpRequestId, HttpRequestStatus, StatusCode};
 use sp_runtime::{
 	offchain::{
 		http,
@@ -69,9 +73,6 @@ use sp_runtime::{
 	RuntimeDebug,
 };
 use sp_std::vec::Vec;
-use std::collections::HashMap;
-use reqwest::{header, Client, Method, RequestBuilder, Url};
-use serde_json::Value;
 use std::collections::HashMap;
 
 #[cfg(test)]
@@ -594,44 +595,51 @@ impl<T: Config> Pallet<T> {
 		Ok(())
 	}
 
-	async fn send_request(
-    url: &str,
-    method: Method,
-    api_key: Option<&str>,
-    custom_headers: Option<HashMap<String, String>>,
-) -> Result<Value, Box<dyn std::error::Error>> {
-    // Create the HTTP client
-    let client = Client::new();
+	fn send_request(
+		url: &str,
+		method: Method,
+		api_key: Option<&str>,
+		custom_headers: Option<Vec<(HeaderName, HeaderValue)>>,
+	) -> Result<Value, HttpError> {
+		let request_id = sp_io::offchain::http_request_start(method.as_str(), url)?;
 
-    // Build the request with the provided URL and HTTP method
-    let mut request_builder = client.request(method, Url::parse(url)?);
+		if let Some(api_key) = api_key {
+			let auth_value = format!("Bearer {}", api_key);
+			sp_io::offchain::http_request_add_header(
+				request_id,
+				AUTHORIZATION.as_str(),
+				&auth_value,
+			)?;
+		}
 
-    // Add the API key to the header, if provided
-    if let Some(api_key) = api_key {
-        request_builder = request_builder.header("x-api-key", api_key);
-    }
+		if let Some(custom_headers) = custom_headers {
+			for (key, value) in custom_headers {
+				sp_io::offchain::http_request_add_header(request_id, key.as_str(), value.as_str())?;
+			}
+		}
 
-    // Add custom headers to the request, if provided
-    if let Some(custom_headers) = custom_headers {
-        for (key, value) in custom_headers {
-            request_builder = request_builder.header(key, value);
-        }
-    }
+		sp_io::offchain::http_request_write_body(request_id, &[], None)?;
+		let deadline =
+			sp_io::offchain::timestamp().add(sp_io::offchain::Duration::from_millis(5_000));
+		let response = sp_io::offchain::http_response_wait(&[request_id], Some(deadline))?;
 
-    // Send the request and get the response
-    let response = request_builder.send().await?;
-
-        // Check if the response is successful
-    if response.status().is_success() {
-        // Deserialize the JSON response into a Value type
-        let json_response: Value = response.json().await?;
-        Ok(json_response)
-    } else {
-        // If the response is not successful, return an error with the status code
-        Err(format!("Request failed with status: {}", response.status()).into())
-    }
-}
-
+		match response.get(&request_id) {
+			Some(HttpRequestStatus::Finished(StatusCode::CODE_200)) => {
+				let response_body =
+					sp_io::offchain::http_response_read_body(request_id, &mut [], None)?;
+				let response_str = core::str::from_utf8(&response_body)?;
+				let json_response: Value = serde_json::from_str(response_str)?;
+				Ok(json_response)
+			},
+			Some(HttpRequestStatus::Finished(status)) => {
+				Err(HttpError::IoError(format!("Request failed with status: {}", status)))
+			},
+			Some(HttpRequestStatus::IoError(error)) => {
+				Err(HttpError::IoError(format!("{}", error)))
+			},
+			None => Err(HttpError::IoError("Request failed".to_string())),
+		}
+	}
 
 	/// Parse the credential from the given JSON string using `lite-json`.
 	///
