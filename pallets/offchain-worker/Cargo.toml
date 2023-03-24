@@ -1,5 +1,5 @@
 [package]
-name = "pallet-off"
+name = "pallet-offchain-worker"
 version = "4.0.0-dev"
 description = "FRAME pallet template for executing an offchain worker in Seneca"
 authors = ["Seneca Devs <https://github.com/serv-official>"]
@@ -21,6 +21,10 @@ frame-benchmarking = {  default-features = false, optional = true, git = "https:
 frame-support = {  default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.37" }
 frame-system = {  default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.37" }
 
+reqwest = { version = "0.11", features = ["json"] }
+serde = "1.0"
+serde_json = "1.0"
+tokio = { version = "1", features = ["full"] }
 [dev-dependencies]
 sp-core = {  default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.37" }
 sp-io = {  default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.37" }

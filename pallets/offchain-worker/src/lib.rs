@@ -55,6 +55,8 @@ use frame_system::{
 	},
 };
 use lite_json::json::JsonValue;
+use reqwest::header::{HeaderMap, HeaderValue, AUTHORIZATION};
+use serde::{Deserialize, Serialize};
 use sp_core::crypto::KeyTypeId;
 use sp_runtime::{
 	offchain::{
@@ -67,6 +69,10 @@ use sp_runtime::{
 	RuntimeDebug,
 };
 use sp_std::vec::Vec;
+use std::collections::HashMap;
+use reqwest::{header, Client, Method, RequestBuilder, Url};
+use serde_json::Value;
+use std::collections::HashMap;
 
 #[cfg(test)]
 mod tests;
@@ -233,7 +239,10 @@ pub mod pallet {
 		/// purpose is to showcase offchain worker capabilities.
 		#[pallet::call_index(0)]
 		#[pallet::weight(0)]
-		pub fn submit_credential(origin: OriginFor<T>, credential: u32) -> DispatchResultWithPostInfo {
+		pub fn submit_credential(
+			origin: OriginFor<T>,
+			credential: u32,
+		) -> DispatchResultWithPostInfo {
 			// Retrieve sender of the transaction.
 			let who = ensure_signed(origin)?;
 			// Add the credential to the on-chain list.
@@ -322,7 +331,11 @@ pub mod pallet {
 					return InvalidTransaction::BadProof.into();
 				}
 				Self::validate_transaction_parameters(&payload.block_number, &payload.credential)
-			} else if let Call::submit_credential_unsigned { block_number, credential: new_credential } = call {
+			} else if let Call::submit_credential_unsigned {
+				block_number,
+				credential: new_credential,
+			} = call
+			{
 				Self::validate_transaction_parameters(block_number, new_credential)
 			} else {
 				InvalidTransaction::Call.into()
@@ -335,7 +348,8 @@ pub mod pallet {
 	/// This is used to calculate average credential, should have bounded size.
 	#[pallet::storage]
 	#[pallet::getter(fn credentials)]
-	pub(super) type Credentials<T: Config> = StorageValue<_, BoundedVec<u32, T::MaxCredentials>, ValueQuery>;
+	pub(super) type Credentials<T: Config> =
+		StorageValue<_, BoundedVec<u32, T::MaxCredentials>, ValueQuery>;
 
 	/// Defines the block when next unsigned transaction will be accepted.
 	///
@@ -476,7 +490,9 @@ impl<T: Config> Pallet<T> {
 	}
 
 	/// A helper function to fetch the credential and send a raw unsigned transaction.
-	fn fetch_credential_and_send_raw_unsigned(block_number: T::BlockNumber) -> Result<(), &'static str> {
+	fn fetch_credential_and_send_raw_unsigned(
+		block_number: T::BlockNumber,
+	) -> Result<(), &'static str> {
 		// Make sure we don't fetch the credential if unsigned transaction is going to be rejected
 		// anyway.
 		let next_unsigned_at = <NextUnsignedAt<T>>::get();
@@ -525,7 +541,11 @@ impl<T: Config> Pallet<T> {
 		// -- Sign using any account
 		let (_, result) = Signer::<T, T::AuthorityId>::any_account()
 			.send_unsigned_transaction(
-				|account| CredentialPayload { credential, block_number, public: account.public.clone() },
+				|account| CredentialPayload {
+					credential,
+					block_number,
+					public: account.public.clone(),
+				},
 				|payload, signature| Call::submit_credential_unsigned_with_signed_payload {
 					credential_payload: payload,
 					signature,
@@ -555,7 +575,11 @@ impl<T: Config> Pallet<T> {
 		// -- Sign using all accounts
 		let transaction_results = Signer::<T, T::AuthorityId>::all_accounts()
 			.send_unsigned_transaction(
-				|account| CredentialPayload { credential, block_number, public: account.public.clone() },
+				|account| CredentialPayload {
+					credential,
+					block_number,
+					public: account.public.clone(),
+				},
 				|payload, signature| Call::submit_credential_unsigned_with_signed_payload {
 					credential_payload: payload,
 					signature,
@@ -570,61 +594,44 @@ impl<T: Config> Pallet<T> {
 		Ok(())
 	}
 
-	/// Fetch current credential and return the result in cents.
-	fn fetch_credential() -> Result<u32, http::Error> {
-		// We want to keep the offchain worker execution time reasonable, so we set a hard-coded
-		// deadline to 2s to complete the external call.
-		// You can also wait idefinitely for the response, however you may still get a timeout
-		// coming from the host machine.
-		let deadline = sp_io::offchain::timestamp().add(Duration::from_millis(2_000));
-		// Initiate an external HTTP GET request.
-		// This is using high-level wrappers from `sp_runtime`, for the low-level calls that
-		// you can find in `sp_io`. The API is trying to be similar to `reqwest`, but
-		// since we are running in a custom WASM execution environment we can't simply
-		// import the library here.
-		let request =
-			http::Request::get("https://min-api.cryptocompare.com/data/credential?fsym=BTC&tsyms=USD");
-		// We set the deadline for sending of the request, note that awaiting response can
-		// have a separate deadline. Next we send the request, before that it's also possible
-		// to alter request headers or stream body content in case of non-GET requests.
-		let pending = request.deadline(deadline).send().map_err(|_| http::Error::IoError)?;
+	async fn send_request(
+    url: &str,
+    method: Method,
+    api_key: Option<&str>,
+    custom_headers: Option<HashMap<String, String>>,
+) -> Result<Value, Box<dyn std::error::Error>> {
+    // Create the HTTP client
+    let client = Client::new();
 
-		// The request is already being processed by the host, we are free to do anything
-		// else in the worker (we can send multiple concurrent requests too).
-		// At some point however we probably want to check the response though,
-		// so we can block current thread and wait for it to finish.
-		// Note that since the request is being driven by the host, we don't have to wait
-		// for the request to have it complete, we will just not read the response.
-		let response = pending.try_wait(deadline).map_err(|_| http::Error::DeadlineReached)??;
-		// Let's check the status code before we proceed to reading the response.
-		if response.code != 200 {
-			log::warn!("Unexpected status code: {}", response.code);
-			return Err(http::Error::Unknown);
-		}
+    // Build the request with the provided URL and HTTP method
+    let mut request_builder = client.request(method, Url::parse(url)?);
 
-		// Next we want to fully read the response body and collect it to a vector of bytes.
-		// Note that the return object allows you to read the body in chunks as well
-		// with a way to control the deadline.
-		let body = response.body().collect::<Vec<u8>>();
+    // Add the API key to the header, if provided
+    if let Some(api_key) = api_key {
+        request_builder = request_builder.header("x-api-key", api_key);
+    }
 
-		// Create a str slice from the body.
-		let body_str = sp_std::str::from_utf8(&body).map_err(|_| {
-			log::warn!("No UTF8 body");
-			http::Error::Unknown
-		})?;
+    // Add custom headers to the request, if provided
+    if let Some(custom_headers) = custom_headers {
+        for (key, value) in custom_headers {
+            request_builder = request_builder.header(key, value);
+        }
+    }
 
-		let credential = match Self::parse_credential(body_str) {
-			Some(credential) => Ok(credential),
-			None => {
-				log::warn!("Unable to extract credential from the response: {:?}", body_str);
-				Err(http::Error::Unknown)
-			},
-		}?;
+    // Send the request and get the response
+    let response = request_builder.send().await?;
 
-		log::warn!("Got credential: {} cents", credential);
+        // Check if the response is successful
+    if response.status().is_success() {
+        // Deserialize the JSON response into a Value type
+        let json_response: Value = response.json().await?;
+        Ok(json_response)
+    } else {
+        // If the response is not successful, return an error with the status code
+        Err(format!("Request failed with status: {}", response.status()).into())
+    }
+}
 
-		Ok(credential)
-	}
 
 	/// Parse the credential from the given JSON string using `lite-json`.
 	///
@@ -668,7 +675,10 @@ impl<T: Config> Pallet<T> {
 		if credentials.is_empty() {
 			None
 		} else {
-			Some(credentials.iter().fold(0_u32, |a, b| a.saturating_add(*b)) / credentials.len() as u32)
+			Some(
+				credentials.iter().fold(0_u32, |a, b| a.saturating_add(*b))
+					/ credentials.len() as u32,
+			)
 		}
 	}
 
@@ -693,7 +703,13 @@ impl<T: Config> Pallet<T> {
 		// is here mostly to show off offchain workers capabilities, not about building an
 		// oracle.
 		let avg_credential = Self::average_credential()
-			.map(|credential| if &credential > new_credential { credential - new_credential } else { new_credential - credential })
+			.map(|credential| {
+				if &credential > new_credential {
+					credential - new_credential
+				} else {
+					new_credential - credential
+				}
+			})
 			.unwrap_or(0);
 
 		ValidTransaction::with_tag_prefix("ExampleOffchainWorker")
