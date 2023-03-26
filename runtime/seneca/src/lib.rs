@@ -7,39 +7,41 @@
 include!(concat!(env!("OUT_DIR"), "/wasm_binary.rs"));
 
 use codec::Encode;
+use frame_system::{EnsureRoot, EnsureWithSuccess};
+pub use node_primitives::Signature;
+use node_primitives::{AccountId, Balance, BlockNumber, Hash, Index, Moment};
 use pallet_grandpa::{
 	fg_primitives, AuthorityId as GrandpaId, AuthorityList as GrandpaAuthorityList,
 };
+use pallet_im_online::sr25519::AuthorityId as ImOnlineId;
 use sp_api::impl_runtime_apis;
 use sp_consensus_aura::sr25519::AuthorityId as AuraId;
 use sp_core::{crypto::KeyTypeId, OpaqueMetadata};
 use sp_runtime::{
-	create_runtime_str, generic, impl_opaque_keys,
+	create_runtime_str, generic,
 	generic::Era,
+	impl_opaque_keys,
 	traits::{
-		AccountIdLookup, BlakeTwo256, Block as BlockT, NumberFor, Verify,
-		OpaqueKeys, SaturatedConversion, Bounded,
+		AccountIdLookup, BlakeTwo256, Block as BlockT, Bounded, NumberFor, OpaqueKeys,
+		SaturatedConversion, Verify,
 	},
-	transaction_validity::{TransactionSource, TransactionPriority, TransactionValidity},
-	ApplyExtrinsicResult, Perquintill, FixedPointNumber,
+	transaction_validity::{TransactionPriority, TransactionSource, TransactionValidity},
+	ApplyExtrinsicResult, FixedPointNumber, Perquintill,
 };
-pub use node_primitives::Signature;
-use node_primitives::{AccountId, Balance, BlockNumber, Hash, Index, Moment};
 use sp_std::prelude::*;
 #[cfg(feature = "std")]
 use sp_version::NativeVersion;
 use sp_version::RuntimeVersion;
-use frame_system::{EnsureRoot, EnsureWithSuccess};
-use pallet_im_online::sr25519::AuthorityId as ImOnlineId;
 pub mod weights;
 // A few exports that help ease life for downstream crates.
 pub use frame_support::{
-	construct_runtime, 
-	parameter_types, 
+	construct_runtime,
 	dispatch::DispatchClass,
+	parameter_types,
 	traits::{
-		ConstBool, ConstU128, ConstU32, ConstU64, ConstU8, KeyOwnerProofSystem, Randomness, StorageInfo,
-		EqualPrivilegeOnly, Nothing, EitherOfDiverse, OnUnbalanced, Currency, Imbalance,
+		ConstBool, ConstU128, ConstU32, ConstU64, ConstU8, Currency, EitherOfDiverse,
+		EqualPrivilegeOnly, Imbalance, KeyOwnerProofSystem, Nothing, OnUnbalanced, Randomness,
+		StorageInfo,
 	},
 	weights::{
 		constants::{
@@ -51,19 +53,18 @@ pub use frame_support::{
 };
 pub use frame_system::Call as SystemCall;
 pub use pallet_balances::Call as BalancesCall;
-pub use pallet_timestamp::Call as TimestampCall;
 #[cfg(any(feature = "std", test))]
 pub use pallet_staking::StakerStatus;
+pub use pallet_timestamp::Call as TimestampCall;
 pub use pallet_transaction_payment::{CurrencyAdapter, Multiplier, TargetedFeeAdjustment};
 #[cfg(any(feature = "std", test))]
 pub use sp_runtime::BuildStorage;
-pub use sp_runtime::{Perbill, Permill, Percent};
+pub use sp_runtime::{Perbill, Percent, Permill};
 
 pub mod constants;
 use constants::currency::*;
 /// Import the template pallet.
 pub use pallet_template;
-
 
 /// Opaque types. These are used by the CLI to instantiate machinery that don't need to know
 /// the specifics of the runtime. They can then be made to be agnostic over specific formats
@@ -140,7 +141,6 @@ pub const SLOT_DURATION: u64 = MILLISECS_PER_BLOCK;
 pub const MINUTES: BlockNumber = 60_000 / (MILLISECS_PER_BLOCK as BlockNumber);
 pub const HOURS: BlockNumber = MINUTES * 60;
 pub const DAYS: BlockNumber = HOURS * 24;
-
 
 /// The version information used to identify this runtime when compiled natively.
 #[cfg(feature = "std")]
@@ -245,7 +245,6 @@ impl pallet_session::Config for Runtime {
 	type WeightInfo = ();
 }
 
-
 impl pallet_randomness_collective_flip::Config for Runtime {}
 
 impl pallet_aura::Config for Runtime {
@@ -297,7 +296,10 @@ where
 		public: <Signature as Verify>::Signer,
 		account: AccountId,
 		nonce: Index,
-	) -> Option<(RuntimeCall, <UncheckedExtrinsic as sp_runtime::traits::Extrinsic>::SignaturePayload)> {
+	) -> Option<(
+		RuntimeCall,
+		<UncheckedExtrinsic as sp_runtime::traits::Extrinsic>::SignaturePayload,
+	)> {
 		let tip = 0;
 		let period =
 			BlockHashCount::get().checked_next_power_of_two().map(|c| c / 2).unwrap_or(2) as u64;
@@ -392,7 +394,6 @@ impl pallet_transaction_payment::Config for Runtime {
 	>;
 }
 
-
 parameter_types! {
 	pub const CouncilMotionDuration: BlockNumber = 5 * DAYS;
 	pub const CouncilMaxProposals: u32 = 100;
@@ -411,7 +412,6 @@ impl pallet_collective::Config<CouncilCollective> for Runtime {
 	type WeightInfo = pallet_collective::weights::SubstrateWeight<Runtime>;
 }
 
-
 parameter_types! {
 	pub const TechnicalMotionDuration: BlockNumber = 5 * DAYS;
 	pub const TechnicalMaxProposals: u32 = 100;
@@ -429,7 +429,6 @@ impl pallet_collective::Config<TechnicalCollective> for Runtime {
 	type DefaultVote = pallet_collective::PrimeDefaultVote;
 	type WeightInfo = pallet_collective::weights::SubstrateWeight<Runtime>;
 }
-
 
 type EnsureRootOrHalfCouncil = EitherOfDiverse<
 	EnsureRoot<AccountId>,
@@ -536,7 +535,7 @@ impl pallet_sudo::Config for Runtime {
 }
 
 /// Configure the pallet-template in pallets/template.
-impl pallet_template::Config for Runtime {
+impl pallet_offchain_worker::Config for Runtime {
 	type RuntimeEvent = RuntimeEvent;
 }
 
@@ -612,9 +611,9 @@ construct_runtime!(
 		Balances: pallet_balances,
 		TransactionPayment: pallet_transaction_payment,
 		ValidatorSet: validator_set,
-		Council: pallet_collective::<Instance1>,
-		TechnicalCommittee: pallet_collective::<Instance2>,
-		TechnicalMembership: pallet_membership::<Instance1>,
+		Council: pallet_collective<Instance1>,
+		TechnicalCommittee: pallet_collective<Instance2>,
+		TechnicalMembership: pallet_membership<Instance1>,
 		ImOnline: pallet_im_online,
 		Treasury: pallet_treasury,
 		Session: pallet_session,
@@ -624,7 +623,7 @@ construct_runtime!(
 		Scheduler: pallet_scheduler,
 		Preimage: pallet_preimage,
 		// Include the custom logic from the pallet-template in the runtime.
-		TemplateModule: pallet_template,
+		OffchainWorker: pallet_offchain_worker,
 		DID: pallet_did,
 		SchemaRegistry: pallet_schema_registry,
 	}
@@ -665,10 +664,7 @@ pub type Executive = frame_executive::Executive<
 
 // All migrations executed on runtime upgrade as a nested tuple of types implementing
 // `OnRuntimeUpgrade`.
-type Migrations = (
-	pallet_contracts::Migration<Runtime>,
-);
-
+type Migrations = (pallet_contracts::Migration<Runtime>,);
 
 #[cfg(feature = "runtime-benchmarks")]
 #[macro_use]

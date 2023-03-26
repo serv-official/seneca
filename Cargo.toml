@@ -3,7 +3,7 @@ members = [
     "node/seneca",
     "node/zeno",
     "pallets/schema-registry",
-    "pallets/template",
+    "pallets/offchain-worker",
     "runtime/seneca",
     "runtime/zeno",
 ]

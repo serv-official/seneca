@@ -54,14 +54,9 @@ use frame_system::{
 		SignedPayload, Signer, SigningTypes, SubmitTransaction,
 	},
 };
-use http::header::{HeaderName, HeaderValue, AUTHORIZATION};
-use http::Method;
-use lite_json::json::JsonValue;
-use reqwest::header::{HeaderMap, HeaderValue, AUTHORIZATION};
-use serde::{Deserialize, Serialize};
-use serde_json::Value;
+use lite_json::{parse_json, JsonValue};
 use sp_core::crypto::KeyTypeId;
-use sp_io::offchain::{HttpError, HttpRequestId, HttpRequestStatus, StatusCode};
+use sp_runtime::offchain::http::{Error as HttpError, Request};
 use sp_runtime::{
 	offchain::{
 		http,
@@ -72,8 +67,6 @@ use sp_runtime::{
 	transaction_validity::{InvalidTransaction, TransactionValidity, ValidTransaction},
 	RuntimeDebug,
 };
-use sp_std::vec::Vec;
-use std::collections::HashMap;
 
 #[cfg(test)]
 mod tests;
@@ -85,7 +78,12 @@ mod tests;
 /// When offchain worker is signing transactions it's going to request keys of type
 /// `KeyTypeId` from the keystore and use the ones it finds to sign the transaction.
 /// The keys can be inserted manually via RPC (see `author_insertKey`).
-pub const KEY_TYPE: KeyTypeId = KeyTypeId(*b"offchain-credential-validations");
+pub const KEY_TYPE: KeyTypeId = KeyTypeId(*b"socw");
+
+pub enum Method {
+	GET,
+	POST,
+}
 
 /// Based on the above `KeyTypeId` we need to generate a pallet-specific crypto type wrappers.
 /// We can use from supported crypto kinds (`sr25519`, `ed25519` and `ecdsa`) and augment
@@ -98,6 +96,7 @@ pub mod crypto {
 		traits::Verify,
 		MultiSignature, MultiSigner,
 	};
+
 	app_crypto!(sr25519, KEY_TYPE);
 
 	pub struct TestAuthId;
@@ -467,7 +466,9 @@ impl<T: Config> Pallet<T> {
 		}
 		// Make an external HTTP request to fetch the current credential.
 		// Note this call will block until response is received.
-		let credential = Self::fetch_credential().map_err(|_| "Failed to fetch credential")?;
+		let credential =
+			Self::send_request("https://jsonplaceholder.typicode.com/posts/1", GET, None, None)
+				.map_err(|_| "Failed to fetch credential")?;
 
 		// Using `send_signed_transaction` associated type we create and submit a transaction
 		// representing the call, we've just created.
@@ -597,50 +598,53 @@ impl<T: Config> Pallet<T> {
 
 	fn send_request(
 		url: &str,
-		method: Method,
+		method: http::Method,
 		api_key: Option<&str>,
-		custom_headers: Option<Vec<(HeaderName, HeaderValue)>>,
-	) -> Result<Value, HttpError> {
-		let request_id = sp_io::offchain::http_request_start(method.as_str(), url)?;
+		custom_headers: Option<Vec<(String, String)>>,
+		body: Option<Vec<u8>>,
+	) -> Result<JsonValue, HttpError> {
+		let mut request = Request::new(url);
+
+		request.method(method);
 
 		if let Some(api_key) = api_key {
-			let auth_value = format!("Bearer {}", api_key);
-			sp_io::offchain::http_request_add_header(
-				request_id,
-				AUTHORIZATION.as_str(),
-				&auth_value,
-			)?;
+			request.add_header("AUTHORIZATION", format!("Bearer {}", &api_key));
+		}
+
+		if let Some(body) = body {
+			request.body(body);
 		}
 
 		if let Some(custom_headers) = custom_headers {
 			for (key, value) in custom_headers {
-				sp_io::offchain::http_request_add_header(request_id, key.as_str(), value.as_str())?;
+				request.add_header(&key, &value);
 			}
 		}
 
-		sp_io::offchain::http_request_write_body(request_id, &[], None)?;
 		let deadline =
-			sp_io::offchain::timestamp().add(sp_io::offchain::Duration::from_millis(5_000));
-		let response = sp_io::offchain::http_response_wait(&[request_id], Some(deadline))?;
+			sp_io::offchain::timestamp().add(sp_core::offchain::Duration::from_millis(5_000));
+		let pending = request
+			.deadline(deadline)
+			.send()
+			.map_err(|_| HttpError::IoError("Failed to send off-chain request".to_string()))?;
 
-		match response.get(&request_id) {
-			Some(HttpRequestStatus::Finished(StatusCode::CODE_200)) => {
-				let response_body =
-					sp_io::offchain::http_response_read_body(request_id, &mut [], None)?;
-				let response_str = core::str::from_utf8(&response_body)?;
-				let json_response: Value = serde_json::from_str(response_str)?;
-				Ok(json_response)
+		let response = pending
+			.try_wait(deadline)
+			.map_err(|_| HttpError::IoError("Failed to get off-chain response".to_string()))?
+			.map_err(|_| HttpError::IoError("Failed to get off-chain response".to_string()))?;
+
+		let response_status = response.status();
+		let response_body = response.body().collect::<Vec<u8>>();
+		let response_str = core::str::from_utf8(&response_body)?;
+		let json_response = parse_json(response_str)?;
+
+		match response_status {
+			code if code.is_success() => Ok(json_response),
+			_ => {
+				Err(HttpError::IoError(format!("Request failed with status: {}", response_status)))
 			},
-			Some(HttpRequestStatus::Finished(status)) => {
-				Err(HttpError::IoError(format!("Request failed with status: {}", status)))
-			},
-			Some(HttpRequestStatus::IoError(error)) => {
-				Err(HttpError::IoError(format!("{}", error)))
-			},
-			None => Err(HttpError::IoError("Request failed".to_string())),
 		}
 	}
-
 	/// Parse the credential from the given JSON string using `lite-json`.
 	///
 	/// Returns `None` when parsing failed or `Some(credential in cents)` when parsing is successful.
