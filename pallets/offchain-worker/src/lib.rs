@@ -1,8 +1,7 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-pub use frame_system::pallet::*;
 pub use pallet::*;
-// #[frame_support::pallet]
+#[frame_support::pallet]
 pub mod pallet {
 	//! A demonstration of an offchain worker that sends onchain callbacks
 	use codec::{Decode, Encode};
@@ -18,6 +17,7 @@ pub mod pallet {
 	use lite_json::*;
 	use sp_core::crypto::KeyTypeId;
 	use sp_core::offchain::HttpError;
+	use sp_runtime::offchain::http::Request;
 	use sp_runtime::serde;
 	use sp_runtime::{
 		offchain::{
