@@ -19,6 +19,7 @@ pub mod pallet {
 	use sp_runtime::offchain::HttpError;
 	use sp_runtime::offchain::http::Request;
 	use sp_runtime::serde;
+	use scale_info::prelude::format;
 	use sp_runtime::{
 		offchain::{
 			http,
@@ -34,7 +35,7 @@ pub mod pallet {
 	};
 	use sp_std::{collections::vec_deque::VecDeque, prelude::*, str};
 
-	use serde::{Deserialize, Deserializer};
+	// use serde::{Deserialize, Deserializer};
 
 	/// Defines application identifier for crypto keys of this module.
 	///
@@ -137,38 +138,6 @@ pub mod pallet {
 		type RuntimeEvent: From<Event<Self>> + IsType<<Self as frame_system::Config>::RuntimeEvent>;
 	}
 
-	#[pallet::validate_unsigned]
-	impl<T: Config> ValidateUnsigned for Pallet<T> {
-		type Call = Call<T>;
-
-		/// Validate unsigned call to this module.
-		///
-		/// By default unsigned transactions are disallowed, but implementing the validator
-		/// here we make sure that some particular calls (the ones produced by offchain worker)
-		/// are being whitelisted and marked as valid.
-		fn validate_unsigned(_source: TransactionSource, call: &Self::Call) -> TransactionValidity {
-			let valid_tx = |provide| ValidTransaction::with_tag_prefix("ocw-demo")
-				.priority(UNSIGNED_TXS_PRIORITY)
-				.and_provides([&provide])
-				.longevity(3)
-				.propagate(true)
-				.build();
-
-			match call {
-				Call::submit_number_unsigned { number: _number } => valid_tx(b"submit_number_unsigned".to_vec()),
-				Call::submit_number_unsigned_with_signed_payload {
-					ref payload,
-					ref signature
-				} => {
-					if !SignedPayload::<T>::verify::<T::AuthorityId>(payload, signature.clone()) {
-						return InvalidTransaction::BadProof.into();
-					}
-					valid_tx(b"submit_number_unsigned_with_signed_payload".to_vec())
-				},
-				_ => InvalidTransaction::Call.into(),
-			}
-		}
-	}
 
 	#[pallet::pallet]
 	#[pallet::generate_store(pub(super) trait Store)]

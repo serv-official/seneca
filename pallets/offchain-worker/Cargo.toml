@@ -26,7 +26,7 @@ sp-core = {  default-features = false, git = "https://github.com/paritytech/subs
 serde = { version = '1.0.100', default-features = false, features = ['derive'] }
 serde_json = { version = '1.0.45', default-features = false, features = ['alloc'] }
 sp-runtime = {  default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.37" }
-sp-keystore = {  default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.37" }
+sp-keystore = {  default-features = false, git = "https://github.com/paritytech/substrate.git", optional= true, branch = "polkadot-v0.9.37" }
 sp-arithmetic = {  default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.37" }
 sp-std = {  default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.37" }
 log = { version = "0.4.17", default-features = false }
@@ -48,7 +48,7 @@ std = [
 	'sp-io/std',
 	'sp-runtime/std',
 	'sp-arithmetic/std',
-	'sp-keystore/std',
+	'sp-keystore',
 	'log/std',
 ]
 runtime-benchmarks = ["frame-benchmarking/runtime-benchmarks"]
