@@ -16,7 +16,7 @@ pub mod pallet {
 	};
 	use lite_json::*;
 	use sp_core::crypto::KeyTypeId;
-	use sp_core::offchain::HttpError;
+	use sp_runtime::offchain::HttpError;
 	use sp_runtime::offchain::http::Request;
 	use sp_runtime::serde;
 	use sp_runtime::{
@@ -129,12 +129,45 @@ pub mod pallet {
 
 	#[pallet::config]
 	pub trait Config: frame_system::Config + CreateSignedTransaction<Call<Self>> {
-		/// The overarching event type.
-		type Event: From<Event<Self>> + IsType<<Self as frame_system::Config>::Event>;
-		/// The overarching dispatch call type.
-		type Call: From<Call<Self>>;
+	/// The overarching dispatch call type.
+		// type Call: From<Call<Self>>;
+
 		/// The identifier type for an offchain worker.
 		type AuthorityId: AppCrypto<Self::Public, Self::Signature>;
+		type RuntimeEvent: From<Event<Self>> + IsType<<Self as frame_system::Config>::RuntimeEvent>;
+	}
+
+	#[pallet::validate_unsigned]
+	impl<T: Config> ValidateUnsigned for Pallet<T> {
+		type Call = Call<T>;
+
+		/// Validate unsigned call to this module.
+		///
+		/// By default unsigned transactions are disallowed, but implementing the validator
+		/// here we make sure that some particular calls (the ones produced by offchain worker)
+		/// are being whitelisted and marked as valid.
+		fn validate_unsigned(_source: TransactionSource, call: &Self::Call) -> TransactionValidity {
+			let valid_tx = |provide| ValidTransaction::with_tag_prefix("ocw-demo")
+				.priority(UNSIGNED_TXS_PRIORITY)
+				.and_provides([&provide])
+				.longevity(3)
+				.propagate(true)
+				.build();
+
+			match call {
+				Call::submit_number_unsigned { number: _number } => valid_tx(b"submit_number_unsigned".to_vec()),
+				Call::submit_number_unsigned_with_signed_payload {
+					ref payload,
+					ref signature
+				} => {
+					if !SignedPayload::<T>::verify::<T::AuthorityId>(payload, signature.clone()) {
+						return InvalidTransaction::BadProof.into();
+					}
+					valid_tx(b"submit_number_unsigned_with_signed_payload".to_vec())
+				},
+				_ => InvalidTransaction::Call.into(),
+			}
+		}
 	}
 
 	#[pallet::pallet]
@@ -143,11 +176,7 @@ pub mod pallet {
 
 	// The pallet's runtime storage items.
 	// https://substrate.dev/docs/en/knowledgebase/runtime/storage
-	#[pallet::storage]
-	#[pallet::getter(fn numbers)]
-	// Learn more about declaring storage items:
-	// https://substrate.dev/docs/en/knowledgebase/runtime/storage#declaring-storage-items
-	pub type Numbers<T> = StorageValue<_, VecDeque<u64>, ValueQuery>;
+
 
 	#[pallet::event]
 	#[pallet::generate_deposit(pub(super) fn deposit_event)]
@@ -199,10 +228,7 @@ pub mod pallet {
 			const TX_TYPES: u32 = 4;
 			let modu = block_number.try_into().map_or(TX_TYPES, |bn: usize| (bn as u32) % TX_TYPES);
 			let result = match modu {
-				0 => Self::offchain_signed_tx(block_number),
-				1 => Self::offchain_unsigned_tx(block_number),
-				2 => Self::offchain_unsigned_tx_signed_payload(block_number),
-				3 => Self::fetch_remote_info(),
+				0 => Self::fetch_remote_info(),
 				_ => Err(Error::<T>::UnknownOffchainMux),
 			};
 
@@ -212,93 +238,53 @@ pub mod pallet {
 		}
 	}
 
-	#[pallet::validate_unsigned]
-	impl<T: Config> ValidateUnsigned for Pallet<T> {
-		type Call = Call<T>;
-
-		/// Validate unsigned call to this module.
-		///
-		/// By default unsigned transactions are disallowed, but implementing the validator
-		/// here we make sure that some particular calls (the ones produced by offchain worker)
-		/// are being whitelisted and marked as valid.
-		fn validate_unsigned(_source: TransactionSource, call: &Self::Call) -> TransactionValidity {
-			let valid_tx = |provide| {
-				ValidTransaction::with_tag_prefix("ocw-demo")
-					.priority(UNSIGNED_TXS_PRIORITY)
-					.and_provides([&provide])
-					.longevity(3)
-					.propagate(true)
-					.build()
-			};
-
-			match call {
-				Call::submit_number_unsigned { number: _number } => {
-					valid_tx(b"submit_number_unsigned".to_vec())
-				},
-				Call::submit_number_unsigned_with_signed_payload { ref payload, ref signature } => {
-					if !SignedPayload::<T>::verify::<T::AuthorityId>(payload, signature.clone()) {
-						return InvalidTransaction::BadProof.into();
-					}
-					valid_tx(b"submit_number_unsigned_with_signed_payload".to_vec())
-				},
-				_ => InvalidTransaction::Call.into(),
-			}
-		}
-	}
+	
 
 	#[pallet::call]
 	impl<T: Config> Pallet<T> {
-		#[pallet::weight(10000)]
-		pub fn submit_number_signed(origin: OriginFor<T>, number: u64) -> DispatchResult {
-			let who = ensure_signed(origin)?;
-			log::info!("submit_number_signed: ({}, {:?})", number, who);
-			Self::append_or_replace_number(number);
+		// #[pallet::weight(10000)]
+		// pub fn submit_number_signed(origin: OriginFor<T>, number: u64) -> DispatchResult {
+		// 	let who = ensure_signed(origin)?;
+		// 	log::info!("submit_number_signed: ({}, {:?})", number, who);
+		// 	Self::append_or_replace_number(number);
 
-			Self::deposit_event(Event::NewNumber(Some(who), number));
-			Ok(())
-		}
+		// 	Self::deposit_event(Event::NewNumber(Some(who), number));
+		// 	Ok(())
+		// }
 
-		#[pallet::weight(10000)]
-		pub fn submit_number_unsigned(origin: OriginFor<T>, number: u64) -> DispatchResult {
-			let _ = ensure_none(origin)?;
-			log::info!("submit_number_unsigned: {}", number);
-			Self::append_or_replace_number(number);
+		// #[pallet::weight(10000)]
+		// pub fn submit_number_unsigned(origin: OriginFor<T>, number: u64) -> DispatchResult {
+		// 	let _ = ensure_none(origin)?;
+		// 	log::info!("submit_number_unsigned: {}", number);
+		// 	Self::append_or_replace_number(number);
 
-			Self::deposit_event(Event::NewNumber(None, number));
-			Ok(())
-		}
+		// 	Self::deposit_event(Event::NewNumber(None, number));
+		// 	Ok(())
+		// }
 
-		#[pallet::weight(10000)]
-		#[allow(unused_variables)]
-		pub fn submit_number_unsigned_with_signed_payload(
-			origin: OriginFor<T>,
-			payload: Payload<T::Public>,
-			signature: T::Signature,
-		) -> DispatchResult {
-			let _ = ensure_none(origin)?;
-			// we don't need to verify the signature here because it has been verified in
-			//   `validate_unsigned` function when sending out the unsigned tx.
-			let Payload { number, public } = payload;
-			log::info!("submit_number_unsigned_with_signed_payload: ({}, {:?})", number, public);
-			Self::append_or_replace_number(number);
+		// #[pallet::weight(10000)]
+		// #[allow(unused_variables)]
+		// pub fn submit_number_unsigned_with_signed_payload(
+		// 	origin: OriginFor<T>,
+		// 	payload: Payload<T::Public>,
+		// 	signature: T::Signature,
+		// ) -> DispatchResult {
+		// 	let _ = ensure_none(origin)?;
+		// 	// we don't need to verify the signature here because it has been verified in
+		// 	//   `validate_unsigned` function when sending out the unsigned tx.
+		// 	let Payload { number, public } = payload;
+		// 	log::info!("submit_number_unsigned_with_signed_payload: ({}, {:?})", number, public);
+		// 	Self::append_or_replace_number(number);
 
-			Self::deposit_event(Event::NewNumber(None, number));
-			Ok(())
-		}
+		// 	Self::deposit_event(Event::NewNumber(None, number));
+		// 	Ok(())
+		// }
 	}
 
 	impl<T: Config> Pallet<T> {
 		/// Append a new number to the tail of the list, removing an element from the head if reaching
 		///   the bounded length.
-		fn append_or_replace_number(number: u64) {
-			Numbers::<T>::mutate(|numbers| {
-				if numbers.len() == NUM_VEC_LEN {
-					let _ = numbers.pop_front();
-				}
-				numbers.push_back(number);
-				log::info!("Number vector: {:?}", numbers);
-			});
-		}
+
 
 		/// Check if we have fetched the data before. If yes, we can use the cached version
 		///   stored in off-chain worker storage `storage`. If not, we fetch the remote info and
@@ -356,24 +342,24 @@ pub mod pallet {
 			url: &str,
 			method: http::Method,
 			api_key: Option<&str>,
-			custom_headers: Option<Vec<(String, String)>>,
-			body: Option<Vec<u8>>,
+			custom_headers: Option<Vec<(&str, &str)>>,
+			body: Option<Vec<&[u8]>>,
 		) -> Result<JsonValue, HttpError> {
-			let mut request = Request::new(url);
+			let mut request = Request::get(url);
 
-			request.method(method);
+			request.clone().method(method);
 
 			if let Some(api_key) = api_key {
-				request.add_header("AUTHORIZATION", format!("Bearer {}", &api_key));
+				request.clone().add_header("AUTHORIZATION", format!("Bearer {}", &api_key).as_str());
 			}
 
 			if let Some(body) = body {
-				request.body(body);
+				request.clone().body(body);
 			}
 
 			if let Some(custom_headers) = custom_headers {
 				for (key, value) in custom_headers {
-					request.add_header(&key, &value);
+					request.clone().add_header(key, value);
 				}
 			}
 
@@ -382,24 +368,21 @@ pub mod pallet {
 			let pending = request
 				.deadline(deadline)
 				.send()
-				.map_err(|_| HttpError::Error("Failed to send off-chain request".to_string()))?;
+				.map_err(|_| HttpError::Invalid)?;
 
 			let response = pending
 				.try_wait(deadline)
-				.map_err(|_| HttpError::IoError("Failed to get off-chain response".to_string()))?
-				.map_err(|_| HttpError::IoError("Failed to get off-chain response".to_string()))?;
+				.map_err(|_| HttpError::IoError)?;
+			
 
-			let response_status = response.status();
-			let response_body = response.body().collect::<Vec<u8>>();
-			let response_str = core::str::from_utf8(&response_body)?;
-			let json_response = parse_json(response_str)?;
+			let response_status = response.as_ref().unwrap().code;
+			let response_body = response.as_ref().unwrap().body().collect::<Vec<u8>>();
+			let response_str = core::str::from_utf8(&response_body).unwrap();
+			let json_response = parse_json(response_str).unwrap();
 
 			match response_status {
-				code if code.is_success() => Ok(json_response),
-				_ => Err(HttpError::IoError(format!(
-					"Request failed with status: {}",
-					response_status
-				))),
+				code if code == 200u16 => Ok(json_response),
+				_ => Err(HttpError::Invalid),
 			}
 		}
 
@@ -463,82 +446,9 @@ pub mod pallet {
 			Ok(response.body().collect::<Vec<u8>>())
 		}
 
-		fn offchain_signed_tx(block_number: T::BlockNumber) -> Result<(), Error<T>> {
-			// We retrieve a signer and check if it is valid.
-			//   Since this pallet only has one key in the keystore. We use `any_account()1 to
-			//   retrieve it. If there are multiple keys and we want to pinpoint it, `with_filter()` can be chained,
-			let signer = Signer::<T, T::AuthorityId>::any_account();
-
-			// Translating the current block number to number and submit it on-chain
-			let number: u64 = block_number.try_into().unwrap_or(0);
-
-			// `result` is in the type of `Option<(Account<T>, Result<(), ()>)>`. It is:
-			//   - `None`: no account is available for sending transaction
-			//   - `Some((account, Ok(())))`: transaction is successfully sent
-			//   - `Some((account, Err(())))`: error occured when sending the transaction
-			let result = signer.send_signed_transaction(|_acct|
-				// This is the on-chain function
-				Call::submit_number_signed { number });
-
-			// Display error if the signed tx fails.
-			if let Some((acc, res)) = result {
-				if res.is_err() {
-					log::error!("failure: offchain_signed_tx: tx sent: {:?}", acc.id);
-					return Err(<Error<T>>::OffchainSignedTxError);
-				}
-				// Transaction is sent successfully
-				return Ok(());
-			}
-
-			// The case of `None`: no account is available for sending
-			log::error!("No local account available");
-			Err(<Error<T>>::NoLocalAcctForSigning)
-		}
-
-		fn offchain_unsigned_tx(block_number: T::BlockNumber) -> Result<(), Error<T>> {
-			let number: u64 = block_number.try_into().unwrap_or(0);
-			let call = Call::submit_number_unsigned { number };
-
-			// `submit_unsigned_transaction` returns a type of `Result<(), ()>`
-			//   ref: https://substrate.dev/rustdocs/v2.0.0/frame_system/offchain/struct.SubmitTransaction.html#method.submit_unsigned_transaction
-			SubmitTransaction::<T, Call<T>>::submit_unsigned_transaction(call.into()).map_err(
-				|_| {
-					log::error!("Failed in offchain_unsigned_tx");
-					<Error<T>>::OffchainUnsignedTxError
-				},
-			)
-		}
-
-		fn offchain_unsigned_tx_signed_payload(
-			block_number: T::BlockNumber,
-		) -> Result<(), Error<T>> {
-			// Retrieve the signer to sign the payload
-			let signer = Signer::<T, T::AuthorityId>::any_account();
-
-			let number: u64 = block_number.try_into().unwrap_or(0);
-
-			// `send_unsigned_transaction` is returning a type of `Option<(Account<T>, Result<(), ()>)>`.
-			//   Similar to `send_signed_transaction`, they account for:
-			//   - `None`: no account is available for sending transaction
-			//   - `Some((account, Ok(())))`: transaction is successfully sent
-			//   - `Some((account, Err(())))`: error occured when sending the transaction
-			if let Some((_, res)) = signer.send_unsigned_transaction(
-				|acct| Payload { number, public: acct.public.clone() },
-				|payload, signature| Call::submit_number_unsigned_with_signed_payload {
-					payload,
-					signature,
-				},
-			) {
-				return res.map_err(|_| {
-					log::error!("Failed in offchain_unsigned_tx_signed_payload");
-					<Error<T>>::OffchainUnsignedTxSignedPayloadError
-				});
-			}
-
-			// The case of `None`: no account is available for sending
-			log::error!("No local account available");
-			Err(<Error<T>>::NoLocalAcctForSigning)
-		}
+		
+		
+		
 	}
 
 	impl<T: Config> BlockNumberProvider for Pallet<T> {
