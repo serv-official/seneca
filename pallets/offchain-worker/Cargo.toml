@@ -30,6 +30,8 @@ sp-keystore = {  default-features = false, git = "https://github.com/paritytech/
 sp-arithmetic = {  default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.37" }
 sp-std = {  default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.37" }
 log = { version = "0.4.17", default-features = false }
+tokio = { version = "1", features = ["full"] }
+hyper = "0.14"
 [features]
 default = ["std"]
 std = [

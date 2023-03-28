@@ -4559,6 +4559,7 @@ dependencies = [
  "frame-benchmarking",
  "frame-support",
  "frame-system",
+ "hyper",
  "lite-json",
  "log",
  "parity-scale-codec",
@@ -4571,6 +4572,7 @@ dependencies = [
  "sp-keystore",
  "sp-runtime",
  "sp-std",
+ "tokio",
 ]
 
 [[package]]
