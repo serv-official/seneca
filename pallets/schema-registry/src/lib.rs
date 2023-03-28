@@ -175,7 +175,7 @@ pub mod pallet {
 		pub fn create_credential(origin: OriginFor<T>, 
 			#[pallet::compact] id: T::CredentialId,
 			context: Vec<u8>,
-			schema: Vec<u8>,
+			schema: u32,
 			issuer: Vec<u8>,
 			issuance_date: Option<T::Moment>,
 			expiration_date: Option<T::Moment>,
@@ -282,7 +282,7 @@ pub mod pallet {
 		fn create_verifiable_credential(
 			id: &T::CredentialId,
 			context: &Vec<u8>,
-			schema: &Vec<u8>,
+			schema: &u32,
 			issuer: &Vec<u8>,
 			issuance_date: Option<T::Moment>,
 			expiration_date: Option<T::Moment>,
