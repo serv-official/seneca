@@ -14,7 +14,7 @@ pub struct VerifiableCredentialObject<Public, Moment>{
 #[derive(PartialEq, Eq, PartialOrd, Ord, TypeInfo, Clone, Encode, Decode, RuntimeDebug)]
 pub struct VerifiableCredential<Moment> {
     pub context: Vec<u8>,
-    pub schema: Vec<u8>,
+    pub schema: u32,
     pub issuer: Vec<u8>,
     pub issuance_date: Option<Moment>,
     pub expiration_date: Option<Moment>,
@@ -39,7 +39,7 @@ pub struct VerifiableCredentialSchema<Moment> {
 }
 #[derive(PartialEq, Eq, PartialOrd, Ord, TypeInfo, Clone, Encode, Decode, RuntimeDebug)]
 pub struct Claim{
-    pub schemaid: Option<Vec<u8>>,
+    pub schemaid: Option<u32>,
 	pub property: Vec<u8>,
 	pub value: Vec<u8>,
     pub claim_type: ClaimType,
