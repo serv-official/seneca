@@ -103,7 +103,7 @@ fn it_works_for_create_credential() {
 		let data_sig = account_pair.sign(&credential.encode());
 		dbg!("data_sig: {:?}", data_sig.clone());
 		// Dispatch a signed create schema extrinsic.
-		assert_ok!(SchemaRegistry::create_credential(RawOrigin::Signed(signer).into(), asset_id,  context.clone(), schema, 
+		assert_ok!(SchemaRegistry::create_credential(RawOrigin::Signed(signer).into(), schema_id,  context.clone(), schema, 
 													account_id.into(), issuance_date.clone(), Some(1702379816u64),subject.clone(),credential_holder.clone(),data_sig.clone(), nonce));
 
 	});
@@ -325,7 +325,7 @@ fn it_works_for_delete_credential() {
 	let data_sig = account_pair.sign(&credential.encode());
   
 	// Dispatch a signed create schema extrinsic.
-	assert_ok!(SchemaRegistry::create_credential(RawOrigin::Signed(signer).into(), asset_id,context.clone(), schema, 
+	assert_ok!(SchemaRegistry::create_credential(RawOrigin::Signed(signer).into(), schema_id,context.clone(), schema, 
 												account_id.clone().into(), issuance_date.clone(), Some(1702379816u64),subject.clone(), credential_holder.clone(),data_sig.clone(), 
 												nonce));
 	// Dispatch a signed extrinsic.

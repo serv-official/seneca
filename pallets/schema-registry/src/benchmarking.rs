@@ -68,7 +68,7 @@ benchmarks! {
 			vec![claim.clone()], vec![claim.clone()], b"metadata".to_vec(), sig.clone(),nonce )
 	verify {
 		//assert that the schema stored is different from the one created since the nonce is different.
-		assert_eq!(SchemaStore::<T>::get(schema_id.clone()), Some((sig, schema)));
+		assert_eq!(SchemaStore::<T>::get(schema_id), Some((sig, schema)));
 	}
 	update_schema{
 		let s in 0 .. 100;
@@ -128,12 +128,12 @@ benchmarks! {
 		// sign the schema in benchmarks
 		let sig: T::Signature = keypair.sign(sp_core::testing::SR25519, &schema.encode()).unwrap().into();
 
-		assert_ok!(SchemaRegistry::<T>::create_schema(RawOrigin::Signed(caller.clone()).into(), schema_id.clone(), name, account_id.clone().encode(), false,
+		assert_ok!(SchemaRegistry::<T>::create_schema(RawOrigin::Signed(caller.clone()).into(), schema_id.clone(), name, account_id.encode(), false,
 									vec![mandatory_fields], creation_date.clone(), Some(expiration_date), vec![claim.clone()], 
 									vec![claim.clone()], vec![claim.clone()], b"metadata".to_vec(), sig.clone(), nonce));
 	}:  _(RawOrigin::Signed(caller), schema_id.clone(), (sig.clone(), updated_schema.clone()))
 	verify {
-		assert_eq!(SchemaStore::<T>::get(schema_id.clone()), Some((sig.clone(), updated_schema.clone())));
+		assert_eq!(SchemaStore::<T>::get(schema_id), Some((sig, updated_schema)));
 	}
 
 	delete_schema{
@@ -184,12 +184,12 @@ benchmarks! {
 
 		let sig: T::Signature = keypair.sign(sp_core::testing::SR25519, &schema.encode()).unwrap().into();
 
-		assert_ok!(SchemaRegistry::<T>::create_schema(RawOrigin::Signed(caller.clone()).into(), schema_id.clone(), name, account_id.clone().encode(), false,
-									vec![mandatory_fields], creation_date.clone(), Some(expiration_date), vec![claim.clone()], 
-									vec![claim.clone()], vec![claim.clone()], b"metadata".to_vec(), sig.clone(), nonce));
-	}:  _(RawOrigin::Signed(caller.clone()), schema_id.clone())
+		assert_ok!(SchemaRegistry::<T>::create_schema(RawOrigin::Signed(caller.clone()).into(), schema_id.clone(), name, account_id.encode(), false,
+									vec![mandatory_fields], creation_date, Some(expiration_date), vec![claim.clone()], 
+									vec![claim.clone()], vec![claim.clone()], b"metadata".to_vec(), sig, nonce));
+	}:  _(RawOrigin::Signed(caller), schema_id.clone())
 	verify {
-		assert_eq!(SchemaStore::<T>::get(schema_id.clone()), None);
+		assert_eq!(SchemaStore::<T>::get(schema_id), None);
 	}
 
 	create_credential{
@@ -250,10 +250,10 @@ benchmarks! {
 
 		let sig: T::Signature = keypair.sign(sp_core::testing::SR25519, &credential.encode()).unwrap().into();
 
-	}:   _(RawOrigin::Signed(caller.clone()), context.clone(), schema, 
-				pub_key.clone(),  Some(expiration_date),subject.clone(), credential_holder.clone(), sig.clone(), nonce, credential_id.clone() )
+	}:   _(RawOrigin::Signed(caller.clone()), context, schema, account_id.encode(), 
+			Some(issuance_date), Some(expiration_date),subject, credential_holder, sig.clone(), nonce, credential_id.clone() )
 	verify {
-		assert_eq!(CredentialStore::<T>::get(credential_id.clone()), Some((sig.clone(), credential.clone())));
+		assert_eq!(CredentialStore::<T>::get(credential_id), Some((sig, credential)));
 	}
 	update_credential{
 		let s in 0 .. 100;
@@ -303,7 +303,7 @@ benchmarks! {
 		let credential: VerifiableCredential<T::Moment>  = VerifiableCredential{
 			context: context.clone(),
 			schema: schema.clone(),
-			issuer: account_id.encode(),
+			issuer: account_id.clone().encode(),
 			issuance_date: Some(issuance_date),
 			expiration_date: Some(expiration_date),
 			subject: subject.clone(),
@@ -314,7 +314,7 @@ benchmarks! {
 		let credential2: VerifiableCredential<T::Moment>  = VerifiableCredential{
 			context: context.clone(),
 			schema: schema.clone(),
-			issuer: account_id.encode(),
+			issuer: account_id.clone().encode(),
 			issuance_date: Some(issuance_date),
 			expiration_date: Some(expiration_date),
 			subject: subject.clone(),
@@ -325,12 +325,12 @@ benchmarks! {
 		let sig: T::Signature = keypair.sign(sp_core::testing::SR25519, &credential.encode()).unwrap().into();
 		let sig2: T::Signature = keypair.sign(sp_core::testing::SR25519, &credential2.encode()).unwrap().into();
 
-		assert_ok!(SchemaRegistry::<T>::create_credential(RawOrigin::Signed(caller.clone()).into(), context.clone(), schema, 
-				pub_key.clone(), Some(expiration_date), subject.clone(), credential_holder.clone(),sig.clone(), nonce, credential_id.clone()));
+		assert_ok!(SchemaRegistry::<T>::create_credential(RawOrigin::Signed(caller.clone()).into(), credential_id.clone(), context, schema, 
+				account_id.encode(), Some(issuance_date), Some(expiration_date), subject, credential_holder, sig.clone(), nonce));
 		// Encode and sign the schema message.
 	}:  _(RawOrigin::Signed(caller.clone()), credential_id.clone(),(sig2.clone(), credential2.clone()))
 	verify {
-		assert_eq!(CredentialStore::<T>::get(credential_id.clone()), Some((sig2.clone(), credential2.clone())));
+		assert_eq!(CredentialStore::<T>::get(credential_id), Some((sig2, credential2)));
 	}
 	delete_credential{
 		let s in 0 .. 100;
@@ -380,7 +380,7 @@ benchmarks! {
 		let credential: VerifiableCredential<T::Moment>  = VerifiableCredential{
 			context: context.clone(),
 			schema: schema.clone(),
-			issuer: account_id.encode(),
+			issuer: account_id.clone().encode(),
 			issuance_date: Some(issuance_date),
 			expiration_date: Some(expiration_date),
 			subject: subject.clone(),
@@ -390,12 +390,12 @@ benchmarks! {
 
 		let sig: T::Signature = keypair.sign(sp_core::testing::SR25519, &credential.encode()).unwrap().into();
 
-		assert_ok!(SchemaRegistry::<T>::create_credential(RawOrigin::Signed(caller.clone()).into(), context.clone(), schema, 
-				pub_key, Some(expiration_date), subject.clone(), credential_holder.clone(),sig.clone(), nonce, credential_id.clone()));
+		assert_ok!(SchemaRegistry::<T>::create_credential(RawOrigin::Signed(caller.clone()).into(), credential_id, context, schema, 
+				account_id.encode(), Some(issuance_date), Some(expiration_date), subject, credential_holder,sig, nonce));
 		// Encode and sign the schema message.
 	}:  _(RawOrigin::Signed(caller.clone()), credential_id.clone())
 	verify {
-		assert_eq!(CredentialStore::<T>::get(credential_id.clone()), None);
+		assert_eq!(CredentialStore::<T>::get(credential_id), None);
 	}
 
 	impl_benchmark_test_suite!(SchemaRegistry, crate::mock::new_test_ext(), crate::mock::Test);
