@@ -250,8 +250,8 @@ benchmarks! {
 
 		let sig: T::Signature = keypair.sign(sp_core::testing::SR25519, &credential.encode()).unwrap().into();
 
-	}:   _(RawOrigin::Signed(caller.clone()), context, schema, account_id.encode(), 
-			Some(issuance_date), Some(expiration_date),subject, credential_holder, sig.clone(), nonce, credential_id.clone() )
+	}:  _(RawOrigin::Signed(caller.clone()), context, schema, account_id.encode(), Some(issuance_date),
+			Some(expiration_date),subject, credential_holder, sig.clone(), nonce, credential_id.clone() )
 	verify {
 		assert_eq!(CredentialStore::<T>::get(credential_id), Some((sig, credential)));
 	}

@@ -219,7 +219,7 @@ impl frame_system::Config for Runtime {
 }
 
 parameter_types! {
-	pub const MinAuthorities: u32 = 1;
+	pub const MinAuthorities: u32 = 2;
 }
 
 impl validator_set::Config for Runtime {
