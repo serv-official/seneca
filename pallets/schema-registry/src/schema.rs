@@ -21,7 +21,7 @@ pub trait Schema<AccountId, Moment, Signature, SchemaId, CredentialId> {
     fn create_verifiable_credential(
         id: &CredentialId,
         context: &Vec<u8>,
-        schema: &Vec<u8>,
+        schema: &u32,
         issuer: &Vec<u8>,
         issuance_date: Option<Moment>,
         expiration_date: Option<Moment>,

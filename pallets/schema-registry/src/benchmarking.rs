@@ -224,7 +224,7 @@ benchmarks! {
 			claim: vec![claim.clone()],
 		};
 		let nonce = 2u64;
-		let schema = "VerifiableCredentialSchema".encode();
+		let schema = 123456u32;
 		//create random credential_id
 		let credential_id: T::CredentialId = Default::default();
 		// sign the credential in benchmarks
@@ -244,7 +244,7 @@ benchmarks! {
 
 		let sig: T::Signature = keypair.sign(&credential.encode()).into();
 
-	}:  _(RawOrigin::Signed(caller.clone()), context.clone(), schema.clone(), 
+	}:  _(RawOrigin::Signed(caller.clone()), context.clone(), schema, 
 				pub_key.clone(),  Some(expiration_date),subject.clone(), credential_holder.clone(), sig.clone(), nonce, credential_id.clone() )
 	verify {
 		assert_eq!(CredentialStore::<T>::get(credential_id.clone()), Some((sig.clone(), credential.clone())));
@@ -286,7 +286,7 @@ benchmarks! {
 			claim: vec![claim.clone()],
 		};
 		let nonce = 2u64;
-		let schema = "VerifiableCredentialSchema".encode();
+		let schema = 123456u32;
 		//create random credential_id
 		let credential_id: T::CredentialId = Default::default();
 		// sign the credential in benchmarks
@@ -318,7 +318,7 @@ benchmarks! {
 		let sig: T::Signature = keypair.sign(&credential.encode()).into();
 		let sig2: T::Signature = keypair.sign(&credential2.encode()).into();
 
-		assert_ok!(SchemaRegistry::<T>::create_credential(RawOrigin::Signed(caller.clone()).into(), context.clone(), schema.clone(), 
+		assert_ok!(SchemaRegistry::<T>::create_credential(RawOrigin::Signed(caller.clone()).into(), context.clone(), schema, 
 				pub_key.clone(), Some(expiration_date), subject.clone(), credential_holder.clone(),sig.clone(), nonce, credential_id.clone()));
 		// Encode and sign the schema message.
 	}:  _(RawOrigin::Signed(caller.clone()), credential_id.clone(),(sig2.clone(), credential2.clone()))
@@ -365,7 +365,7 @@ benchmarks! {
 
 		//create random credential_id
 		let credential_id: T::CredentialId = Default::default();
-		let schema = "VerifiableCredentialSchema".encode();
+		let schema = 123456u32;
 		// sign the credential in benchmarks
 		let keypair = sr25519::Pair::from_string("//Alice", None).unwrap();
 		let pub_key: T::Public = keypair.public().into();
@@ -383,7 +383,7 @@ benchmarks! {
 
 		let sig: T::Signature = keypair.sign(&credential.encode()).into();
 
-		assert_ok!(SchemaRegistry::<T>::create_credential(RawOrigin::Signed(caller.clone()).into(), context.clone(), schema.clone(), 
+		assert_ok!(SchemaRegistry::<T>::create_credential(RawOrigin::Signed(caller.clone()).into(), context.clone(), schema, 
 				pub_key, Some(expiration_date), subject.clone(), credential_holder.clone(),sig.clone(), nonce, credential_id.clone()));
 		// Encode and sign the schema message.
 	}:  _(RawOrigin::Signed(caller.clone()), credential_id.clone())
