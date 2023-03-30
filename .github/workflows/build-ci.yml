@@ -40,7 +40,4 @@ jobs:
 
       - name: Check Build for Benchmarking
         run: >
-          pushd node/zeno &&
-          cargo check --features=runtime-benchmarks --release
-          pushd node/seneca &&
           cargo check --features=runtime-benchmarks --release
