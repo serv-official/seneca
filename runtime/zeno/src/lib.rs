@@ -109,8 +109,8 @@ impl OnUnbalanced<NegativeImbalance> for DealWithFees {
 // https://docs.substrate.io/main-docs/build/upgrade#runtime-versioning
 #[sp_version::runtime_version]
 pub const VERSION: RuntimeVersion = RuntimeVersion {
-	spec_name: create_runtime_str!("zeno-node"),
-	impl_name: create_runtime_str!("zeno-node"),
+	spec_name: create_runtime_str!("zeno-testnet"),
+	impl_name: create_runtime_str!("zeno-testnet"),
 	authoring_version: 1,
 	// The version of the runtime specification. A full node will not attempt to use its native
 	//   runtime in substitute for the on-chain Wasm runtime unless all of `spec_name`,
@@ -140,6 +140,7 @@ pub const SLOT_DURATION: u64 = MILLISECS_PER_BLOCK;
 pub const MINUTES: BlockNumber = 60_000 / (MILLISECS_PER_BLOCK as BlockNumber);
 pub const HOURS: BlockNumber = MINUTES * 60;
 pub const DAYS: BlockNumber = HOURS * 24;
+pub const WEEKS: BlockNumber = DAYS * 7;
 
 
 /// The version information used to identify this runtime when compiled natively.
@@ -533,6 +534,13 @@ impl pallet_sudo::Config for Runtime {
 	type RuntimeCall = RuntimeCall;
 }
 
+impl pallet_utility::Config for Runtime {
+	type RuntimeEvent = RuntimeEvent;
+	type RuntimeCall = RuntimeCall;
+	type PalletsOrigin = OriginCaller;
+	type WeightInfo = pallet_utility::weights::SubstrateWeight<Runtime>;
+}
+
 /// Configure the pallet-template in pallets/template.
 impl pallet_template::Config for Runtime {
 	type RuntimeEvent = RuntimeEvent;
@@ -621,6 +629,7 @@ construct_runtime!(
 		Sudo: pallet_sudo,
 		Scheduler: pallet_scheduler,
 		Preimage: pallet_preimage,
+		Utility: pallet_utility,
 		// Include the custom logic from the pallet-template in the runtime.
 		TemplateModule: pallet_template,
 		DID: pallet_did,

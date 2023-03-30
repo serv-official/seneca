@@ -236,7 +236,7 @@ benchmarks! {
 		let keypair = Public::generate_pair(sp_core::testing::SR25519, None);
 		let pub_key: T::Public = keypair.into();
 		let account_id = format!("did:seneca:{:#?}",pub_key.into_account());
-		let issuance_date = Default::default();
+		let issuance_date: T::Moment  = Default::default();
 		let credential: VerifiableCredential<T::Moment>  = VerifiableCredential{
 			context: context.clone(),
 			schema: schema.clone(),
@@ -298,7 +298,7 @@ benchmarks! {
 		// sign the credential in benchmarks
 		let keypair = Public::generate_pair(sp_core::testing::SR25519, None);
 		let pub_key: T::Public = keypair.into();
-		let issuance_date = Default::default();
+		let issuance_date: T::Moment  = Default::default();
 		let account_id = format!("did:seneca:{:#?}",pub_key.into_account());
 		let credential: VerifiableCredential<T::Moment>  = VerifiableCredential{
 			context: context.clone(),
@@ -359,7 +359,6 @@ benchmarks! {
 		let credential_holder = b"did:seneca:5HDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec();
 		let credential_holder2 = b"did:seneca:7JDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec();
 		let issuer = b"did:seneca:5HDx7jPsiED6n47eNfERrBBRHZb59jVW6UMZZMTSBpikzvhX".to_vec();
-		let expiration_date: T::Moment = Default::default();
 		let mandatory_fields = Attribute{
 			name: b"name".to_vec(),
 			attribute_type: AttributeType::Hex,
@@ -397,6 +396,5 @@ benchmarks! {
 	verify {
 		assert_eq!(CredentialStore::<T>::get(credential_id), None);
 	}
-
 	impl_benchmark_test_suite!(SchemaRegistry, crate::mock::new_test_ext(), crate::mock::Test);
 }
