@@ -1,4 +1,5 @@
 use crate::types::*;
+use frame_support::pallet_prelude::DispatchError;
 use frame_support::{dispatch::DispatchResult};
 use scale_info::prelude::vec::Vec;
 
@@ -45,5 +46,5 @@ pub trait Schema<AccountId, Moment, Signature, SchemaId, CredentialId> {
         key: &CredentialId,
     ) -> DispatchResult;
     fn is_valid_signer(data: &[u8], sig: &Signature, from: &AccountId) -> DispatchResult;
-    fn split_publickey_from_did(did: &Vec<u8>) -> AccountId;
+    fn split_publickey_from_did(did: &Vec<u8>) -> Result<AccountId, DispatchError>;
 }

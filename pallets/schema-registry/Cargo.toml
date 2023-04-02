@@ -18,6 +18,7 @@ hex-literal = { version = "0.3.4", default-features = false }
 codec = { package = "parity-scale-codec", version = "3.0.0", default-features = false, features = [
 	"derive",
 ] }
+log = { version = "0.4.14", default-features = false }
 sp-core = { default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.37" }
 sp-runtime = { default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.37" }
 sp-io = { default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.37" }
@@ -35,6 +36,7 @@ sp-application-crypto = { default-features = false, git = "https://github.com/pa
 default = ["std"]
 std = [
 	"codec/std",
+	"log/std",
 	"frame-benchmarking/std",
 	"frame-support/std",
 	"frame-system/std",

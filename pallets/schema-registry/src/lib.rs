@@ -270,7 +270,7 @@ pub mod pallet {
 			let binding = verifiable_credential_schema.encode();
    			let vc_bytes = binding.as_slice();
 			   
-			let signer = Self::split_publickey_from_did(&verifiable_credential_schema.creator);
+			let signer = Self::split_publickey_from_did(&verifiable_credential_schema.creator)?;
 			Self::is_valid_signer(vc_bytes, signature, &signer)?;
 			// Save the Schema data in storage
 			SchemaStore::<T>::insert(id, (&signature, &verifiable_credential_schema));
@@ -303,7 +303,7 @@ pub mod pallet {
 			};
 			let binding = verifiable_credential.encode();
    			let vc_bytes = binding.as_slice();
-			let signer = Self::split_publickey_from_did(&verifiable_credential.issuer);
+			let signer = Self::split_publickey_from_did(&verifiable_credential.issuer)?;
 			Self::is_valid_signer(vc_bytes, signature, &signer)?;
 			// Save the Schema data in storage
 			CredentialStore::<T>::insert(&id, (&signature, &verifiable_credential));
@@ -346,11 +346,20 @@ pub mod pallet {
 		}
 		
 		
-		fn split_publickey_from_did(did: &Vec<u8>) -> T::AccountId {
-			let did_string = sp_std::str::from_utf8(did).unwrap();
+		fn split_publickey_from_did(did: &Vec<u8>) -> Result<T::AccountId, DispatchError>{
+			let did_string = match sp_std::str::from_utf8(did){
+					Ok(did_str) => did_str,
+					Err(e) => {
+						log::error!("{:?}",e);
+						return Err(<Error<T>>::InvalidDID.into())
+					},
+			};
 			let did_vec: Vec<&str> = did_string.split(":").collect();
 			let public_key_str = did_vec[2].trim();
-			convert_string_to_accountid(public_key_str)
+			match convert_string_to_accountid(public_key_str){
+				Ok(account_id) => Ok(account_id),
+				Err(e) => Err(e),
+			}
 		}
 
 	}
