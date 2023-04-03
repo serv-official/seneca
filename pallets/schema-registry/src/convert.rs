@@ -1,9 +1,10 @@
 use codec::{Decode, Encode};
 use sp_core::crypto::AccountId32;
 pub use sp_std::{str, vec, vec::Vec};
+use frame_support::pallet_prelude::DispatchError;
 
 
-pub fn convert_string_to_accountid<AccountId>(account_str: &str) -> AccountId
+pub fn convert_string_to_accountid<AccountId>(account_str: &str) -> Result<AccountId, DispatchError>
 where
 	AccountId: Encode + ?Sized + Decode,
 {
@@ -15,6 +16,12 @@ where
 	array.copy_from_slice(bytes);
 	let account32: AccountId32 = array.into();
 	let mut to32 = AccountId32::as_ref(&account32);
-	let to_address = AccountId::decode(&mut to32).unwrap();
-	to_address
+	let to_address = match AccountId::decode(&mut to32){
+		Ok(a) => a,
+		Err(e) => {
+			log::error!("{:?}", e);
+			return Err(DispatchError::Other("Error converting string to AccountId"))
+		},
+	};
+	Ok(to_address)
 }
