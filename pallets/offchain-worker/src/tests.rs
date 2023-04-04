@@ -33,11 +33,15 @@ fn it_works_for_get_requests() {
 		let result = OffchainWorker::send_request(&url, method, api_key, custom_headers, body);
 
 		// Assert that the request was successful.
-		assert!(result.is_ok());
+		assert_ok!(OffchainWorker::send_request(&url, method, api_key, custom_headers, body));
 		// Assert that the mock server received the request as expected.
 		mock.assert();
 		// Assert that the response JSON object is correct.
 		let json_response = result.unwrap();
-		assert_eq!(json_response["status"], "success");
+		assert_eq!(
+			OffchainWorker::send_request(&url, method, api_key, custom_headers, body).unwrap()
+				["status"],
+			"success"
+		);
 	})
 }
