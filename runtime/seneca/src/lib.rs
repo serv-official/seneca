@@ -247,7 +247,7 @@ impl pallet_session::Config for Runtime {
 }
 
 
-impl pallet_randomness_collective_flip::Config for Runtime {}
+impl pallet_insecure_randomness_collective_flip::Config for Runtime {}
 
 impl pallet_aura::Config for Runtime {
 	type AuthorityId = AuraId;
@@ -255,31 +255,21 @@ impl pallet_aura::Config for Runtime {
 	type MaxAuthorities = ConstU32<32>;
 }
 
-impl pallet_grandpa::Config for Runtime {
+/// Existential deposit.
+pub const EXISTENTIAL_DEPOSIT: u128 = 10 * CENTS;
+
+impl pallet_balances::Config for Runtime {
+	type MaxLocks = ConstU32<50>;
+	type MaxReserves = ();
+	type ReserveIdentifier = [u8; 8];
+	/// The type for recording an account's balance.
+	type Balance = Balance;
+	/// The ubiquitous event type.
 	type RuntimeEvent = RuntimeEvent;
-
-	type KeyOwnerProofSystem = ();
-
-	type KeyOwnerProof =
-		<Self::KeyOwnerProofSystem as KeyOwnerProofSystem<(KeyTypeId, GrandpaId)>>::Proof;
-
-	type KeyOwnerIdentification = <Self::KeyOwnerProofSystem as KeyOwnerProofSystem<(
-		KeyTypeId,
-		GrandpaId,
-	)>>::IdentificationTuple;
-
-	type HandleEquivocation = ();
-
-	type WeightInfo = ();
-	type MaxAuthorities = ConstU32<32>;
-}
-
-impl pallet_timestamp::Config for Runtime {
-	/// A timestamp: milliseconds since the unix epoch.
-	type Moment = u64;
-	type OnTimestampSet = Aura;
-	type MinimumPeriod = ConstU64<{ SLOT_DURATION / 2 }>;
-	type WeightInfo = ();
+	type DustRemoval = ();
+	type ExistentialDeposit = ConstU128<EXISTENTIAL_DEPOSIT>;
+	type AccountStore = System;
+	type WeightInfo = pallet_balances::weights::SubstrateWeight<Runtime>;
 }
 
 parameter_types! {
@@ -410,6 +400,7 @@ impl pallet_collective::Config<CouncilCollective> for Runtime {
 	type MaxMembers = CouncilMaxMembers;
 	type DefaultVote = pallet_collective::PrimeDefaultVote;
 	type WeightInfo = pallet_collective::weights::SubstrateWeight<Runtime>;
+	type SetMembersOrigin = EnsureRoot<Self::AccountId>;
 }
 
 
@@ -429,6 +420,7 @@ impl pallet_collective::Config<TechnicalCollective> for Runtime {
 	type MaxMembers = TechnicalMaxMembers;
 	type DefaultVote = pallet_collective::PrimeDefaultVote;
 	type WeightInfo = pallet_collective::weights::SubstrateWeight<Runtime>;
+	type SetMembersOrigin = EnsureRoot<Self::AccountId>;
 }
 
 
@@ -613,7 +605,7 @@ construct_runtime!(
 		UncheckedExtrinsic = UncheckedExtrinsic,
 	{
 		System: frame_system,
-		RandomnessCollectiveFlip: pallet_randomness_collective_flip,
+		RandomnessCollectiveFlip: pallet_insecure_randomness_collective_flip,
 		Timestamp: pallet_timestamp,
 		Aura: pallet_aura,
 		Grandpa: pallet_grandpa,

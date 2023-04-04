@@ -247,7 +247,7 @@ impl pallet_session::Config for Runtime {
 }
 
 
-impl pallet_randomness_collective_flip::Config for Runtime {}
+impl pallet_insecure_randomness_collective_flip::Config for Runtime {}
 
 impl pallet_aura::Config for Runtime {
 	type AuthorityId = AuraId;
@@ -272,6 +272,7 @@ impl pallet_grandpa::Config for Runtime {
 
 	type WeightInfo = ();
 	type MaxAuthorities = ConstU32<32>;
+	type MaxSetIdSessionEntries = ConstU64<0>;
 }
 
 impl pallet_timestamp::Config for Runtime {
@@ -409,6 +410,7 @@ impl pallet_collective::Config<CouncilCollective> for Runtime {
 	type MaxMembers = CouncilMaxMembers;
 	type DefaultVote = pallet_collective::PrimeDefaultVote;
 	type WeightInfo = pallet_collective::weights::SubstrateWeight<Runtime>;
+	type SetMembersOrigin = EnsureRoot<Self::AccountId>;
 }
 
 
@@ -428,6 +430,7 @@ impl pallet_collective::Config<TechnicalCollective> for Runtime {
 	type MaxMembers = TechnicalMaxMembers;
 	type DefaultVote = pallet_collective::PrimeDefaultVote;
 	type WeightInfo = pallet_collective::weights::SubstrateWeight<Runtime>;
+	type SetMembersOrigin = EnsureRoot<Self::AccountId>;
 }
 
 type EnsureRootOrHalfCouncil = EitherOfDiverse<
@@ -611,7 +614,7 @@ construct_runtime!(
 		UncheckedExtrinsic = UncheckedExtrinsic,
 	{
 		System: frame_system,
-		RandomnessCollectiveFlip: pallet_randomness_collective_flip,
+		RandomnessCollectiveFlip: pallet_insecure_randomness_collective_flip,
 		Timestamp: pallet_timestamp,
 		Aura: pallet_aura,
 		Grandpa: pallet_grandpa,
