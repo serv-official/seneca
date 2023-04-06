@@ -20,6 +20,7 @@ name = "zeno-node"
 [dependencies]
 clap = { version = "4.0.9", features = ["derive"] }
 hex-literal = "0.3.4"
+hex = "0.4"
 futures = { version = "0.3.21", features = ["thread-pool"]}
 
 sc-cli = {  git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.37" }

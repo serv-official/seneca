@@ -10146,6 +10146,7 @@ dependencies = [
  "frame-benchmarking-cli",
  "frame-system",
  "futures",
+ "hex",
  "hex-literal",
  "jsonrpsee",
  "node-primitives",
