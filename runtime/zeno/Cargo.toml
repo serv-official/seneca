@@ -67,6 +67,8 @@ pallet-contracts-primitives = {default-features = false, git = "https://github.c
 # Used for the node template's RPCs
 frame-system-rpc-runtime-api = { default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.37" }
 pallet-transaction-payment-rpc-runtime-api = { default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.37" }
+pallet-multisig = { default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.37" }
+
 
 # Used for runtime benchmarking
 frame-benchmarking = { default-features = false, git = "https://github.com/paritytech/substrate.git", optional = true , branch = "polkadot-v0.9.37" }
@@ -140,6 +142,7 @@ std = [
 	"pallet-session/std",
 	"pallet-session-benchmarking?/std",
 	'validator-set/std',
+	"pallet-multisig/std",
 ]
 runtime-benchmarks = [
 	"frame-benchmarking/runtime-benchmarks",
@@ -162,6 +165,7 @@ runtime-benchmarks = [
 	"pallet-session-benchmarking/runtime-benchmarks",
 	"pallet-im-online/runtime-benchmarks",
 	"pallet-offences-benchmarking/runtime-benchmarks",
+	"pallet-multisig/runtime-benchmarks",
 ]
 try-runtime = [
 	"frame-try-runtime/try-runtime",
