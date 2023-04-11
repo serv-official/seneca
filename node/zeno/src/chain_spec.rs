@@ -257,7 +257,7 @@ fn staging_network_config_genesis() -> GenesisConfig {
 	let committee_accounts: Vec<AccountId> = vec![
 		"5GHJvRMyqSGnMSWoLgE9WSufoZZ6dBowdkDV4dvYApBykd9Z".parse()
 		.unwrap(),
-		"5DNvfF8gjTys1ZAo5S9Wq2ZESLm1Ssudj8CC8Z4CDU67PsVZ".parse()
+		"5HK2RNXZRmVEsPDXidWwV1zNFzRAaCRxzsvtYio179jELd49".parse()
 		.unwrap(),
 		"5DRVZN78VKbgNny4bHf2MpmHq6SVhrT6g23ciTYHi36woLMT".parse()
 		.unwrap(),
@@ -265,16 +265,16 @@ fn staging_network_config_genesis() -> GenesisConfig {
 		.unwrap(),
 	];
 	let sudo_account: AccountId =
-		public_from_ss58::<sr25519::Public>("5HTATx3UK6tH6WkkLXLSTyaAtMhRdVEfpFD9GSbm5WoPzs2a")
+		public_from_ss58::<sr25519::Public>("5FemZuvaJ7wVy4S49X7Y9mj7FyTR4caQD5mZo2rL7MXQoXMi")
 			.into();
 	let multisig_controller_accounts: Vec<AccountId> = vec![
-		public_from_ss58::<sr25519::Public>("5GHJvRMyqSGnMSWoLgE9WSufoZZ6dBowdkDV4dvYApBykd9Z")
-			.into(),
-		public_from_ss58::<sr25519::Public>("5DRVZN78VKbgNny4bHf2MpmHq6SVhrT6g23ciTYHi36woLMT")
-			.into(),
-		public_from_ss58::<sr25519::Public>("5DRVZN78VKbgNny4bHf2MpmHq6SVhrT6g23ciTYHi36woLMT")
-			.into(),
 		public_from_ss58::<sr25519::Public>("5CDrkPqy6KQDYNXNXiK5NMij1p7gNQuR2WB9My8y1fYvAspA")
+			.into(),
+		public_from_ss58::<sr25519::Public>("5DRVZN78VKbgNny4bHf2MpmHq6SVhrT6g23ciTYHi36woLMT")
+			.into(),
+		public_from_ss58::<sr25519::Public>("5HK2RNXZRmVEsPDXidWwV1zNFzRAaCRxzsvtYio179jELd49")
+			.into(),
+		public_from_ss58::<sr25519::Public>("5GHJvRMyqSGnMSWoLgE9WSufoZZ6dBowdkDV4dvYApBykd9Z")
 			.into(),
 	];
 	let multisig_controller_threshold: u16 = 3;
