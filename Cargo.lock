@@ -4615,6 +4615,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "pallet-multisig"
+version = "4.0.0-dev"
+source = "git+https://github.com/paritytech/substrate.git?branch=polkadot-v0.9.37#f38bd6671d460293c93062cc1e4fe9e9e490cb29"
+dependencies = [
+ "frame-benchmarking",
+ "frame-support",
+ "frame-system",
+ "log",
+ "parity-scale-codec",
+ "scale-info",
+ "sp-io",
+ "sp-runtime",
+ "sp-std",
+]
+
+[[package]]
 name = "pallet-offences"
 version = "4.0.0-dev"
 source = "git+https://github.com/paritytech/substrate.git?branch=polkadot-v0.9.37#f38bd6671d460293c93062cc1e4fe9e9e490cb29"
@@ -10130,6 +10146,7 @@ dependencies = [
  "frame-benchmarking-cli",
  "frame-system",
  "futures",
+ "hex",
  "hex-literal",
  "jsonrpsee",
  "node-primitives",
@@ -10192,6 +10209,7 @@ dependencies = [
  "pallet-grandpa",
  "pallet-im-online",
  "pallet-membership",
+ "pallet-multisig",
  "pallet-offences",
  "pallet-offences-benchmarking",
  "pallet-preimage",

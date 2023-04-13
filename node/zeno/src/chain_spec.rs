@@ -1,8 +1,9 @@
 use hex_literal::hex;
+use hex::ToHex;
 use sc_telemetry::TelemetryEndpoints;
 use zeno_runtime::{
 	constants::currency::*,
-	AuraConfig, BalancesConfig, GenesisConfig, GrandpaConfig, Signature, SudoConfig,
+	AuraConfig, BalancesConfig, GenesisConfig, GrandpaConfig, Signature, SudoConfig, Multisig,
 	SystemConfig, opaque::SessionKeys, ValidatorSetConfig, SessionConfig, ImOnlineConfig,
 	TechnicalCommitteeConfig, CouncilConfig, WASM_BINARY, 
 };
@@ -10,9 +11,10 @@ use node_primitives::{AccountId, Balance};
 use sc_service::{ChainType, Properties};
 use pallet_im_online::sr25519::AuthorityId as ImOnlineId;
 use sp_consensus_aura::sr25519::AuthorityId as AuraId;
-use sp_core::{sr25519, Pair, Public, crypto::UncheckedInto};
+use sp_core::{crypto::Ss58Codec, sr25519, Pair, Public, crypto::UncheckedInto};
 use sp_finality_grandpa::AuthorityId as GrandpaId;
 use sp_runtime::traits::{IdentifyAccount, Verify};
+use std::str::FromStr;
 
 const STAGING_TELEMETRY_URL: &str = "wss://telemetry.polkadot.io/submit/";
 const DEFAULT_PROTOCOL_ID: &str = "zeno";
@@ -40,6 +42,13 @@ where
 	AccountPublic::from(get_from_seed::<TPublic>(seed)).into_account()
 }
 
+pub fn public_from_ss58<TPublic: Public + FromStr>(ss58: &str) -> TPublic
+where
+	<TPublic as FromStr>::Err: std::fmt::Debug,
+{
+	TPublic::from_ss58check(ss58).expect("supply valid ss58!")
+}
+
 fn session_keys(aura: AuraId, grandpa: GrandpaId, im_online: ImOnlineId) -> SessionKeys {
 	SessionKeys { aura, grandpa, im_online }
 }
@@ -60,8 +69,14 @@ pub fn zeno_properties() -> Properties {
 	let mut p = Properties::new();
 	p.insert("ss58format".into(), 42.into());
 	p.insert("tokenDecimals".into(), 15_i16.into());
-	p.insert("tokenSymbol".into(), "ZNO".into());
+	p.insert("tokenSymbol".into(), "DOLLARS".into());
 	p
+}
+
+pub fn multisig_account(mut accounts: Vec<AccountId>, threshold: u16) -> AccountId {
+	// sort accounts by public key, as js/apps would do
+	accounts.sort_by(|a, b| (*a).encode_hex::<String>().cmp(&(*b).encode_hex::<String>()));
+	Multisig::multi_account_id(&accounts, threshold)
 }
 
 pub fn development_config() -> Result<ChainSpec, String> {
@@ -81,6 +96,12 @@ pub fn development_config() -> Result<ChainSpec, String> {
 				// Sudo account
 				get_account_id_from_seed::<sr25519::Public>("Alice"),
 				// Pre-funded accounts
+				vec![
+					(get_account_id_from_seed::<sr25519::Public>("Alice"),  1_000 * DOLLARS),
+					(get_account_id_from_seed::<sr25519::Public>("Bob"),  1_000 * DOLLARS),
+					(get_account_id_from_seed::<sr25519::Public>("Alice//stash"),  1_000 * DOLLARS),
+					(get_account_id_from_seed::<sr25519::Public>("Bob//stash"),  1_000 * DOLLARS),
+				],
 				vec![
 					get_account_id_from_seed::<sr25519::Public>("Alice"),
 					get_account_id_from_seed::<sr25519::Public>("Bob"),
@@ -122,18 +143,22 @@ pub fn local_testnet_config() -> Result<ChainSpec, String> {
 				get_account_id_from_seed::<sr25519::Public>("Alice"),
 				// Pre-funded accounts
 				vec![
+					(get_account_id_from_seed::<sr25519::Public>("Alice"),  1_000 * DOLLARS),
+					(get_account_id_from_seed::<sr25519::Public>("Bob"),  1_000 * DOLLARS),
+					(get_account_id_from_seed::<sr25519::Public>("Charlie"),  1_000 * DOLLARS),
+					(get_account_id_from_seed::<sr25519::Public>("Dave"),  1_000 * DOLLARS),
+					(get_account_id_from_seed::<sr25519::Public>("Eve"),  1_000 * DOLLARS),
+					(get_account_id_from_seed::<sr25519::Public>("Ferdie"),  1_000 * DOLLARS),
+					(get_account_id_from_seed::<sr25519::Public>("Alice//stash"),  1_000 * DOLLARS),
+					(get_account_id_from_seed::<sr25519::Public>("Bob//stash"),  1_000 * DOLLARS),
+					(get_account_id_from_seed::<sr25519::Public>("Charlie//stash"),  1_000 * DOLLARS),
+					(get_account_id_from_seed::<sr25519::Public>("Dave//stash"),  1_000 * DOLLARS),
+					(get_account_id_from_seed::<sr25519::Public>("Eve//stash"),  1_000 * DOLLARS),
+					(get_account_id_from_seed::<sr25519::Public>("Ferdie//stash"),  1_000 * DOLLARS),
+				],
+				vec![
 					get_account_id_from_seed::<sr25519::Public>("Alice"),
 					get_account_id_from_seed::<sr25519::Public>("Bob"),
-					get_account_id_from_seed::<sr25519::Public>("Charlie"),
-					get_account_id_from_seed::<sr25519::Public>("Dave"),
-					get_account_id_from_seed::<sr25519::Public>("Eve"),
-					get_account_id_from_seed::<sr25519::Public>("Ferdie"),
-					get_account_id_from_seed::<sr25519::Public>("Alice//stash"),
-					get_account_id_from_seed::<sr25519::Public>("Bob//stash"),
-					get_account_id_from_seed::<sr25519::Public>("Charlie//stash"),
-					get_account_id_from_seed::<sr25519::Public>("Dave//stash"),
-					get_account_id_from_seed::<sr25519::Public>("Eve//stash"),
-					get_account_id_from_seed::<sr25519::Public>("Ferdie//stash"),
 				],
 				true,
 			)
@@ -229,30 +254,45 @@ fn staging_network_config_genesis() -> GenesisConfig {
 			hex!["d6cff6807ec79e13c06128bdc51eaa6544068f6c54c7d8c23901ad408c604538"].unchecked_into(),
 		),
 	];
-
-	// generated with secret: subkey inspect "$secret"/fir
-	let root_key: AccountId = hex![
-		// 5FemZuvaJ7wVy4S49X7Y9mj7FyTR4caQD5mZo2rL7MXQoXMi
-		"9eaf896d76b55e04616ff1e1dce7fc5e4a417967c17264728b3fd8fee3b12f3c"
-	]
-	.into();
-
-	let endowed_accounts: Vec<AccountId> = vec![
+	let committee_accounts: Vec<AccountId> = vec![
 		"5GHJvRMyqSGnMSWoLgE9WSufoZZ6dBowdkDV4dvYApBykd9Z".parse()
 		.unwrap(),
-		"5DNvfF8gjTys1ZAo5S9Wq2ZESLm1Ssudj8CC8Z4CDU67PsVZ".parse()
+		"5HK2RNXZRmVEsPDXidWwV1zNFzRAaCRxzsvtYio179jELd49".parse()
 		.unwrap(),
 		"5DRVZN78VKbgNny4bHf2MpmHq6SVhrT6g23ciTYHi36woLMT".parse()
 		.unwrap(),
 		"5CDrkPqy6KQDYNXNXiK5NMij1p7gNQuR2WB9My8y1fYvAspA".parse()
 		.unwrap(),
 	];
+	let sudo_account: AccountId =
+		public_from_ss58::<sr25519::Public>("5FemZuvaJ7wVy4S49X7Y9mj7FyTR4caQD5mZo2rL7MXQoXMi")
+			.into();
+	let multisig_controller_accounts: Vec<AccountId> = vec![
+		public_from_ss58::<sr25519::Public>("5CDrkPqy6KQDYNXNXiK5NMij1p7gNQuR2WB9My8y1fYvAspA")
+			.into(),
+		public_from_ss58::<sr25519::Public>("5DRVZN78VKbgNny4bHf2MpmHq6SVhrT6g23ciTYHi36woLMT")
+			.into(),
+		public_from_ss58::<sr25519::Public>("5HK2RNXZRmVEsPDXidWwV1zNFzRAaCRxzsvtYio179jELd49")
+			.into(),
+		public_from_ss58::<sr25519::Public>("5GHJvRMyqSGnMSWoLgE9WSufoZZ6dBowdkDV4dvYApBykd9Z")
+			.into(),
+	];
+	let multisig_controller_threshold: u16 = 3;
 
+	let mut allocations = vec![(sudo_account.clone(), 100 * DOLLARS)];
+	allocations.append(
+		&mut multisig_controller_accounts.iter().map(|a| (a.clone(), 100 * DOLLARS)).collect(),
+	);
+	allocations.append(&mut vec![(
+		multisig_account(multisig_controller_accounts, multisig_controller_threshold),
+		500 * DOLLARS,
+	)]);
 	testnet_genesis(
 		wasm_binary,
 		initial_authorities,
-		root_key,
-		endowed_accounts,
+		sudo_account,
+		allocations.clone(),
+		committee_accounts,
 		true,
 		
 	)
@@ -263,20 +303,17 @@ fn testnet_genesis(
 	wasm_binary: &[u8],
 	initial_authorities: Vec<(AccountId,AccountId,AuraId, GrandpaId, ImOnlineId)>,
 	root_key: AccountId,
-	endowed_accounts: Vec<AccountId>,
+	initial_token_allocation: Vec<(AccountId, Balance)>,
+	committee_accounts: Vec<AccountId>,
 	_enable_println: bool,
 ) -> GenesisConfig {
-	const ENDOWMENT: Balance = 1_000 * DOLLARS;
-	let num_endowed_accounts = endowed_accounts.len();
+	let num_committee_members = committee_accounts.len();
 	GenesisConfig {
 		system: SystemConfig {
 			// Add Wasm runtime to storage.
 			code: wasm_binary.to_vec(),
 		},
-		balances: BalancesConfig {
-			// Configure endowed accounts with initial balance of 1 << 60.
-			balances: endowed_accounts.iter().cloned().map(|x| (x, ENDOWMENT)).collect(),
-		},
+		balances: BalancesConfig { balances: initial_token_allocation },
 		session: SessionConfig {
 			keys: initial_authorities.iter().map(|x| {
 				(x.0.clone(), x.0.clone(), session_keys(x.2.clone(), x.3.clone(), x.4.clone()))
@@ -295,9 +332,9 @@ fn testnet_genesis(
 		treasury: Default::default(),
 		council: CouncilConfig::default(),
 		technical_committee: TechnicalCommitteeConfig {
-			members: endowed_accounts
+			members: committee_accounts
 				.iter()
-				.take((num_endowed_accounts + 1) / 2)
+				.take((num_committee_members + 1) / 2)
 				.cloned()
 				.collect(),
 			phantom: Default::default(),
