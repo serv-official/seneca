@@ -76,6 +76,7 @@ frame-system-benchmarking = { default-features = false, git = "https://github.co
 pallet-template = { default-features = false, path = "../../pallets/template" }
 pallet-did = {default-features = false, git ="https://github.com/ArnoldTumukunde/pallet-did.git", branch="master"}
 pallet-schema-registry = {default-features = false, path = "../../pallets/schema-registry" }
+pallet-offchain-worker = {default-features = false, path = "../../pallets/offchain-worker" }
 
 [dependencies.validator-set]
 default-features = false
@@ -116,6 +117,7 @@ std = [
 	"pallet-did/std",
 	"pallet-contracts/std",
 	"pallet-contracts-primitives/std",
+	"pallet-offchain-worker/std",
 	"pallet-im-online/std",
 	"pallet-staking/std",
 	"sp-api/std",
@@ -150,6 +152,7 @@ runtime-benchmarks = [
 	"pallet-grandpa/runtime-benchmarks",
 	"pallet-template/runtime-benchmarks",
 	"pallet-timestamp/runtime-benchmarks",
+	"pallet-offchain-worker/runtime-benchmarks",
 	"sp-runtime/runtime-benchmarks",
 	"pallet-schema-registry/runtime-benchmarks",
 	"pallet-contracts/runtime-benchmarks",
@@ -178,4 +181,5 @@ try-runtime = [
 	"pallet-transaction-payment/try-runtime",
 	"pallet-schema-registry/try-runtime",
 	"pallet-offences/try-runtime",
+	"pallet-offchain-worker/try-runtime",
 ]
