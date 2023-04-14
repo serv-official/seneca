@@ -330,7 +330,7 @@ fn testnet_genesis(
 		},
 		technical_membership: Default::default(),
 		treasury: Default::default(),
-		council: CouncilConfig::default(),
+		council: CouncilConfig{ members: vec![], phantom: Default::default() },
 		technical_committee: TechnicalCommitteeConfig {
 			members: committee_accounts
 				.iter()
