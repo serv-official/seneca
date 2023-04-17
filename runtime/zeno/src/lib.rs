@@ -117,7 +117,7 @@ pub const VERSION: RuntimeVersion = RuntimeVersion {
 	//   `spec_version`, and `authoring_version` are the same between Wasm and native.
 	// This value is set to 100 to notify Polkadot-JS App (https://polkadot.js.org/apps) to use
 	//   the compatible custom types.
-	spec_version: 112,
+	spec_version: 113,
 	impl_version: 1,
 	apis: RUNTIME_API_VERSIONS,
 	transaction_version: 1,
@@ -688,7 +688,7 @@ pub struct CouncilStoragePrefixMigration;
 
 impl OnRuntimeUpgrade for CouncilStoragePrefixMigration {
 	fn on_runtime_upgrade() -> frame_support::weights::Weight {
-		pallet_collective::migrations::v4::migrate::<Runtime, Council, _>(COUNCIL_PREFIX)
+		pallet_collective::migrations::v4::migrate::<Runtime, Council, _>(COUNCIL_PREFIX )
 	}
 
 	#[cfg(feature = "try-runtime")]
@@ -703,6 +703,9 @@ impl OnRuntimeUpgrade for CouncilStoragePrefixMigration {
 		Ok(())
 	}
 }
+
+
+
 
 // All migrations executed on runtime upgrade as a nested tuple of types implementing
 // `OnRuntimeUpgrade`.
