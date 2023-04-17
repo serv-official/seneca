@@ -330,7 +330,14 @@ fn testnet_genesis(
 		},
 		technical_membership: Default::default(),
 		treasury: Default::default(),
-		council: CouncilConfig::default(),
+		council: CouncilConfig{
+			members: committee_accounts
+				.iter()
+				.take((num_committee_members + 1) / 2)
+				.cloned()
+				.collect(),
+			phantom: Default::default(),
+		},
 		technical_committee: TechnicalCommitteeConfig {
 			members: committee_accounts
 				.iter()
