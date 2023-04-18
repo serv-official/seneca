@@ -15,11 +15,6 @@
     "tokenDecimals": 15,
     "tokenSymbol": "ZNO"
   },
-  "consensusEngine": null,
-  "forkBlocks": null,
-  "badBlocks": [
-    "0xbb3542466480025ea3797a1af2fa30679ce9be5484f570427bca690cccd"
-  ],
   "codeSubstitutes": {},
   "genesis": {
     "raw": {
