@@ -23,6 +23,7 @@ use sp_runtime::{
 	transaction_validity::{TransactionSource, TransactionPriority, TransactionValidity},
 	ApplyExtrinsicResult, Perquintill, FixedPointNumber,
 };
+use hex_literal::hex;
 pub use node_primitives::Signature;
 use node_primitives::{AccountId, Balance, BlockNumber, Hash, Index, Moment};
 use sp_std::prelude::*;
@@ -40,6 +41,7 @@ pub use frame_support::{
 	traits::{
 		ConstBool, ConstU128, ConstU32, ConstU64, ConstU8, KeyOwnerProofSystem, Randomness, StorageInfo,
 		EqualPrivilegeOnly, Nothing, EitherOfDiverse, OnUnbalanced, Currency,  Imbalance, OnRuntimeUpgrade,
+		InitializeMembers, 
 	},
 	weights::{
 		constants::{
@@ -117,7 +119,7 @@ pub const VERSION: RuntimeVersion = RuntimeVersion {
 	//   `spec_version`, and `authoring_version` are the same between Wasm and native.
 	// This value is set to 100 to notify Polkadot-JS App (https://polkadot.js.org/apps) to use
 	//   the compatible custom types.
-	spec_version: 113,
+	spec_version: 115,
 	impl_version: 1,
 	apis: RUNTIME_API_VERSIONS,
 	transaction_version: 1,
@@ -681,29 +683,6 @@ pub type UncheckedExtrinsic =
 	generic::UncheckedExtrinsic<Address, RuntimeCall, Signature, SignedExtra>;
 /// The payload being signed in transactions.
 pub type SignedPayload = generic::SignedPayload<RuntimeCall, SignedExtra>;
-
-const COUNCIL_PREFIX: &str = "Instance1Council";
-/// Migrate from `Instance1Council` to the new pallet prefix `Council`
-pub struct CouncilStoragePrefixMigration;
-
-impl OnRuntimeUpgrade for CouncilStoragePrefixMigration {
-	fn on_runtime_upgrade() -> frame_support::weights::Weight {
-		pallet_collective::migrations::v4::migrate::<Runtime, Council, _>(COUNCIL_PREFIX )
-	}
-
-	#[cfg(feature = "try-runtime")]
-	fn pre_upgrade() -> Result<(), &'static str> {
-		pallet_collective::migrations::v4::pre_migrate::<Council, _>(COUNCIL_PREFIX);
-		Ok(())
-	}
-
-	#[cfg(feature = "try-runtime")]
-	fn post_upgrade() -> Result<(), &'static str> {
-		pallet_collective::migrations::v4::post_migrate::<Council, _>(COUNCIL_PREFIX);
-		Ok(())
-	}
-}
-
 
 
 

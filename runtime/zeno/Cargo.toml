@@ -17,6 +17,7 @@ codec = { package = "parity-scale-codec", version = "3.0.0", default-features = 
 scale-info = { version = "2.1.1", default-features = false, features = ["derive"] }
 smallvec    = "1.6.1"
 log = "0.4.17"
+hex-literal = "0.3.4"
 
 
 node-primitives = { version = "2.0.0", default-features = false, path = "../../primitives" }
