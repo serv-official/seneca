@@ -684,13 +684,15 @@ pub type UncheckedExtrinsic =
 /// The payload being signed in transactions.
 pub type SignedPayload = generic::SignedPayload<RuntimeCall, SignedExtra>;
 
+const COUNCIL_PREFIX: &str = "Instance1Council";
+/// Migrate from `Instance1Council` to the new pallet prefix `Council`
+
 
 
 // All migrations executed on runtime upgrade as a nested tuple of types implementing
 // `OnRuntimeUpgrade`.
 type Migrations = (
 	pallet_contracts::Migration<Runtime>,
-	CouncilStoragePrefixMigration,
 );
 
 /// Executive: handles dispatch to the various modules.
