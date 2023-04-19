@@ -6,7 +6,7 @@
 #[cfg(feature = "std")]
 include!(concat!(env!("OUT_DIR"), "/wasm_binary.rs"));
 
-use codec::Encode;
+use codec::{Decode, Encode, MaxEncodedLen};
 use pallet_grandpa::{
 	fg_primitives, AuthorityId as GrandpaId, AuthorityList as GrandpaAuthorityList,
 };
@@ -18,15 +18,16 @@ use sp_runtime::{
 	generic::Era,
 	traits::{
 		AccountIdLookup, BlakeTwo256, Block as BlockT, NumberFor, Verify,
-		OpaqueKeys, SaturatedConversion, Bounded,
+		OpaqueKeys, SaturatedConversion, Bounded, ConvertInto,
 	},
 	transaction_validity::{TransactionSource, TransactionPriority, TransactionValidity},
 	ApplyExtrinsicResult, Perquintill, FixedPointNumber,
 };
-use hex_literal::hex;
+//use hex_literal::hex;
 pub use node_primitives::Signature;
 use node_primitives::{AccountId, Balance, BlockNumber, Hash, Index, Moment};
 use sp_std::prelude::*;
+use scale_info::TypeInfo;
 #[cfg(feature = "std")]
 use sp_version::NativeVersion;
 use sp_version::RuntimeVersion;
@@ -41,7 +42,7 @@ pub use frame_support::{
 	traits::{
 		ConstBool, ConstU128, ConstU32, ConstU64, ConstU8, KeyOwnerProofSystem, Randomness, StorageInfo,
 		EqualPrivilegeOnly, Nothing, EitherOfDiverse, OnUnbalanced, Currency,  Imbalance, OnRuntimeUpgrade,
-		InitializeMembers, 
+		InitializeMembers, WithdrawReasons, InstanceFilter, Contains,
 	},
 	weights::{
 		constants::{
@@ -60,7 +61,9 @@ pub use pallet_transaction_payment::{CurrencyAdapter, Multiplier, TargetedFeeAdj
 #[cfg(any(feature = "std", test))]
 pub use sp_runtime::BuildStorage;
 pub use sp_runtime::{Perbill, Permill, Percent};
-
+pub use pallet_claims;
+pub use pallet_sidechain;
+pub use pallet_teerex;
 pub mod constants;
 use constants::currency::*;
 /// Import the template pallet.
@@ -119,7 +122,7 @@ pub const VERSION: RuntimeVersion = RuntimeVersion {
 	//   `spec_version`, and `authoring_version` are the same between Wasm and native.
 	// This value is set to 100 to notify Polkadot-JS App (https://polkadot.js.org/apps) to use
 	//   the compatible custom types.
-	spec_version: 115,
+	spec_version: 116,
 	impl_version: 1,
 	apis: RUNTIME_API_VERSIONS,
 	transaction_version: 1,
@@ -165,6 +168,28 @@ parameter_types! {
 	pub BlockLength: frame_system::limits::BlockLength = frame_system::limits::BlockLength
 		::max_with_normal_ratio(5 * 1024 * 1024, NORMAL_DISPATCH_RATIO);
 	pub const SS58Prefix: u8 = 42;
+}
+
+pub struct BaseFilter;
+#[rustfmt::skip]
+impl Contains<RuntimeCall> for BaseFilter {
+	// Block send extrinsics for mainnent before official token generation event
+	fn contains(call: &RuntimeCall) -> bool {
+		!matches!(
+			call,
+			RuntimeCall::Balances(..) |
+			RuntimeCall::Claims(..) |
+			RuntimeCall::Multisig(_) |
+			RuntimeCall::Proxy(_) |
+			RuntimeCall::Teerex(_) |
+			RuntimeCall::Treasury(..) |
+			RuntimeCall::Scheduler(_) |
+			RuntimeCall::Utility(_) |
+			RuntimeCall::Vesting(_) |
+			RuntimeCall::SchemaRegistry(_) |
+			RuntimeCall::System(_)
+		)
+	}
 }
 
 // Configure FRAME pallets to include in runtime.
@@ -551,6 +576,115 @@ impl pallet_template::Config for Runtime {
 	type RuntimeEvent = RuntimeEvent;
 }
 
+
+parameter_types! {
+	// One storage item; key size 32, value size 8; .
+	pub const ProxyDepositBase: Balance = deposit(1, 8);
+	// Additional storage item size of 33 bytes.
+	pub const ProxyDepositFactor: Balance = deposit(0, 33);
+	pub const MaxProxies: u16 = 32;
+	pub const AnnouncementDepositBase: Balance = deposit(1, 8);
+	pub const AnnouncementDepositFactor: Balance = deposit(0, 66);
+	pub const MaxPending: u16 = 32;
+}
+
+/// The type used to represent the kinds of proxying allowed.
+#[derive(
+	Copy,
+	Clone,
+	Eq,
+	PartialEq,
+	Ord,
+	PartialOrd,
+	Encode,
+	Decode,
+	RuntimeDebug,
+	MaxEncodedLen,
+	TypeInfo,
+)]
+pub enum ProxyType {
+	Any,         //any transactions
+	NonTransfer, //any type of transaction except balance transfers (including vested transfers)
+	Governance,
+	//Staking = 3,
+	//IdentityJudgement = 4,
+	CancelProxy,
+	//Auction,
+}
+impl Default for ProxyType {
+	fn default() -> Self {
+		Self::Any
+	}
+}
+impl InstanceFilter<RuntimeCall> for ProxyType {
+	fn filter(&self, c: &RuntimeCall) -> bool {
+		match self {
+			ProxyType::Any => true,
+			ProxyType::NonTransfer => matches!(
+				c,
+				RuntimeCall::System {..} |
+				RuntimeCall::Timestamp {..} |
+				// Specifically omitting Indices `transfer`, `force_transfer`
+				// Specifically omitting the entire Balances pallet
+				RuntimeCall::Grandpa {..} |
+				RuntimeCall::Treasury {..} |
+//				RuntimeCall::Vesting(pallet_vesting::RuntimeCall::vest {..}) |
+//				RuntimeCall::Vesting(pallet_vesting::RuntimeCall::vest_other {..}) |
+				// Specifically omitting Vesting `vested_transfer`, and `force_vested_transfer`
+				RuntimeCall::Proxy {..} |
+				RuntimeCall::Multisig {..}
+			),
+			ProxyType::Governance => {
+				matches!(c, RuntimeCall::Treasury { .. })
+			},
+			ProxyType::CancelProxy => {
+				matches!(c, RuntimeCall::Proxy(pallet_proxy::Call::reject_announcement { .. }))
+			},
+		}
+	}
+	fn is_superset(&self, o: &Self) -> bool {
+		match (self, o) {
+			(x, y) if x == y => true,
+			(ProxyType::Any, _) => true,
+			(_, ProxyType::Any) => false,
+			(ProxyType::NonTransfer, _) => true,
+			_ => false,
+		}
+	}
+}
+
+impl pallet_proxy::Config for Runtime {
+	type RuntimeEvent = RuntimeEvent;
+	type RuntimeCall = RuntimeCall;
+	type Currency = Balances;
+	type ProxyType = ProxyType;
+	type ProxyDepositBase = ProxyDepositBase;
+	type ProxyDepositFactor = ProxyDepositFactor;
+	type MaxProxies = MaxProxies;
+	type WeightInfo = weights::pallet_proxy::WeightInfo<Runtime>;
+	type MaxPending = MaxPending;
+	type CallHasher = BlakeTwo256;
+	type AnnouncementDepositBase = AnnouncementDepositBase;
+	type AnnouncementDepositFactor = AnnouncementDepositFactor;
+}
+
+
+parameter_types! {
+	pub const MinVestedTransfer: Balance = 1 * DOLLARS;
+	pub UnvestedFundsAllowedWithdrawReasons: WithdrawReasons =
+			WithdrawReasons::except(WithdrawReasons::TRANSFER | WithdrawReasons::RESERVE);
+}
+
+impl pallet_vesting::Config for Runtime {
+	type RuntimeEvent = RuntimeEvent;
+	type Currency = Balances;
+	type BlockNumberToBalance = ConvertInto;
+	type MinVestedTransfer = MinVestedTransfer;
+	type WeightInfo = weights::pallet_vesting::WeightInfo<Runtime>;
+	const MAX_VESTING_SCHEDULES: u32 = 28;
+	type UnvestedFundsAllowedWithdrawReasons = UnvestedFundsAllowedWithdrawReasons;
+}
+
 parameter_types! {
 	pub MaximumSchedulerWeight: Weight = Perbill::from_percent(80) *
 		BlockWeights::get().max_block;
@@ -624,6 +758,43 @@ impl pallet_multisig::Config for Runtime {
 	type WeightInfo = pallet_multisig::weights::SubstrateWeight<Runtime>;
 }
 
+
+parameter_types! {
+	pub const MomentsPerDay: Moment = 86_400_000; // [ms/d]
+	pub const MaxSilenceTime: Moment =172_800_000; // 48h
+}
+
+/// added by Integritee
+impl pallet_teerex::Config for Runtime {
+	type RuntimeEvent = RuntimeEvent;
+	type Currency = pallet_balances::Pallet<Runtime>;
+	type MomentsPerDay = MomentsPerDay;
+	type MaxSilenceTime = MaxSilenceTime;
+	type WeightInfo = weights::pallet_teerex::WeightInfo<Runtime>;
+}
+
+parameter_types! {
+	pub Prefix: &'static [u8] = b"Pay ZNOs to the Seneca account:";
+}
+
+impl pallet_claims::Config for Runtime {
+	type RuntimeEvent = RuntimeEvent;
+	type VestingSchedule = Vesting;
+	type Prefix = Prefix;
+	type MoveClaimOrigin = frame_system::EnsureRoot<AccountId>;
+	type WeightInfo = weights::pallet_claims::WeightInfo<Runtime>;
+}
+
+parameter_types! {
+	pub const EarlyBlockProposalLenience: u64 = 100;
+}
+
+impl pallet_sidechain::Config for Runtime {
+	type RuntimeEvent = RuntimeEvent;
+	type WeightInfo = weights::pallet_sidechain::WeightInfo<Runtime>;
+}
+
+
 // Create the runtime by composing the FRAME pallets that were previously configured.
 construct_runtime!(
 	pub struct Runtime
@@ -650,13 +821,18 @@ construct_runtime!(
 		Contracts: pallet_contracts,
 		Sudo: pallet_sudo,
 		Scheduler: pallet_scheduler,
+		Vesting: pallet_vesting,
 		Preimage: pallet_preimage,
 		Utility: pallet_utility,
 		Multisig: pallet_multisig,
+		Proxy: pallet_proxy,
 		// Include the custom logic from the pallet-template in the runtime.
 		TemplateModule: pallet_template,
 		DID: pallet_did,
 		SchemaRegistry: pallet_schema_registry,
+		Teerex: pallet_teerex::{Pallet, Call, Config, Storage, Event<T>},
+		Claims: pallet_claims::{Pallet, Call, Storage, Config<T>, Event<T>, ValidateUnsigned},
+		Sidechain: pallet_sidechain::{Pallet, Call, Storage, Event<T>},
 	}
 );
 
@@ -684,7 +860,7 @@ pub type UncheckedExtrinsic =
 /// The payload being signed in transactions.
 pub type SignedPayload = generic::SignedPayload<RuntimeCall, SignedExtra>;
 
-const COUNCIL_PREFIX: &str = "Instance1Council";
+// const COUNCIL_PREFIX: &str = "Instance1Council";
 /// Migrate from `Instance1Council` to the new pallet prefix `Council`
 
 
@@ -725,6 +901,11 @@ mod benches {
 		[pallet_collective, Council]
 		[pallet_treasury, Treasury]
 		[pallet_multisig, Multisig]
+		[pallet_teerex, Teerex]
+		[pallet_claims, Claims]
+		[pallet_sidechain, Sidechain]
+		[pallet_vesting, Vesting]
+		[pallet_proxy, Proxy]
 	);
 }
 

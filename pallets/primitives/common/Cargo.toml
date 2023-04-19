@@ -1,0 +1,19 @@
+[package]
+name = "common-primitives"
+version = "0.1.0"
+authors = ["Integritee AG <hello@integritee.network>"]
+homepage = "https://integritee.network/"
+repository = "https://github.com/integritee-network/pallets/"
+license = "Apache-2.0"
+edition = "2021"
+
+[dependencies]
+
+# substrate deps
+sp-std = { default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.39" }
+
+[features]
+default = ["std"]
+std = [
+    "sp-std/std",
+]

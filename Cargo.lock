@@ -847,6 +847,7 @@ dependencies = [
  "js-sys",
  "num-integer",
  "num-traits",
+ "serde",
  "time 0.1.45",
  "wasm-bindgen",
  "winapi",
@@ -891,6 +892,19 @@ checksum = "773f3b9af64447d2ce9850330c473515014aa235e6a783b02db81ff39e4a3dad"
 dependencies = [
  "crypto-common",
  "inout",
+]
+
+[[package]]
+name = "claims-primitives"
+version = "0.1.0"
+dependencies = [
+ "parity-scale-codec",
+ "rustc-hex",
+ "scale-info",
+ "serde",
+ "sp-io",
+ "sp-runtime",
+ "sp-std",
 ]
 
 [[package]]
@@ -971,6 +985,13 @@ dependencies = [
  "strum",
  "strum_macros",
  "unicode-width",
+]
+
+[[package]]
+name = "common-primitives"
+version = "0.1.0"
+dependencies = [
+ "sp-std",
 ]
 
 [[package]]
@@ -1422,6 +1443,8 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f1a467a65c5e759bce6e65eaf91cc29f466cdc57cb65777bd646872a8a1fd4de"
 dependencies = [
  "const-oid",
+ "der_derive",
+ "flagset",
  "pem-rfc7468",
  "zeroize",
 ]
@@ -1452,6 +1475,18 @@ dependencies = [
  "num-bigint",
  "num-traits",
  "rusticata-macros",
+]
+
+[[package]]
+name = "der_derive"
+version = "0.6.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8ef71ddb5b3a1f53dee24817c8f70dfa1cb29e804c18d88c228d4bc9c86ee3b9"
+dependencies = [
+ "proc-macro-error",
+ "proc-macro2",
+ "quote",
+ "syn 1.0.109",
 ]
 
 [[package]]
@@ -1730,6 +1765,19 @@ dependencies = [
 
 [[package]]
 name = "env_logger"
+version = "0.9.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a12e6657c4c97ebab115a42dcee77225f7f482cdd841cf7088c657a42e9e00e7"
+dependencies = [
+ "atty",
+ "humantime",
+ "log",
+ "regex",
+ "termcolor",
+]
+
+[[package]]
+name = "env_logger"
 version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "85cdab6a89accf66733ad5a1693a4dcced6aeff64602b634530dd73c1f3ee9f0"
@@ -1835,7 +1883,7 @@ version = "0.1.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "84f2e425d9790201ba4af4630191feac6dcc98765b118d4d18e91d23c2353866"
 dependencies = [
- "env_logger",
+ "env_logger 0.10.0",
  "log",
 ]
 
@@ -1884,6 +1932,12 @@ name = "fixedbitset"
 version = "0.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0ce7134b9999ecaf8bcd65542e436736ef32ddca1b3e06094cb6ec5755203b80"
+
+[[package]]
+name = "flagset"
+version = "0.4.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cda653ca797810c02f7ca4b804b40b8b95ae046eb989d356bce17919a8c25499"
 
 [[package]]
 name = "flate2"
@@ -3557,7 +3611,7 @@ dependencies = [
  "libp2p-core 0.39.1",
  "libp2p-identity",
  "rcgen 0.10.0",
- "ring",
+ "ring 0.16.20 (registry+https://github.com/rust-lang/crates.io-index)",
  "rustls 0.20.8",
  "thiserror",
  "webpki 0.22.0",
@@ -4292,6 +4346,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "num-derive"
+version = "0.3.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "876a53fff98e03a936a674b29568b0e605f06b29372c2489ff4de23f1949743d"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 1.0.109",
+]
+
+[[package]]
 name = "num-format"
 version = "0.4.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4502,6 +4567,30 @@ dependencies = [
  "log",
  "parity-scale-codec",
  "scale-info",
+ "sp-runtime",
+ "sp-std",
+]
+
+[[package]]
+name = "pallet-claims"
+version = "0.9.12"
+dependencies = [
+ "claims-primitives",
+ "frame-benchmarking",
+ "frame-support",
+ "frame-system",
+ "hex-literal",
+ "libsecp256k1",
+ "pallet-balances",
+ "pallet-vesting",
+ "parity-scale-codec",
+ "rustc-hex",
+ "scale-info",
+ "serde",
+ "serde_derive",
+ "serde_json",
+ "sp-core",
+ "sp-io",
  "sp-runtime",
  "sp-std",
 ]
@@ -4760,6 +4849,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "pallet-proxy"
+version = "4.0.0-dev"
+source = "git+https://github.com/paritytech/substrate.git?branch=polkadot-v0.9.39#1837f423b494254e1d27834b1c9da34b2c0c2375"
+dependencies = [
+ "frame-benchmarking",
+ "frame-support",
+ "frame-system",
+ "parity-scale-codec",
+ "scale-info",
+ "sp-io",
+ "sp-runtime",
+ "sp-std",
+]
+
+[[package]]
 name = "pallet-scheduler"
 version = "4.0.0-dev"
 source = "git+https://github.com/paritytech/substrate.git?branch=polkadot-v0.9.39#1837f423b494254e1d27834b1c9da34b2c0c2375"
@@ -4836,6 +4940,33 @@ dependencies = [
 ]
 
 [[package]]
+name = "pallet-sidechain"
+version = "0.9.0"
+dependencies = [
+ "env_logger 0.9.3",
+ "frame-benchmarking",
+ "frame-support",
+ "frame-system",
+ "hex-literal",
+ "log",
+ "pallet-balances",
+ "pallet-teerex",
+ "pallet-timestamp",
+ "parity-scale-codec",
+ "scale-info",
+ "serde",
+ "sidechain-primitives",
+ "sp-core",
+ "sp-externalities",
+ "sp-io",
+ "sp-keyring",
+ "sp-runtime",
+ "sp-std",
+ "teerex-primitives",
+ "test-utils",
+]
+
+[[package]]
 name = "pallet-staking"
 version = "4.0.0-dev"
 source = "git+https://github.com/paritytech/substrate.git?branch=polkadot-v0.9.39#1837f423b494254e1d27834b1c9da34b2c0c2375"
@@ -4881,6 +5012,32 @@ dependencies = [
  "sp-io",
  "sp-runtime",
  "sp-std",
+]
+
+[[package]]
+name = "pallet-teerex"
+version = "0.9.0"
+dependencies = [
+ "env_logger 0.9.3",
+ "frame-benchmarking",
+ "frame-support",
+ "frame-system",
+ "hex-literal",
+ "log",
+ "pallet-balances",
+ "pallet-timestamp",
+ "parity-scale-codec",
+ "scale-info",
+ "serde",
+ "sgx-verify",
+ "sp-core",
+ "sp-externalities",
+ "sp-io",
+ "sp-keyring",
+ "sp-runtime",
+ "sp-std",
+ "teerex-primitives",
+ "test-utils",
 ]
 
 [[package]]
@@ -4988,6 +5145,21 @@ dependencies = [
  "scale-info",
  "sp-core",
  "sp-io",
+ "sp-runtime",
+ "sp-std",
+]
+
+[[package]]
+name = "pallet-vesting"
+version = "4.0.0-dev"
+source = "git+https://github.com/paritytech/substrate.git?branch=polkadot-v0.9.39#1837f423b494254e1d27834b1c9da34b2c0c2375"
+dependencies = [
+ "frame-benchmarking",
+ "frame-support",
+ "frame-system",
+ "log",
+ "parity-scale-codec",
+ "scale-info",
  "sp-runtime",
  "sp-std",
 ]
@@ -5546,6 +5718,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "ptr_meta"
+version = "0.1.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0738ccf7ea06b608c10564b31debd4f5bc5e197fc8bfe088f68ae5ce81e7a4f1"
+dependencies = [
+ "ptr_meta_derive",
+]
+
+[[package]]
+name = "ptr_meta_derive"
+version = "0.1.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "16b845dbfca988fa33db069c0e230574d15a3088f147a87b64c7589eb662c9ac"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 1.0.109",
+]
+
+[[package]]
 name = "quick-error"
 version = "1.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5579,7 +5771,7 @@ checksum = "67c10f662eee9c94ddd7135043e544f3c82fa839a1e7b865911331961b53186c"
 dependencies = [
  "bytes",
  "rand 0.8.5",
- "ring",
+ "ring 0.16.20 (registry+https://github.com/rust-lang/crates.io-index)",
  "rustc-hash",
  "rustls 0.20.8",
  "slab",
@@ -5719,7 +5911,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6413f3de1edee53342e6138e75b56d32e7bc6e332b3bd62d497b1929d4cfbcdd"
 dependencies = [
  "pem",
- "ring",
+ "ring 0.16.20 (registry+https://github.com/rust-lang/crates.io-index)",
  "time 0.3.20",
  "x509-parser 0.13.2",
  "yasna",
@@ -5732,7 +5924,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ffbe84efe2f38dea12e9bfc1f65377fdf03e53a18cb3b995faedf7934c7e785b"
 dependencies = [
  "pem",
- "ring",
+ "ring 0.16.20 (registry+https://github.com/rust-lang/crates.io-index)",
  "time 0.3.20",
  "yasna",
 ]
@@ -5870,6 +6062,46 @@ dependencies = [
  "untrusted",
  "web-sys",
  "winapi",
+]
+
+[[package]]
+name = "ring"
+version = "0.16.20"
+source = "git+https://github.com/Niederb/ring-xous.git?branch=0.16.20-cleanup#8b2f60a7d4a063e2170cd47bc5591c39f49ca825"
+dependencies = [
+ "cc",
+ "libc",
+ "log",
+ "once_cell",
+ "rkyv",
+ "spin 0.5.2",
+ "untrusted",
+ "winapi",
+ "xous",
+ "xous-api-names",
+ "xous-ipc",
+]
+
+[[package]]
+name = "rkyv"
+version = "0.4.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "70de01b38fe7baba4ecdd33b777096d2b326993d8ea99bc5b6ede691883d3010"
+dependencies = [
+ "memoffset 0.6.5",
+ "ptr_meta",
+ "rkyv_derive",
+]
+
+[[package]]
+name = "rkyv_derive"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "95a169f6bc5a81033e86ed39d0f4150e2608160b73d2b93c6e8e6a3efa873f14"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 1.0.109",
 ]
 
 [[package]]
@@ -6024,7 +6256,7 @@ checksum = "35edb675feee39aec9c99fa5ff985081995a06d594114ae14cbe797ad7b7a6d7"
 dependencies = [
  "base64 0.13.1",
  "log",
- "ring",
+ "ring 0.16.20 (registry+https://github.com/rust-lang/crates.io-index)",
  "sct 0.6.1",
  "webpki 0.21.4",
 ]
@@ -6036,7 +6268,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fff78fc74d175294f4e83b28343315ffcfb114b156f0185e9741cb5570f50e2f"
 dependencies = [
  "log",
- "ring",
+ "ring 0.16.20 (registry+https://github.com/rust-lang/crates.io-index)",
  "sct 0.7.0",
  "webpki 0.22.0",
 ]
@@ -7125,7 +7357,7 @@ version = "0.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b362b83898e0e69f38515b82ee15aa80636befe47c3b6d3d89a911e78fc228ce"
 dependencies = [
- "ring",
+ "ring 0.16.20 (registry+https://github.com/rust-lang/crates.io-index)",
  "untrusted",
 ]
 
@@ -7135,7 +7367,7 @@ version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d53dcdb7c9f8158937a7981b48accfd39a43af418591a5d008c7b22b5e1b7ca4"
 dependencies = [
- "ring",
+ "ring 0.16.20 (registry+https://github.com/rust-lang/crates.io-index)",
  "untrusted",
 ]
 
@@ -7385,6 +7617,29 @@ dependencies = [
 ]
 
 [[package]]
+name = "sgx-verify"
+version = "0.1.4"
+dependencies = [
+ "base64 0.13.1",
+ "chrono",
+ "der",
+ "frame-support",
+ "hex",
+ "hex-literal",
+ "parity-scale-codec",
+ "ring 0.16.20 (git+https://github.com/Niederb/ring-xous.git?branch=0.16.20-cleanup)",
+ "scale-info",
+ "serde",
+ "serde_json",
+ "sp-core",
+ "sp-io",
+ "sp-std",
+ "teerex-primitives",
+ "webpki 0.21.0",
+ "x509-cert",
+]
+
+[[package]]
 name = "sha-1"
 version = "0.9.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -7470,6 +7725,19 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "43b2853a4d09f215c24cc5489c992ce46052d359b5109343cbafbf26bc62f8a3"
 
 [[package]]
+name = "sidechain-primitives"
+version = "0.1.0"
+dependencies = [
+ "parity-scale-codec",
+ "scale-info",
+ "serde",
+ "sp-core",
+ "sp-io",
+ "sp-runtime",
+ "sp-std",
+]
+
+[[package]]
 name = "signal-hook-registry"
 version = "1.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -7545,7 +7813,7 @@ dependencies = [
  "chacha20poly1305",
  "curve25519-dalek 4.0.0-rc.1",
  "rand_core 0.6.4",
- "ring",
+ "ring 0.16.20 (registry+https://github.com/rust-lang/crates.io-index)",
  "rustc_version 0.4.0",
  "sha2 0.10.6",
  "subtle",
@@ -8350,7 +8618,7 @@ dependencies = [
  "lazy_static",
  "md-5",
  "rand 0.8.5",
- "ring",
+ "ring 0.16.20 (registry+https://github.com/rust-lang/crates.io-index)",
  "subtle",
  "thiserror",
  "tokio",
@@ -8543,6 +8811,20 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8ae9980cab1db3fceee2f6c6f643d5d8de2997c58ee8d25fb0cc8a9e9e7348e5"
 
 [[package]]
+name = "teerex-primitives"
+version = "0.1.0"
+dependencies = [
+ "common-primitives",
+ "hex-literal",
+ "parity-scale-codec",
+ "scale-info",
+ "serde",
+ "sp-core",
+ "sp-io",
+ "sp-std",
+]
+
+[[package]]
 name = "tempfile"
 version = "3.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -8569,6 +8851,15 @@ name = "termtree"
 version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3369f5ac52d5eb6ab48c6b4ffdc8efbcad6b89c765749064ba298f2c68a16a76"
+
+[[package]]
+name = "test-utils"
+version = "0.1.0"
+dependencies = [
+ "hex-literal",
+ "log",
+ "teerex-primitives",
+]
 
 [[package]]
 name = "thiserror"
@@ -9042,7 +9333,7 @@ dependencies = [
  "log",
  "md-5",
  "rand 0.8.5",
- "ring",
+ "ring 0.16.20 (registry+https://github.com/rust-lang/crates.io-index)",
  "stun",
  "thiserror",
  "tokio",
@@ -9672,11 +9963,21 @@ dependencies = [
 
 [[package]]
 name = "webpki"
+version = "0.21.0"
+source = "git+https://github.com/scs/webpki-nostd.git?branch=master#22d1772c39ed9081c2815aadb30e7973f3c4e93f"
+dependencies = [
+ "ring 0.16.20 (registry+https://github.com/rust-lang/crates.io-index)",
+ "ring 0.16.20 (git+https://github.com/Niederb/ring-xous.git?branch=0.16.20-cleanup)",
+ "untrusted",
+]
+
+[[package]]
+name = "webpki"
 version = "0.21.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b8e38c0608262c46d4a56202ebabdeb094cef7e560ca7a226c6bf055188aa4ea"
 dependencies = [
- "ring",
+ "ring 0.16.20 (registry+https://github.com/rust-lang/crates.io-index)",
  "untrusted",
 ]
 
@@ -9686,7 +9987,7 @@ version = "0.22.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f095d78192e208183081cc07bc5515ef55216397af48b873e5edcd72637fa1bd"
 dependencies = [
- "ring",
+ "ring 0.16.20 (registry+https://github.com/rust-lang/crates.io-index)",
  "untrusted",
 ]
 
@@ -9715,7 +10016,7 @@ dependencies = [
  "rand 0.8.5",
  "rcgen 0.9.3",
  "regex",
- "ring",
+ "ring 0.16.20 (registry+https://github.com/rust-lang/crates.io-index)",
  "rtcp",
  "rtp",
  "rustls 0.19.1",
@@ -9780,7 +10081,7 @@ dependencies = [
  "rand 0.8.5",
  "rand_core 0.6.4",
  "rcgen 0.9.3",
- "ring",
+ "ring 0.16.20 (registry+https://github.com/rust-lang/crates.io-index)",
  "rustls 0.19.1",
  "sec1",
  "serde",
@@ -10209,6 +10510,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "x509-cert"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "99d224a125dec5adda27d0346b9cae9794830279c4f9c27e4ab0b6c408d54012"
+dependencies = [
+ "const-oid",
+ "der",
+ "flagset",
+ "spki",
+]
+
+[[package]]
 name = "x509-parser"
 version = "0.13.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -10221,7 +10534,7 @@ dependencies = [
  "lazy_static",
  "nom",
  "oid-registry 0.4.0",
- "ring",
+ "ring 0.16.20 (registry+https://github.com/rust-lang/crates.io-index)",
  "rusticata-macros",
  "thiserror",
  "time 0.3.20",
@@ -10243,6 +10556,54 @@ dependencies = [
  "rusticata-macros",
  "thiserror",
  "time 0.3.20",
+]
+
+[[package]]
+name = "xous"
+version = "0.9.40"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d4d4e0f82f894d5960b10adc3b0a39fe96033c767174b80258481b278b972d67"
+dependencies = [
+ "lazy_static",
+]
+
+[[package]]
+name = "xous-api-log"
+version = "0.1.36"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b82ebf0502939b72c0fb63403d6c12b4847ee1a720069bf73ce35980edeecdbb"
+dependencies = [
+ "log",
+ "num-derive",
+ "num-traits",
+ "xous",
+ "xous-ipc",
+]
+
+[[package]]
+name = "xous-api-names"
+version = "0.9.38"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "84bceedef22f50d5c809c60bbd16dfa4cfc8d4f463c001b3c50b1e613a820d47"
+dependencies = [
+ "log",
+ "num-derive",
+ "num-traits",
+ "rkyv",
+ "xous",
+ "xous-api-log",
+ "xous-ipc",
+]
+
+[[package]]
+name = "xous-ipc"
+version = "0.9.40"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "88f8b7bdc55e0bd76bf3044b131052f45c0ca58a429d13871bda8891b95cc120"
+dependencies = [
+ "bitflags",
+ "rkyv",
+ "xous",
 ]
 
 [[package]]
@@ -10333,6 +10694,7 @@ dependencies = [
  "pallet-aura",
  "pallet-authorship",
  "pallet-balances",
+ "pallet-claims",
  "pallet-collective",
  "pallet-contracts",
  "pallet-contracts-primitives",
@@ -10346,19 +10708,23 @@ dependencies = [
  "pallet-offences",
  "pallet-offences-benchmarking",
  "pallet-preimage",
+ "pallet-proxy",
  "pallet-scheduler",
  "pallet-schema-registry",
  "pallet-session",
  "pallet-session-benchmarking",
+ "pallet-sidechain",
  "pallet-staking",
  "pallet-staking-reward-curve",
  "pallet-sudo",
+ "pallet-teerex",
  "pallet-template",
  "pallet-timestamp",
  "pallet-transaction-payment",
  "pallet-transaction-payment-rpc-runtime-api",
  "pallet-treasury",
  "pallet-utility",
+ "pallet-vesting",
  "parity-scale-codec",
  "scale-info",
  "smallvec",

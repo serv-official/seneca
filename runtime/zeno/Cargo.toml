@@ -52,6 +52,7 @@ sp-session = { default-features = false, git = "https://github.com/paritytech/su
 sp-std = { default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.39" }
 sp-transaction-pool = { default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.39" }
 sp-version = { default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.39" }
+pallet-proxy = { default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.39" }
 
 # governance pallets
 pallet-scheduler = {default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.39" }
@@ -60,6 +61,7 @@ pallet-collective = {default-features = false, git = "https://github.com/parityt
 pallet-membership = {default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.39" }
 pallet-democracy = {default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.39" }
 pallet-preimage = {default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.39" }
+pallet-vesting = { default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.39" }
 
 #smart-contracts
 pallet-contracts = {default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.39" }
@@ -74,11 +76,14 @@ pallet-multisig = { default-features = false, git = "https://github.com/parityte
 # Used for runtime benchmarking
 frame-benchmarking = { default-features = false, git = "https://github.com/paritytech/substrate.git", optional = true , branch = "polkadot-v0.9.39" }
 frame-system-benchmarking = { default-features = false, git = "https://github.com/paritytech/substrate.git", optional = true , branch = "polkadot-v0.9.39" }
+pallet-did = {default-features = false, git ="https://github.com/serv-official/pallet-did.git", branch = "polkadot-v0.9.39"}
 
 # Local Dependencies
 pallet-template = { default-features = false, path = "../../pallets/template" }
-pallet-did = {default-features = false, git ="https://github.com/serv-official/pallet-did.git", branch = "polkadot-v0.9.39"}
 pallet-schema-registry = {default-features = false, path = "../../pallets/schema-registry" }
+pallet-claims = { default-features = false, path = "../../pallets/claims" }
+pallet-sidechain = { default-features = false, path = "../../pallets/sidechain" }
+pallet-teerex = { default-features = false, path = "../../pallets/teerex" }
 
 [dependencies.validator-set]
 default-features = false
@@ -91,6 +96,8 @@ substrate-wasm-builder = { git = "https://github.com/paritytech/substrate.git", 
 
 [features]
 default = ["std"]
+skip-ias-check = ["pallet-teerex/skip-ias-check"]
+skip-extrinsic-filtering = []
 std = [
 	"frame-try-runtime?/std",
 	"frame-system-benchmarking?/std",
@@ -115,12 +122,17 @@ std = [
 	"pallet-timestamp/std",
 	"pallet-transaction-payment-rpc-runtime-api/std",
 	"pallet-transaction-payment/std",
+	"pallet-vesting/std",
 	"pallet-schema-registry/std",
 	"pallet-did/std",
 	"pallet-contracts/std",
 	"pallet-contracts-primitives/std",
 	"pallet-im-online/std",
 	"pallet-staking/std",
+	"pallet-sidechain/std",
+	"pallet-teerex/std",
+    "pallet-claims/std",
+	"pallet-proxy/std",
 	"sp-api/std",
 	"sp-block-builder/std",
 	"sp-consensus-aura/std",
@@ -167,6 +179,10 @@ runtime-benchmarks = [
 	"pallet-im-online/runtime-benchmarks",
 	"pallet-offences-benchmarking/runtime-benchmarks",
 	"pallet-multisig/runtime-benchmarks",
+	"pallet-sidechain/runtime-benchmarks",
+	"pallet-teerex/runtime-benchmarks",
+    "pallet-claims/runtime-benchmarks",
+	"pallet-proxy/runtime-benchmarks",
 ]
 try-runtime = [
 	"frame-try-runtime/try-runtime",

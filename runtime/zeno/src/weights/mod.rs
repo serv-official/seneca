@@ -5,3 +5,8 @@ pub mod pallet_membership;
 pub mod frame_system;
 pub mod pallet_treasury;
 pub mod pallet_scheduler;
+pub mod pallet_claims;
+pub mod pallet_proxy;
+pub mod pallet_sidechain;
+pub mod pallet_teerex;
+pub mod pallet_vesting;

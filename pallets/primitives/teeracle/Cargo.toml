@@ -1,0 +1,27 @@
+[package]
+name = "teeracle-primitives"
+version = "0.1.0"
+authors = ["Integritee AG <hello@integritee.network>"]
+homepage = "https://integritee.network/"
+repository = "https://github.com/integritee-network/pallets/"
+license = "Apache-2.0"
+edition = "2021"
+
+[dependencies]
+# local
+common-primitives = { path = "../common", default-features = false }
+
+# encointer
+substrate-fixed = { tag = "v0.5.9", default-features = false, git = "https://github.com/encointer/substrate-fixed.git" }
+
+# substrate
+sp-std = { default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.39" }
+
+
+[features]
+default = ["std"]
+std = [
+    "common-primitives/std",
+    "substrate-fixed/std",
+    "sp-std/std",
+]

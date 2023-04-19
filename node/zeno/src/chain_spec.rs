@@ -5,7 +5,7 @@ use zeno_runtime::{
 	constants::currency::*,
 	AuraConfig, BalancesConfig, GenesisConfig, GrandpaConfig, Signature, SudoConfig, Multisig,
 	SystemConfig, opaque::SessionKeys, ValidatorSetConfig, SessionConfig, ImOnlineConfig,
-	TechnicalCommitteeConfig, CouncilConfig, WASM_BINARY, 
+	TechnicalCommitteeConfig, CouncilConfig, TeerexConfig, WASM_BINARY, 
 };
 use node_primitives::{AccountId, Balance};
 use sc_service::{ChainType, Properties};
@@ -351,6 +351,9 @@ fn testnet_genesis(
 			// Assign network admin rights.
 			key: Some(root_key),
 		},
+		teerex: TeerexConfig { allow_sgx_debug_mode: true },
+		claims: Default::default(),
+		vesting: Default::default(),
 		transaction_payment: Default::default(),
 	}
 }
