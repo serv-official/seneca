@@ -23,7 +23,7 @@ use sp_runtime::{
 	transaction_validity::{TransactionSource, TransactionPriority, TransactionValidity},
 	ApplyExtrinsicResult, Perquintill, FixedPointNumber,
 };
-use hex_literal::hex;
+// use hex_literal::hex;
 pub use node_primitives::Signature;
 use node_primitives::{AccountId, Balance, BlockNumber, Hash, Index, Moment};
 use sp_std::prelude::*;
@@ -119,7 +119,7 @@ pub const VERSION: RuntimeVersion = RuntimeVersion {
 	//   `spec_version`, and `authoring_version` are the same between Wasm and native.
 	// This value is set to 100 to notify Polkadot-JS App (https://polkadot.js.org/apps) to use
 	//   the compatible custom types.
-	spec_version: 115,
+	spec_version: 118,
 	impl_version: 1,
 	apis: RUNTIME_API_VERSIONS,
 	transaction_version: 1,
@@ -222,7 +222,7 @@ impl frame_system::Config for Runtime {
 }
 
 parameter_types! {
-	pub const MinAuthorities: u32 = 1;
+	pub const MinAuthorities: u32 = 3;
 }
 
 impl validator_set::Config for Runtime {
@@ -232,7 +232,7 @@ impl validator_set::Config for Runtime {
 }
 
 parameter_types! {
-	pub const Period: u32 = 2 * MINUTES;
+	pub const Period: u32 = 240 * MINUTES;
 	pub const Offset: u32 = 0;
 }
 
@@ -684,7 +684,7 @@ pub type UncheckedExtrinsic =
 /// The payload being signed in transactions.
 pub type SignedPayload = generic::SignedPayload<RuntimeCall, SignedExtra>;
 
-const COUNCIL_PREFIX: &str = "Instance1Council";
+// const COUNCIL_PREFIX: &str = "Instance1Council";
 /// Migrate from `Instance1Council` to the new pallet prefix `Council`
 
 
