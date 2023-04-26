@@ -61,7 +61,6 @@ pub use pallet_transaction_payment::{CurrencyAdapter, Multiplier, TargetedFeeAdj
 #[cfg(any(feature = "std", test))]
 pub use sp_runtime::BuildStorage;
 pub use sp_runtime::{Perbill, Permill, Percent};
-pub use pallet_claims;
 pub use pallet_sidechain;
 pub use pallet_teerex;
 pub mod constants;
@@ -774,18 +773,6 @@ impl pallet_teerex::Config for Runtime {
 }
 
 parameter_types! {
-	pub Prefix: &'static [u8] = b"Pay ZNOs to the Seneca account:";
-}
-
-impl pallet_claims::Config for Runtime {
-	type RuntimeEvent = RuntimeEvent;
-	type VestingSchedule = Vesting;
-	type Prefix = Prefix;
-	type MoveClaimOrigin = frame_system::EnsureRoot<AccountId>;
-	type WeightInfo = weights::pallet_claims::WeightInfo<Runtime>;
-}
-
-parameter_types! {
 	pub const EarlyBlockProposalLenience: u64 = 100;
 }
 
@@ -831,7 +818,6 @@ construct_runtime!(
 		DID: pallet_did,
 		SchemaRegistry: pallet_schema_registry,
 		Teerex: pallet_teerex::{Pallet, Call, Config, Storage, Event<T>},
-		Claims: pallet_claims::{Pallet, Call, Storage, Config<T>, Event<T>, ValidateUnsigned},
 		Sidechain: pallet_sidechain::{Pallet, Call, Storage, Event<T>},
 	}
 );
@@ -902,7 +888,6 @@ mod benches {
 		[pallet_treasury, Treasury]
 		[pallet_multisig, Multisig]
 		[pallet_teerex, Teerex]
-		[pallet_claims, Claims]
 		[pallet_sidechain, Sidechain]
 		[pallet_vesting, Vesting]
 		[pallet_proxy, Proxy]
