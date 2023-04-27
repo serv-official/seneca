@@ -81,7 +81,6 @@ pallet-did = {default-features = false, git ="https://github.com/serv-official/p
 # Local Dependencies
 pallet-template = { default-features = false, path = "../../pallets/template" }
 pallet-schema-registry = {default-features = false, path = "../../pallets/schema-registry" }
-pallet-claims = { default-features = false, path = "../../pallets/claims" }
 pallet-sidechain = { default-features = false, path = "../../pallets/sidechain" }
 pallet-teerex = { default-features = false, path = "../../pallets/teerex" }
 
@@ -131,7 +130,6 @@ std = [
 	"pallet-staking/std",
 	"pallet-sidechain/std",
 	"pallet-teerex/std",
-    "pallet-claims/std",
 	"pallet-proxy/std",
 	"sp-api/std",
 	"sp-block-builder/std",
@@ -181,7 +179,6 @@ runtime-benchmarks = [
 	"pallet-multisig/runtime-benchmarks",
 	"pallet-sidechain/runtime-benchmarks",
 	"pallet-teerex/runtime-benchmarks",
-    "pallet-claims/runtime-benchmarks",
 	"pallet-proxy/runtime-benchmarks",
 ]
 try-runtime = [

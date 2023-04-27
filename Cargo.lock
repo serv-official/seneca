@@ -895,19 +895,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "claims-primitives"
-version = "0.1.0"
-dependencies = [
- "parity-scale-codec",
- "rustc-hex",
- "scale-info",
- "serde",
- "sp-io",
- "sp-runtime",
- "sp-std",
-]
-
-[[package]]
 name = "clang-sys"
 version = "1.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4567,30 +4554,6 @@ dependencies = [
  "log",
  "parity-scale-codec",
  "scale-info",
- "sp-runtime",
- "sp-std",
-]
-
-[[package]]
-name = "pallet-claims"
-version = "0.9.12"
-dependencies = [
- "claims-primitives",
- "frame-benchmarking",
- "frame-support",
- "frame-system",
- "hex-literal",
- "libsecp256k1",
- "pallet-balances",
- "pallet-vesting",
- "parity-scale-codec",
- "rustc-hex",
- "scale-info",
- "serde",
- "serde_derive",
- "serde_json",
- "sp-core",
- "sp-io",
  "sp-runtime",
  "sp-std",
 ]
@@ -10694,7 +10657,6 @@ dependencies = [
  "pallet-aura",
  "pallet-authorship",
  "pallet-balances",
- "pallet-claims",
  "pallet-collective",
  "pallet-contracts",
  "pallet-contracts-primitives",

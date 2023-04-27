@@ -352,7 +352,6 @@ fn testnet_genesis(
 			key: Some(root_key),
 		},
 		teerex: TeerexConfig { allow_sgx_debug_mode: true },
-		claims: Default::default(),
 		vesting: Default::default(),
 		transaction_payment: Default::default(),
 	}
