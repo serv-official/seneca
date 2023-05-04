@@ -177,7 +177,6 @@ impl Contains<RuntimeCall> for BaseFilter {
 		!matches!(
 			call,
 			RuntimeCall::Balances(..) |
-			RuntimeCall::Claims(..) |
 			RuntimeCall::Multisig(_) |
 			RuntimeCall::Proxy(_) |
 			RuntimeCall::Teerex(_) |
