@@ -4,6 +4,8 @@ members = [
     "node/zeno",
     "pallets/schema-registry",
     "pallets/template",
+    "pallets/schema",
+    "pallets/credentials",
     "runtime/seneca",
     "runtime/zeno",
 ]
