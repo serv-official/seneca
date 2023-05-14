@@ -4585,6 +4585,7 @@ dependencies = [
  "frame-system",
  "hex-literal",
  "log",
+ "pallet-schema",
  "pallet-session",
  "pallet-timestamp",
  "parity-scale-codec",

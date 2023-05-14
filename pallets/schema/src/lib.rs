@@ -56,9 +56,8 @@ pub mod pallet {
 		+ StaticTypeInfo;
 		type Timestamp: Time<Moment=Self::Moment> ;
 		type WeightInfo: WeightInfo;
-		/// Identifier for the class of schema.
-		type SchemaId: Member
-		+ Parameter
+		/// Identifier for the schema.
+		type SchemaId:  Parameter
 		+ Default
 		+ Copy
 		+ HasCompact

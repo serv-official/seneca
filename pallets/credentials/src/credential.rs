@@ -25,4 +25,8 @@ pub trait Credential<AccountId, Moment, Signature, CredentialId> {
     ) -> DispatchResult;
     fn is_valid_signer(data: &[u8], sig: &Signature, from: &AccountId) -> DispatchResult;
     fn split_publickey_from_did(did: &Vec<u8>) -> Result<AccountId, DispatchError>;
+    fn get_credentials_by_schemaid(schema_id: &u32) -> Vec<(CredentialId, VerifiableCredential<Moment>)>;
+    fn get_credentials_by_subject(subject: &Subject) -> Vec<(CredentialId, VerifiableCredential<Moment>)>;
+    fn get_credentials_by_holder(holder: &Vec<u8>) -> Vec<(CredentialId, VerifiableCredential<Moment>)>;
+    fn get_credentials_by_creator(creator: &Vec<u8>) -> Vec<(CredentialId, VerifiableCredential<Moment>)>;
 }

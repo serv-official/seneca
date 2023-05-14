@@ -234,6 +234,51 @@ pub mod pallet {
 			}
 		}
 
+		// Fetch credentials by schemaid
+		fn get_credentials_by_schemaid(schema_id: &u32) -> Vec<(T::CredentialId, VerifiableCredential<T::Moment>)> {
+			let mut credentials: Vec<(T::CredentialId, VerifiableCredential<T::Moment>)> = Vec::new();
+			for (key, value) in CredentialStore::<T>::iter() {
+				if value.1.schema == *schema_id {
+					credentials.push((key, value.1.clone()));
+				}
+			}
+			credentials
+		}
+
+		// Fetch credentials by subject
+		fn get_credentials_by_subject(subject: &Subject) -> Vec<(T::CredentialId, VerifiableCredential<T::Moment>)> {
+			let mut credentials: Vec<(T::CredentialId, VerifiableCredential<T::Moment>)> = Vec::new();
+			for (key, value) in CredentialStore::<T>::iter() {
+				if value.1.subject == *subject {
+					credentials.push((key, value.1.clone()));
+				}
+			}
+			credentials
+		}
+
+		// Fetch credentials by holder
+		fn get_credentials_by_holder(holder: &Vec<u8>) -> Vec<(T::CredentialId, VerifiableCredential<T::Moment>)> {
+			let mut credentials: Vec<(T::CredentialId, VerifiableCredential<T::Moment>)> = Vec::new();
+			for (key, value) in CredentialStore::<T>::iter() {
+				if value.1.credential_holder == *holder {
+					credentials.push((key, value.1.clone()));
+				}
+			}
+			credentials
+		}
+
+		// Fetch credentials by creator
+		fn get_credentials_by_creator(creator: &Vec<u8>) -> Vec<(T::CredentialId, VerifiableCredential<T::Moment>)> {
+			let mut credentials: Vec<(T::CredentialId, VerifiableCredential<T::Moment>)> = Vec::new();
+			for (key, value) in CredentialStore::<T>::iter() {
+				if value.1.issuer == *creator {
+					credentials.push((key, value.1.clone()));
+				}
+			}
+			credentials
+		}
+
+
 	}
 
 }
