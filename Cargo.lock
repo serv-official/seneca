@@ -4576,7 +4576,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "pallet-credential"
+name = "pallet-credentials"
 version = "4.0.0-dev"
 dependencies = [
  "bs58",
@@ -4585,7 +4585,7 @@ dependencies = [
  "frame-system",
  "hex-literal",
  "log",
- "pallet-schema",
+ "pallet-schemas",
  "pallet-session",
  "pallet-timestamp",
  "parity-scale-codec",
@@ -4800,29 +4800,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "pallet-schema"
-version = "4.0.0-dev"
-dependencies = [
- "bs58",
- "frame-benchmarking",
- "frame-support",
- "frame-system",
- "hex-literal",
- "log",
- "pallet-session",
- "pallet-timestamp",
- "parity-scale-codec",
- "scale-info",
- "sp-application-crypto",
- "sp-core",
- "sp-io",
- "sp-keystore",
- "sp-runtime",
- "sp-std",
-]
-
-[[package]]
-name = "pallet-schema-registry"
+name = "pallet-schemas"
 version = "4.0.0-dev"
 dependencies = [
  "bs58",
@@ -7368,7 +7346,6 @@ dependencies = [
  "pallet-offences-benchmarking",
  "pallet-preimage",
  "pallet-scheduler",
- "pallet-schema-registry",
  "pallet-session",
  "pallet-session-benchmarking",
  "pallet-staking",
@@ -10381,6 +10358,7 @@ dependencies = [
  "pallet-collective",
  "pallet-contracts",
  "pallet-contracts-primitives",
+ "pallet-credentials",
  "pallet-democracy",
  "pallet-did",
  "pallet-grandpa",
@@ -10392,7 +10370,7 @@ dependencies = [
  "pallet-offences-benchmarking",
  "pallet-preimage",
  "pallet-scheduler",
- "pallet-schema-registry",
+ "pallet-schemas",
  "pallet-session",
  "pallet-session-benchmarking",
  "pallet-staking",

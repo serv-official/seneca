@@ -596,17 +596,6 @@ impl pallet_did::Config for Runtime {
 	type Timestamp = pallet_timestamp::Pallet<Runtime>;
 }
 
-impl pallet_schema_registry::Config for Runtime {
-	type RuntimeEvent = RuntimeEvent;
-	type Public = <Signature as Verify>::Signer;
-	type Moment = Moment;
-	type Signature = Signature;
-	type Timestamp = pallet_timestamp::Pallet<Runtime>;
-	type WeightInfo = pallet_schema_registry::weights::SchemaRegistryWeightInfo<Runtime>;
-	type SchemaId = u32;
-	type CredentialId = u32;
-}
-
 // Create the runtime by composing the FRAME pallets that were previously configured.
 construct_runtime!(
 	pub struct Runtime
@@ -638,7 +627,6 @@ construct_runtime!(
 		// Include the custom logic from the pallet-template in the runtime.
 		TemplateModule: pallet_template,
 		DID: pallet_did,
-		SchemaRegistry: pallet_schema_registry,
 	}
 );
 
@@ -697,7 +685,6 @@ mod benches {
 		[pallet_preimage, Preimage]
 		[pallet_contracts, Contracts]
 		[pallet_template, TemplateModule]
-		[pallet_schema_registry, SchemaRegistry]
 		[pallet_session, SessionBench::<Runtime>]
 		[pallet_collective, Council]
 		[pallet_treasury, Treasury]
@@ -952,7 +939,6 @@ impl_runtime_apis! {
 			list_benchmark!(list, extra, pallet_scheduler, Scheduler);
 			list_benchmark!(list, extra, pallet_balances, Balances);
 			list_benchmark!(list, extra, pallet_timestamp, Timestamp);
-			list_benchmark!(list, extra, pallet_schema_registry, SchemaRegistry);
 			list_benchmark!(list, extra, frame_benchmarking, BaselineBench::<Runtime>);
 			list_benchmark!(list, extra, pallet_session, SessionBench::<Runtime>);
 			list_benchmark!(list, extra, pallet_contracts, Contracts);
@@ -987,7 +973,6 @@ impl_runtime_apis! {
 			add_benchmark!(params, batches, pallet_balances, Balances);
 			add_benchmark!(params, batches, pallet_timestamp, Timestamp);
 			add_benchmark!(params, batches, pallet_contracts, Contracts);
-			add_benchmark!(params, batches, pallet_schema_registry, SchemaRegistry);
 			add_benchmark!(params, batches, frame_benchmarking, BaselineBench::<Runtime>);
 			add_benchmark!(params, batches, pallet_session, SessionBench::<Runtime>);
 			add_benchmark!(params, batches, frame_system, SystemBench::<Runtime>);

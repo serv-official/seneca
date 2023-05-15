@@ -78,7 +78,8 @@ frame-system-benchmarking = { default-features = false, git = "https://github.co
 # Local Dependencies
 pallet-template = { default-features = false, path = "../../pallets/template" }
 pallet-did = {default-features = false, git ="https://github.com/serv-official/pallet-did.git", branch = "polkadot-v0.9.39"}
-pallet-schema-registry = {default-features = false, path = "../../pallets/schema-registry" }
+pallet-schemas = {default-features = false, path = "../../pallets/schemas" }
+pallet-credentials = {default-features = false, path = "../../pallets/credentials" }
 
 [dependencies.validator-set]
 default-features = false
@@ -115,7 +116,8 @@ std = [
 	"pallet-timestamp/std",
 	"pallet-transaction-payment-rpc-runtime-api/std",
 	"pallet-transaction-payment/std",
-	"pallet-schema-registry/std",
+	"pallet-schemas/std",
+	"pallet-credentials/std",
 	"pallet-did/std",
 	"pallet-contracts/std",
 	"pallet-contracts-primitives/std",
@@ -155,7 +157,8 @@ runtime-benchmarks = [
 	"pallet-template/runtime-benchmarks",
 	"pallet-timestamp/runtime-benchmarks",
 	"sp-runtime/runtime-benchmarks",
-	"pallet-schema-registry/runtime-benchmarks",
+	"pallet-schemas/runtime-benchmarks",
+	"pallet-credentials/runtime-benchmarks",
 	"pallet-contracts/runtime-benchmarks",
 	"pallet-preimage/runtime-benchmarks",
 	"pallet-scheduler/runtime-benchmarks",
@@ -181,6 +184,7 @@ try-runtime = [
 	"pallet-template/try-runtime",
 	"pallet-timestamp/try-runtime",
 	"pallet-transaction-payment/try-runtime",
-	"pallet-schema-registry/try-runtime",
+	"pallet-schemas/try-runtime",
+	"pallet-credentials/try-runtime",
 	"pallet-offences/try-runtime",
 ]

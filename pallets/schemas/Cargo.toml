@@ -1,5 +1,5 @@
 [package]
-name = "pallet-schema"
+name = "pallet-schemas"
 version = "4.0.0-dev"
 description = "pallet template for defining schema storage."
 authors = ["Serv Developers <https://github.com/serv-official>"]
