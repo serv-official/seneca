@@ -5,7 +5,6 @@ use sc_client_api::BlockBackend;
 use sc_consensus_aura::{ImportQueueParams, SlotProportion, StartAuraParams};
 pub use sc_executor::NativeElseWasmExecutor;
 use sc_consensus_grandpa::SharedVoterState;
-use sc_keystore::LocalKeystore;
 use sc_service::{error::Error as ServiceError, Configuration, TaskManager, WarpSyncParams};
 use sc_telemetry::{Telemetry, TelemetryWorker};
 use sp_consensus_aura::sr25519::AuthorityPair as AuraPair;
@@ -151,12 +150,6 @@ pub fn new_partial(
 	})
 }
 
-fn remote_keystore(_url: &String) -> Result<Arc<LocalKeystore>, &'static str> {
-	// FIXME: here would the concrete keystore be built,
-	//        must return a concrete type (NOT `LocalKeystore`) that
-	//        implements `CryptoStore` and `SyncCryptoStore`
-	Err("Remote Keystore not supported.")
-}
 
 /// Builds a new service for a full client.
 pub fn new_full(mut config: Configuration) -> Result<TaskManager, ServiceError> {
@@ -165,7 +158,7 @@ pub fn new_full(mut config: Configuration) -> Result<TaskManager, ServiceError> 
 		backend,
 		mut task_manager,
 		import_queue,
-		mut keystore_container,
+		keystore_container,
 		select_chain,
 		transaction_pool,
 		other: (block_import, grandpa_link, mut telemetry),

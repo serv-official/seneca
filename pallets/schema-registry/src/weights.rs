@@ -49,7 +49,7 @@ impl<T: frame_system::Config> WeightInfo for SchemaRegistryWeightInfo<T> {
 	/// The range of component `s` is `[0, 100]`.
 	fn create_schema() -> Weight {
 		// Minimum execution time: 17_000 nanoseconds.
-		Weight::from_ref_time(18_019_846 as u64)
+		Weight::from_parts(18_019_846, 0u64)
 			.saturating_add(T::DbWeight::get().reads(2 as u64))
 			.saturating_add(T::DbWeight::get().writes(1 as u64))
 	}
@@ -57,7 +57,7 @@ impl<T: frame_system::Config> WeightInfo for SchemaRegistryWeightInfo<T> {
 	/// The range of component `s` is `[0, 100]`.
 	fn update_schema() -> Weight {
 		// Minimum execution time: 18_000 nanoseconds.
-		Weight::from_ref_time(19_789_873 as u64)
+		Weight::from_parts(19_789_873, 0u64)
 			.saturating_add(T::DbWeight::get().reads(1 as u64))
 			.saturating_add(T::DbWeight::get().writes(1 as u64))
 	}
@@ -65,9 +65,9 @@ impl<T: frame_system::Config> WeightInfo for SchemaRegistryWeightInfo<T> {
 	/// The range of component `s` is `[0, 100]`.
 	fn delete_schema() -> Weight {
 		// Minimum execution time: 14_000 nanoseconds.
-		Weight::from_ref_time(14_959_443 as u64)
+		Weight::from_parts(14_959_443, 0u64)
 			// Standard Error: 440
-			.saturating_add(Weight::from_ref_time(172 as u64).saturating_mul(1 as u64))
+			.saturating_add(Weight::from_parts(172, 0u64).saturating_mul(1 as u64))
 			.saturating_add(T::DbWeight::get().reads(1 as u64))
 			.saturating_add(T::DbWeight::get().writes(1 as u64))
 	}
@@ -76,7 +76,7 @@ impl<T: frame_system::Config> WeightInfo for SchemaRegistryWeightInfo<T> {
 	/// The range of component `s` is `[0, 100]`.
 	fn create_credential() -> Weight {
 		// Minimum execution time: 16_000 nanoseconds.
-		Weight::from_ref_time(16_969_749 as u64)
+		Weight::from_parts(16_969_749, 0u64)
 			.saturating_add(T::DbWeight::get().reads(2 as u64))
 			.saturating_add(T::DbWeight::get().writes(1 as u64))
 	}
@@ -84,7 +84,7 @@ impl<T: frame_system::Config> WeightInfo for SchemaRegistryWeightInfo<T> {
 	/// The range of component `s` is `[0, 100]`.
 	fn update_credential() -> Weight {
 		// Minimum execution time: 17_000 nanoseconds.
-		Weight::from_ref_time(18_025_266 as u64)
+		Weight::from_parts(18_025_266, 0u64)
 			.saturating_add(T::DbWeight::get().reads(1 as u64))
 			.saturating_add(T::DbWeight::get().writes(1 as u64))
 	}
@@ -92,9 +92,9 @@ impl<T: frame_system::Config> WeightInfo for SchemaRegistryWeightInfo<T> {
 	/// The range of component `s` is `[0, 100]`.
 	fn delete_credential() -> Weight {
 		// Minimum execution time: 14_000 nanoseconds.
-		Weight::from_ref_time(14_900_463 as u64)
+		Weight::from_parts(14_900_463, 0u64)
 			// Standard Error: 481
-			.saturating_add(Weight::from_ref_time(354 as u64).saturating_mul(1 as u64))
+			.saturating_add(Weight::from_parts(354, 0u64).saturating_mul(1 as u64))
 			.saturating_add(T::DbWeight::get().reads(1 as u64))
 			.saturating_add(T::DbWeight::get().writes(1 as u64))
 	}
@@ -103,37 +103,37 @@ impl<T: frame_system::Config> WeightInfo for SchemaRegistryWeightInfo<T> {
 impl WeightInfo for () {
     // Storage: SchemaRegistry SchemaStore (r:1 w:1)
     fn create_schema() -> Weight {
-        Weight::from_ref_time(18_019_846 as u64)
+        Weight::from_parts(18_019_846, 0u64)
             .saturating_add(RocksDbWeight::get().writes(1 as u64))
     }
 
 	// Storage: SchemaRegistry SchemaStore (r:1 w:1)
     fn update_schema() -> Weight {
-		Weight::from_ref_time(19_789_873 as u64)
+		Weight::from_parts(19_789_873, 0u64)
 			.saturating_add(RocksDbWeight::get().writes(1 as u64))
 	}
 
 	// Storage: SchemaRegistry SchemaStore (r:1 w:1)
 	fn delete_schema() -> Weight {
-        Weight::from_ref_time(14_959_443 as u64)
+        Weight::from_parts(14_959_443, 0u64)
             .saturating_add(RocksDbWeight::get().writes(1 as u64))
     }
 
     // Storage: SchemaRegistry SchemaStore (r:1 w:1)
     fn create_credential() -> Weight {
-        Weight::from_ref_time(16_969_749 as u64)
+        Weight::from_parts(16_969_749, 0u64)
             .saturating_add(RocksDbWeight::get().writes(1 as u64))
     }
 
 	// Storage: SchemaRegistry SchemaStore (r:1 w:1)
     fn update_credential() -> Weight {
-		Weight::from_ref_time(18_025_266 as u64)
+		Weight::from_parts(18_025_266, 0u64)
 			.saturating_add(RocksDbWeight::get().writes(1 as u64))
 	}
 
 	// Storage: SchemaRegistry SchemaStore (r:1 w:1)
 	fn delete_credential() -> Weight {
-        Weight::from_ref_time(14_900_463 as u64)
+        Weight::from_parts(14_900_463, 0u64)
             .saturating_add(RocksDbWeight::get().writes(1 as u64))
     }
 }
