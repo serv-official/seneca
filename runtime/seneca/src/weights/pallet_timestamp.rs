@@ -32,19 +32,18 @@
 use frame_support::{traits::Get, weights::Weight};
 use sp_std::marker::PhantomData;
 
-/// Weight functions for `pallet_timestamp`.
+/// Weight functions for pallet_timestamp.
 pub struct WeightInfo<T>(PhantomData<T>);
 impl<T: frame_system::Config> pallet_timestamp::WeightInfo for WeightInfo<T> {
 	// Storage: Timestamp Now (r:1 w:1)
-	// Storage: Babe CurrentSlot (r:1 w:0)
+	// Storage: Aura CurrentSlot (r:1 w:0)
+	// Storage: Teerex EnclaveRegistry (r:1 w:0)
 	fn set() -> Weight {
-		// Minimum execution time: 10_000 nanoseconds.
-		Weight::from_ref_time(11_000_000 as u64)
-			.saturating_add(T::DbWeight::get().reads(2 as u64))
-			.saturating_add(T::DbWeight::get().writes(1 as u64))
+		Weight::from_parts(51_125_000, 0u64)
+			.saturating_add(T::DbWeight::get().reads(3))
+			.saturating_add(T::DbWeight::get().writes(1))
 	}
 	fn on_finalize() -> Weight {
-		// Minimum execution time: 4_000 nanoseconds.
-		Weight::from_ref_time(5_000_000 as u64)
+		Weight::from_parts(9_723_000, 0u64)
 	}
 }

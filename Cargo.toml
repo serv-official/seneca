@@ -3,7 +3,6 @@ members = [
     "node/seneca",
     "node/zeno",
     "pallets/schema-registry",
-    "pallets/template",
     "runtime/seneca",
     "runtime/zeno",
 ]

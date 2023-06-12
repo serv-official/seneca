@@ -29,62 +29,57 @@
 #![allow(unused_parens)]
 #![allow(unused_imports)]
 
-use frame_support::{traits::Get, weights::Weight};
+use frame_support::{traits::Get, weights::{Weight, constants::RocksDbWeight}};
 use sp_std::marker::PhantomData;
 
-/// Weight functions for `pallet_treasury`.
+/// Weight functions for pallet_treasury.
 pub struct WeightInfo<T>(PhantomData<T>);
 impl<T: frame_system::Config> pallet_treasury::WeightInfo for WeightInfo<T> {
-	fn spend() -> Weight {
-		// Minimum execution time: 0 nanoseconds.
-		Weight::from_ref_time(0 as u64)
-	}
 	// Storage: Treasury ProposalCount (r:1 w:1)
 	// Storage: Treasury Proposals (r:0 w:1)
 	fn propose_spend() -> Weight {
-		// Minimum execution time: 30_000 nanoseconds.
-		Weight::from_ref_time(32_000_000 as u64)
-			.saturating_add(T::DbWeight::get().reads(1 as u64))
-			.saturating_add(T::DbWeight::get().writes(2 as u64))
+		Weight::from_parts(76_542_000, 0u64)
+			.saturating_add(T::DbWeight::get().reads(1))
+			.saturating_add(T::DbWeight::get().writes(2))
 	}
 	// Storage: Treasury Proposals (r:1 w:1)
 	// Storage: System Account (r:1 w:1)
 	fn reject_proposal() -> Weight {
-		// Minimum execution time: 36_000 nanoseconds.
-		Weight::from_ref_time(39_000_000 as u64)
-			.saturating_add(T::DbWeight::get().reads(2 as u64))
-			.saturating_add(T::DbWeight::get().writes(2 as u64))
+		Weight::from_parts(77_597_000, 0u64)
+			.saturating_add(T::DbWeight::get().reads(2))
+			.saturating_add(T::DbWeight::get().writes(2))
 	}
 	// Storage: Treasury Proposals (r:1 w:0)
 	// Storage: Treasury Approvals (r:1 w:1)
-	/// The range of component `p` is `[0, 99]`.
 	fn approve_proposal(p: u32, ) -> Weight {
-		// Minimum execution time: 9_000 nanoseconds.
-		Weight::from_ref_time(12_281_149 as u64)
-			// Standard Error: 1_017
-			.saturating_add(Weight::from_ref_time(28_209 as u64).saturating_mul(p as u64))
-			.saturating_add(T::DbWeight::get().reads(2 as u64))
-			.saturating_add(T::DbWeight::get().writes(1 as u64))
+		Weight::from_parts(22_285_000, 0u64)
+			// Standard Error: 47_000
+			.saturating_add(Weight::from_parts(502_000, 0u64)).saturating_mul(p.into())
+			.saturating_add(T::DbWeight::get().reads(2))
+			.saturating_add(T::DbWeight::get().writes(1))
+	}
+	// Storage: Treasury Approvals (r:1 w:1)
+	// Storage: Treasury Proposals (r:1 w:1)
+	// Storage: System Account (r:2 w:2)
+	fn on_initialize_proposals(p: u32, ) -> Weight {
+		Weight::from_parts(82_560_000, 0u64)
+			// Standard Error: 648_000
+			.saturating_add(Weight::from_parts(103_284_000, 0u64)).saturating_mul(p.into())
+			.saturating_add(T::DbWeight::get().reads(1))
+			.saturating_add(T::DbWeight::get().reads(3)).saturating_mul(p.into())
+			.saturating_add(T::DbWeight::get().writes(1))
+			.saturating_add(T::DbWeight::get().writes(3)).saturating_mul(p.into())
 	}
 	// Storage: Treasury Approvals (r:1 w:1)
 	fn remove_approval() -> Weight {
-		// Minimum execution time: 8_000 nanoseconds.
-		Weight::from_ref_time(9_000_000 as u64)
-			.saturating_add(T::DbWeight::get().reads(1 as u64))
-			.saturating_add(T::DbWeight::get().writes(1 as u64))
+		Weight::from_parts(3_827_000, 0u64)
+			.saturating_add(RocksDbWeight::get().reads(1))
+			.saturating_add(RocksDbWeight::get().writes(1))
 	}
-	// Storage: System Account (r:1 w:1)
-	// Storage: Treasury Approvals (r:1 w:1)
-	// Storage: Treasury Proposals (r:2 w:2)
-	/// The range of component `p` is `[0, 100]`.
-	fn on_initialize_proposals(p: u32, ) -> Weight {
-		// Minimum execution time: 40_000 nanoseconds.
-		Weight::from_ref_time(52_651_949 as u64)
-			// Standard Error: 8_913
-			.saturating_add(Weight::from_ref_time(33_605_211 as u64).saturating_mul(p as u64))
-			.saturating_add(T::DbWeight::get().reads(2 as u64))
-			.saturating_add(T::DbWeight::get().reads((3 as u64).saturating_mul(p as u64)))
-			.saturating_add(T::DbWeight::get().writes(2 as u64))
-			.saturating_add(T::DbWeight::get().writes((3 as u64).saturating_mul(p as u64)))
+
+	fn spend() -> Weight {
+		Weight::from_parts(22_063_000, 0u64)
+			.saturating_add(T::DbWeight::get().reads(1))
+			.saturating_add(T::DbWeight::get().writes(2))
 	}
 }
