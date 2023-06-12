@@ -1,7 +1,8 @@
 [workspace]
 members = [
     "node",
-    "pallets/schema-registry",
+    "pallets/schemas",
+    "pallets/credentials",
     "runtime",
 ]
 

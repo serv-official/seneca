@@ -33,6 +33,7 @@ pub mod pallet {
 
 	#[pallet::pallet]
 	#[pallet::without_storage_info]
+	#[pallet::generate_store(pub(super) trait Store)]
 	pub struct Pallet<T>(_);
 
 	/// Configure the pallet by specifying the parameters and types on which it depends.
@@ -55,20 +56,8 @@ pub mod pallet {
 		+ StaticTypeInfo;
 		type Timestamp: Time<Moment=Self::Moment> ;
 		type WeightInfo: WeightInfo;
-		/// Identifier for the class of schema.
-		type SchemaId: Member
-		+ Parameter
-		+ Default
-		+ Copy
-		+ HasCompact
-		+ MaybeSerializeDeserialize
-		+ Ord
-		+ PartialOrd
-		+ MaxEncodedLen
-		+ TypeInfo;
-		/// Identifier for the class of credential.
-		type CredentialId: Member
-		+ Parameter
+		/// Identifier for the schema.
+		type SchemaId:  Parameter
 		+ Default
 		+ Copy
 		+ HasCompact
@@ -87,11 +76,6 @@ pub mod pallet {
 		StorageMap<_, Blake2_128Concat, T::SchemaId, (T::Signature, VerifiableCredentialSchema<T::Moment>),  OptionQuery>;
 
 	#[pallet::storage]
-	#[pallet::getter(fn credential_registry)]
-	pub type CredentialStore<T: Config> =
-		StorageMap<_, Blake2_128Concat, T::CredentialId, (T::Signature, VerifiableCredential<T::Moment>),  OptionQuery>;
-
-	#[pallet::storage]
 	#[pallet::getter(fn get_nonce)]
 	pub(super) type Nonce<T: Config> = StorageValue< _, u64, ValueQuery>;
 	
@@ -105,16 +89,10 @@ pub mod pallet {
 		/// parameters. [something, who]
 		// Event is emitted when a Schema item is created
 		SchemaCreated(T::SchemaId, Vec<u8>),
-		// Event is emitted when a Credential item is created
-		CredentialCreated(T::CredentialId, Vec<u8>),
 		// Event is emitted when an existing Schema item is updated
 		SchemaUpdated(T::SchemaId, Vec<u8>),
-		// Event is emitted when an existing credential item is updated
-		CredentialUpdated(T::CredentialId, Vec<u8>),
 		// Event is emitted when an existing Schema item is deleted
 		SchemaDeleted(T::SchemaId),
-		// Event is emitted when an existing Credential item is deleted
-		CredentialDeleted(T::CredentialId),
 
 	}
 
@@ -127,10 +105,6 @@ pub mod pallet {
 		SchemaAlreadyExists,
 		///Error emitted when schema is unknown
 		UnknownSchema,
-		/// Errors emitted when credential already exists.
-		CredentialAlreadyExists,
-		///Error emitted when credential is unknown
-		UnknownCredential,
 		/// Error emitted when signature is invalid
 		SignatureVerifyError,
 		/// Error emitted when invalid DID is used
@@ -168,29 +142,6 @@ pub mod pallet {
 			Self::create_verifiable_schema(&id, &name, &creator, &public, creation_date, expiration_date, &mandatory_fields, &issuer_claims, &subject_claims, &credential_claims, &metadata, &signature, &nonce)
 		}
 
-		/// Create a new credential item
-		#[pallet::call_index(2)]
-		#[pallet::weight(T::WeightInfo::create_credential())]
-		pub fn create_credential(origin: OriginFor<T>, 
-			#[pallet::compact] id: T::CredentialId,
-			context: Vec<u8>,
-			schema: u32,
-			issuer: Vec<u8>,
-			issuance_date: Option<T::Moment>,
-			expiration_date: Option<T::Moment>,
-			subject: Subject,
-			credential_holder: Vec<u8>,
-			signature: T::Signature,
-			nonce: u64,
-			) -> DispatchResult {
-
-			// Ensure that the caller of the function is signed
-			let _ = ensure_signed(origin)?;
-			// Ensure that the Credential does not already exist
-			ensure!(!CredentialStore::<T>::contains_key(&id), "Credential already exists");
-			Self::create_verifiable_credential( &id, &context, &schema, &issuer, issuance_date, expiration_date, &subject, &credential_holder, &signature, &nonce)
-		}
-
 		// Function to update an existing schema
 		#[pallet::call_index(3)]
 		#[pallet::weight(T::WeightInfo::update_schema())]
@@ -202,17 +153,6 @@ pub mod pallet {
 			Self::update_verifiable_schema(&old_schema_key, &new_data)
 		}
 
-		// Function to update an existing credential
-		#[pallet::call_index(4)]
-		#[pallet::weight(T::WeightInfo::update_credential())]
-		pub fn update_credential(origin: OriginFor<T>, #[pallet::compact] old_credential_key: T::CredentialId, new_data: (T::Signature, VerifiableCredential<T::Moment>)) -> DispatchResult {
-			let _ = ensure_signed(origin)?;
-			let credential_data = CredentialStore::<T>::get(&old_credential_key).ok_or(Error::<T>::UnknownCredential)?;
-			ensure!(credential_data != new_data, Error::<T>::CredentialAlreadyExists);
-			// Update the credential data
-			Self::update_verifiable_credential(&old_credential_key, &new_data)
-		}
-
 		// Function to delete an existing schema
 		#[pallet::call_index(5)]
 		#[pallet::weight(T::WeightInfo::delete_schema())]
@@ -222,19 +162,10 @@ pub mod pallet {
             Self::delete_verifiable_schema(&key)
         }
 
-		// Function to delete an existing credential
-		#[pallet::call_index(6)]
-		#[pallet::weight(T::WeightInfo::delete_credential())]
-        pub fn delete_credential(origin: OriginFor<T>, #[pallet::compact] key: T::CredentialId,) -> DispatchResult {
-            let _ = ensure_signed(origin)?;
-            ensure!(<CredentialStore<T>>::contains_key(&key), Error::<T>::UnknownCredential);
-            Self::delete_verifiable_credential(&key)
-        }
-
 	}
 
 	impl<T: Config>
-	Schema<T::AccountId, T::Moment, T::Signature, T::SchemaId, T::CredentialId>
+	Schema<T::AccountId, T::Moment, T::Signature, T::SchemaId>
 	for Pallet<T>
 	{
 		// Function to create a new schema
@@ -277,39 +208,7 @@ pub mod pallet {
 			Self::deposit_event(Event::SchemaCreated(id.clone(), verifiable_credential_schema.encode()));
 			Ok(())
 		}
-		// create a new credential
-		fn create_verifiable_credential(
-			id: &T::CredentialId,
-			context: &Vec<u8>,
-			schema: &u32,
-			issuer: &Vec<u8>,
-			issuance_date: Option<T::Moment>,
-			expiration_date: Option<T::Moment>,
-			subject: &Subject,
-			credential_holder: &Vec<u8>,
-			signature: &T::Signature,
-			nonce: &u64,
-		) -> DispatchResult{
-			let verifiable_credential = VerifiableCredential {
-				context: context.clone(),
-				schema: schema.clone(),
-				issuer: issuer.clone(),
-				issuance_date,
-				expiration_date,
-				subject: subject.clone(),
-				credential_holder: credential_holder.clone(),
-				nonce: nonce.clone(),
-			};
-			let binding = verifiable_credential.encode();
-   			let vc_bytes = binding.as_slice();
-			let signer = Self::split_publickey_from_did(&verifiable_credential.issuer)?;
-			Self::is_valid_signer(vc_bytes, signature, &signer)?;
-			// Save the Schema data in storage
-			CredentialStore::<T>::insert(&id, (&signature, &verifiable_credential));
-			// Emit an event to indicate that the Credential was created and stored
-			Self::deposit_event(Event::CredentialCreated(id.clone(), verifiable_credential.encode()));
-			Ok(())
-		}
+
 		// update a schema
 		fn update_verifiable_schema(
 			old_schema_key: &T::SchemaId, 
@@ -319,23 +218,11 @@ pub mod pallet {
 			Self::deposit_event(Event::SchemaUpdated(old_schema_key.clone(), new_data.encode()));
 			Ok(())
 		}
-		// update a credential
-		fn update_verifiable_credential(old_credential_key: &T::CredentialId, new_data: &(T::Signature, VerifiableCredential<T::Moment>)) -> DispatchResult{
-			// Update the credential data
-			CredentialStore::<T>::insert(old_credential_key, new_data);
-			Self::deposit_event(Event::CredentialUpdated(old_credential_key.clone(), new_data.encode()));
-			Ok(())
-		}
+
 		// delete schema
 		fn delete_verifiable_schema(key: &T::SchemaId,) -> DispatchResult{
             <SchemaStore<T>>::remove(key);
             Self::deposit_event(Event::SchemaDeleted(key.clone()));
-			Ok(())
-		}
-		// delete a credential
-		fn delete_verifiable_credential(key: &T::CredentialId,) -> DispatchResult{
-            <CredentialStore<T>>::remove(key);
-            Self::deposit_event(Event::CredentialDeleted(key.clone()));
 			Ok(())
 		}
 

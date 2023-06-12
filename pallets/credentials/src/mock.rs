@@ -1,4 +1,4 @@
-use crate as pallet_schema_registry;
+use crate as pallet_credential;
 use frame_support::traits::OnTimestampSet;
 use frame_support::traits::{ConstU16, ConstU64};
 use frame_system as system;
@@ -23,7 +23,7 @@ frame_support::construct_runtime!(
 		UncheckedExtrinsic = UncheckedExtrinsic,
 	{
 		System: frame_system,
-		SchemaRegistry: pallet_schema_registry,
+		CredentialRegistry: pallet_credential,
 		Timestamp: pallet_timestamp,
 	}
 );
@@ -74,14 +74,13 @@ impl pallet_timestamp::Config for Test {
 }
 
 
-impl pallet_schema_registry::Config for Test {
+impl pallet_credential::Config for Test {
 	type RuntimeEvent = RuntimeEvent;
 	type WeightInfo = ();
     type Public = <<sp_core::sr25519::Signature as Verify>::Signer as IdentifyAccount>::AccountId;
     type Signature = sp_core::sr25519::Signature;
     type Moment = Moment;
     type Timestamp = Timestamp;
-	type SchemaId = u32;
 	type CredentialId = u32;
 }
 // Build genesis storage according to the mock runtime.
