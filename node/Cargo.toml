@@ -1,5 +1,5 @@
 [package]
-name = "seneca-node"
+name = "zeno-node"
 version = "4.0.0-dev"
 description = "A fresh FRAME-based Substrate node, ready for hacking."
 authors = ["Seneca Devs <https://github.com/serv-official>"]
@@ -14,10 +14,13 @@ build = "build.rs"
 targets = ["x86_64-unknown-linux-gnu"]
 
 [[bin]]
-name = "seneca-node"
+name = "zeno-node"
+
 
 [dependencies]
 clap = { version = "4.0.9", features = ["derive"] }
+hex-literal = "0.3.4"
+hex = "0.4"
 futures = { version = "0.3.21", features = ["thread-pool"]}
 
 sc-cli = {  git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.42" }
@@ -60,8 +63,8 @@ frame-benchmarking = {  git = "https://github.com/paritytech/substrate.git", bra
 frame-benchmarking-cli = {  git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.42" }
 
 # Local Dependencies
-seneca-runtime = {  path = "../../runtime/seneca" }
-node-primitives = { version = "2.0.0", default-features = false, path = "../../primitives" }
+zeno-runtime = {  path = "../runtime" }
+node-primitives = { version = "2.0.0", default-features = false, path = "../primitives" }
 
 # CLI-specific dependencies
 try-runtime-cli = {  optional = true, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.42" }
@@ -72,10 +75,10 @@ substrate-build-script-utils = { git = "https://github.com/paritytech/substrate.
 [features]
 # Dependencies that are only required if runtime benchmarking should be build.
 runtime-benchmarks = [
-	"seneca-runtime/runtime-benchmarks",
+	"zeno-runtime/runtime-benchmarks",
 	"frame-benchmarking/runtime-benchmarks",
 	"frame-benchmarking-cli/runtime-benchmarks",
 ]
 # Enable features that allow the runtime to be tried and debugged. Name might be subject to change
 # in the near future.
-try-runtime = ["seneca-runtime/try-runtime", "try-runtime-cli/try-runtime"]
+try-runtime = ["zeno-runtime/try-runtime", "try-runtime-cli/try-runtime"]

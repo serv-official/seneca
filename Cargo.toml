@@ -1,10 +1,8 @@
 [workspace]
 members = [
-    "node/seneca",
-    "node/zeno",
+    "node",
     "pallets/schema-registry",
-    "runtime/seneca",
-    "runtime/zeno",
+    "runtime",
 ]
 
 [profile.release]
