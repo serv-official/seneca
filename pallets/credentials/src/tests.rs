@@ -95,7 +95,7 @@ fn it_works_for_update_credential() {
 			subject: subject.clone(),
 			credential_holder: credential_holder.clone(),
 			nonce: nonce.clone(),
-	};
+		};
 		let data_sig = account_pair.sign(&credential.encode());
 		let updated_sig = account_pair.sign(&updated_credential.encode());
 		let schema_id = 0u32;
@@ -143,9 +143,9 @@ fn it_works_for_delete_credential() {
 			subject: subject.clone(),
 			credential_holder: credential_holder.clone(),
 			nonce: nonce.clone(),
-	};
-	let schema_id = 0u32;
-	let data_sig = account_pair.sign(&credential.encode());
+		};
+		let schema_id = 0u32;
+		let data_sig = account_pair.sign(&credential.encode());
   
 	// Dispatch a signed create schema extrinsic.
 	assert_ok!(CredentialRegistry::create_credential(RawOrigin::Signed(signer).into(), schema_id,context.clone(), schema, 
