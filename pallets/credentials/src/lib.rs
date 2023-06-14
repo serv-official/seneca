@@ -25,6 +25,7 @@ pub mod pallet {
 	use codec::HasCompact;
 	use frame_system::pallet_prelude::*;
 	use scale_info::{prelude::vec::Vec, StaticTypeInfo };
+	use pallet_schemas::schema::SchemaInterface;
 	use crate::weights::WeightInfo;
 	use crate::types::*;
 	use crate::credential::Credential;
@@ -66,6 +67,7 @@ pub mod pallet {
 		+ PartialOrd
 		+ MaxEncodedLen
 		+ TypeInfo;
+		type SchemaId: SchemaInterface;
 		
 	}
 
@@ -133,6 +135,9 @@ pub mod pallet {
 
 			// Ensure that the caller of the function is signed
 			let _ = ensure_signed(origin)?;
+			let converted_schema_id = T::SchemaId::to_schema_id(&schema);
+			//Ensure schema id exists
+			ensure!(T::SchemaId::check_schema_id_exists(converted_schema_id).is_ok(), "Schema does not exist");
 			// Ensure that the Credential does not already exist
 			ensure!(!CredentialStore::<T>::contains_key(&id), "Credential already exists");
 			Self::create_verifiable_credential( &id, &context, &schema, &issuer, issuance_date, expiration_date, &subject, &credential_holder, &signature, &nonce)

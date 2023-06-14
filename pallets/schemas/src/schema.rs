@@ -29,3 +29,9 @@ pub trait Schema<AccountId, Moment, Signature, SchemaId> {
     fn is_valid_signer(data: &[u8], sig: &Signature, from: &AccountId) -> DispatchResult;
     fn split_publickey_from_did(did: &Vec<u8>) -> Result<AccountId, DispatchError>;
 }
+
+pub trait SchemaInterface{
+    type SchemaId;
+    fn check_schema_id_exists(schema: Self::SchemaId)->DispatchResult;
+    fn to_schema_id(schema: &u32)->Self::SchemaId;
+}

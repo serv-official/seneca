@@ -11,6 +11,7 @@ use sp_runtime::{
 };
 use sp_std::cell::RefCell;
 
+
 type UncheckedExtrinsic = frame_system::mocking::MockUncheckedExtrinsic<Test>;
 type Block = frame_system::mocking::MockBlock<Test>;
 type Moment = u64;
@@ -24,6 +25,7 @@ frame_support::construct_runtime!(
 	{
 		System: frame_system,
 		CredentialRegistry: pallet_credential,
+		SchemaRegistry: pallet_schemas,
 		Timestamp: pallet_timestamp,
 	}
 );
@@ -73,6 +75,15 @@ impl pallet_timestamp::Config for Test {
 	type WeightInfo = ();
 }
 
+impl pallet_schemas::Config for Test {
+	type RuntimeEvent = RuntimeEvent;
+	type WeightInfo = ();
+    type Public = <<sp_core::sr25519::Signature as Verify>::Signer as IdentifyAccount>::AccountId;
+    type Signature = sp_core::sr25519::Signature;
+    type Moment = Moment;
+    type Timestamp = Timestamp;
+	type SchemaId = u32;
+}
 
 impl pallet_credential::Config for Test {
 	type RuntimeEvent = RuntimeEvent;
@@ -82,6 +93,7 @@ impl pallet_credential::Config for Test {
     type Moment = Moment;
     type Timestamp = Timestamp;
 	type CredentialId = u32;
+	type SchemaId = SchemaRegistry;
 }
 // Build genesis storage according to the mock runtime.
 // Build genesis storage according to the mock runtime.

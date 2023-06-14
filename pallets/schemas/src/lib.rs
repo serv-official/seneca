@@ -27,7 +27,7 @@ pub mod pallet {
 	use scale_info::{prelude::vec::Vec, StaticTypeInfo };
 	use crate::weights::WeightInfo;
 	use crate::types::*;
-	use crate::schema::Schema;
+	use crate::schema::{Schema, SchemaInterface};
 	use crate::convert::*;
 
 
@@ -64,6 +64,8 @@ pub mod pallet {
 		+ Ord
 		+ PartialOrd
 		+ MaxEncodedLen
+		+ From<u32>
+		+ Into<u32>
 		+ TypeInfo;
 		
 	}
@@ -104,6 +106,8 @@ pub mod pallet {
 		SchemaAlreadyExists,
 		///Error emitted when schema is unknown
 		UnknownSchema,
+		///Error emitted when schema id doesn't exist
+		SchemaIdDoesNotExist,
 		/// Error emitted when signature is invalid
 		SignatureVerifyError,
 		/// Error emitted when invalid DID is used
@@ -249,4 +253,16 @@ pub mod pallet {
 
 	}
 
+	impl <T: Config> SchemaInterface for Pallet<T>{
+		type SchemaId = T::SchemaId;
+		fn check_schema_id_exists(schema: Self::SchemaId) -> DispatchResult{ 
+			ensure!(<SchemaStore<T>>::contains_key(&schema), Error::<T>::SchemaIdDoesNotExist);
+            Ok(())
+        }
+
+		fn to_schema_id(schema_id: &u32) -> T::SchemaId{
+			let returned_schema_id: T::SchemaId = T::SchemaId::from(*schema_id);
+			returned_schema_id
+		}
+	}
 }
