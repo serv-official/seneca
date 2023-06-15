@@ -558,8 +558,9 @@ impl pallet_credentials::Config for Runtime {
 	type Moment = Moment;
 	type Signature = Signature;
 	type Timestamp = pallet_timestamp::Pallet<Runtime>;
-	type WeightInfo = pallet_credentials::weights::SchemaRegistryWeightInfo<Runtime>;
+	type WeightInfo = pallet_credentials::weights::CredentialRegistryWeightInfo<Runtime>;
 	type CredentialId = u32;
+	type SchemaId = Schemas;
 }
 
 parameter_types! {

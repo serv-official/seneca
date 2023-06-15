@@ -6,7 +6,6 @@ mod mock;
 #[cfg(test)]
 mod tests;
 mod types;
-mod convert;
 pub mod schema;
 
 pub use pallet::*;
@@ -28,7 +27,6 @@ pub mod pallet {
 	use crate::weights::WeightInfo;
 	use crate::types::*;
 	use crate::schema::{Schema, SchemaInterface};
-	use crate::convert::*;
 
 
 	#[pallet::pallet]
@@ -245,7 +243,7 @@ pub mod pallet {
 			};
 			let did_vec: Vec<&str> = did_string.split(":").collect();
 			let public_key_str = did_vec[2].trim();
-			match convert_string_to_accountid(public_key_str){
+			match node_primitives::convert2accountid::convert_string_to_accountid(public_key_str){
 				Ok(account_id) => Ok(account_id),
 				Err(e) => Err(e),
 			}
