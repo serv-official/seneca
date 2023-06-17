@@ -11,7 +11,7 @@ pub mod types;
 pub use pallet::*;
 #[cfg(feature = "runtime-benchmarks")]
 mod benchmarking;
-mod weights;
+pub mod weights;
 
 #[frame_support::pallet]
 pub mod pallet {
