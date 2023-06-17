@@ -3,32 +3,31 @@
 #[cfg(test)]
 mod mock;
 
+pub mod credential;
 #[cfg(test)]
 mod tests;
 mod types;
-pub mod credential;
 
 pub use pallet::*;
 #[cfg(feature = "runtime-benchmarks")]
 mod benchmarking;
 pub mod weights;
 
-
 #[frame_support::pallet]
 pub mod pallet {
-	use frame_support::{
-			pallet_prelude::*, ensure,
-			sp_runtime::traits::{Scale, IdentifyAccount, Member, Verify},
-			traits::{Time, IsType},
-	};
-	use codec::HasCompact;
-	use frame_system::pallet_prelude::*;
-	use scale_info::{prelude::vec::Vec, StaticTypeInfo };
-	use pallet_schemas::schema::SchemaInterface;
-	use crate::weights::WeightInfo;
-	use crate::types::*;
 	use crate::credential::Credential;
-
+	use crate::types::*;
+	use crate::weights::WeightInfo;
+	use codec::HasCompact;
+	use frame_support::{
+		ensure,
+		pallet_prelude::*,
+		sp_runtime::traits::{IdentifyAccount, Member, Scale, Verify},
+		traits::{IsType, Time},
+	};
+	use frame_system::pallet_prelude::*;
+	use pallet_schemas::schema::SchemaInterface;
+	use scale_info::{prelude::vec::Vec, StaticTypeInfo};
 
 	#[pallet::pallet]
 	#[pallet::without_storage_info]
@@ -39,46 +38,55 @@ pub mod pallet {
 	pub trait Config: frame_system::Config {
 		/// Because this pallet emits events, it depends on the runtime's definition of an event.
 		type RuntimeEvent: From<Event<Self>> + IsType<<Self as frame_system::Config>::RuntimeEvent>;
-		type Public: IdentifyAccount<AccountId = Self::AccountId> 
-		+ Encode 
-		+ Decode 
-		+ Member 
-		+ From<sp_core::sr25519::Public>  
-		+ TypeInfo;
-		type Signature: Verify<Signer = Self::Public> + Member + Parameter + Decode + Encode + From<sp_core::sr25519::Signature> + TypeInfo;
+		type Public: IdentifyAccount<AccountId = Self::AccountId>
+			+ Encode
+			+ Decode
+			+ Member
+			+ From<sp_core::sr25519::Public>
+			+ TypeInfo;
+		type Signature: Verify<Signer = Self::Public>
+			+ Member
+			+ Parameter
+			+ Decode
+			+ Encode
+			+ From<sp_core::sr25519::Signature>
+			+ TypeInfo;
 		type Moment: Parameter
-		+ Default
-		+ Scale<Self::BlockNumber, Output = Self::Moment>
-		+ Copy
-		+ MaxEncodedLen
-		+ StaticTypeInfo;
-		type Timestamp: Time<Moment=Self::Moment> ;
+			+ Default
+			+ Scale<Self::BlockNumber, Output = Self::Moment>
+			+ Copy
+			+ MaxEncodedLen
+			+ StaticTypeInfo;
+		type Timestamp: Time<Moment = Self::Moment>;
 		type WeightInfo: WeightInfo;
 		/// Identifier for the class of credential.
 		type CredentialId: Member
-		+ Parameter
-		+ Default
-		+ Copy
-		+ HasCompact
-		+ MaybeSerializeDeserialize
-		+ Ord
-		+ PartialOrd
-		+ MaxEncodedLen
-		+ TypeInfo;
+			+ Parameter
+			+ Default
+			+ Copy
+			+ HasCompact
+			+ MaybeSerializeDeserialize
+			+ Ord
+			+ PartialOrd
+			+ MaxEncodedLen
+			+ TypeInfo;
 		type SchemaId: SchemaInterface;
-		
 	}
 
 	#[pallet::storage]
 	#[pallet::getter(fn credential_registry)]
-	pub type CredentialStore<T: Config> =
-		StorageMap<_, Blake2_128Concat, T::CredentialId, (T::Signature, VerifiableCredential<T::Moment>),  OptionQuery>;
+	pub type CredentialStore<T: Config> = StorageMap<
+		_,
+		Blake2_128Concat,
+		T::CredentialId,
+		(T::Signature, VerifiableCredential<T::Moment>),
+		OptionQuery,
+	>;
 
 	#[pallet::storage]
 	#[pallet::getter(fn get_nonce)]
-	pub(super) type Nonce<T: Config> = StorageValue< _, u64, ValueQuery>;
-	
-		
+	pub(super) type Nonce<T: Config> = StorageValue<_, u64, ValueQuery>;
+
 	// Pallets use events to inform users when important changes are made.
 	// https://docs.substrate.io/main-docs/build/events-errors/
 	#[pallet::event]
@@ -92,7 +100,6 @@ pub mod pallet {
 		CredentialUpdated(T::CredentialId, Vec<u8>),
 		// Event is emitted when an existing Credential item is deleted
 		CredentialDeleted(T::CredentialId),
-
 	}
 
 	// Errors inform users that something went wrong.
@@ -118,7 +125,8 @@ pub mod pallet {
 		/// Create a new credential item
 		#[pallet::call_index(2)]
 		#[pallet::weight(T::WeightInfo::create_credential())]
-		pub fn create_credential(origin: OriginFor<T>, 
+		pub fn create_credential(
+			origin: OriginFor<T>,
 			#[pallet::compact] id: T::CredentialId,
 			context: Vec<u8>,
 			schema: u32,
@@ -129,24 +137,42 @@ pub mod pallet {
 			credential_holder: Vec<u8>,
 			signature: T::Signature,
 			nonce: u64,
-			) -> DispatchResult {
-
+		) -> DispatchResult {
 			// Ensure that the caller of the function is signed
 			let _ = ensure_signed(origin)?;
 			let converted_schema_id = T::SchemaId::to_schema_id(&schema);
 			//Ensure schema id exists
-			ensure!(T::SchemaId::check_schema_id_exists(converted_schema_id).is_ok(), "Schema does not exist");
+			ensure!(
+				T::SchemaId::check_schema_id_exists(converted_schema_id).is_ok(),
+				"Schema does not exist"
+			);
 			// Ensure that the Credential does not already exist
 			ensure!(!CredentialStore::<T>::contains_key(&id), "Credential already exists");
-			Self::create_verifiable_credential( &id, &context, &schema, &issuer, issuance_date, expiration_date, &subject, &credential_holder, &signature, &nonce)
+			Self::create_verifiable_credential(
+				&id,
+				&context,
+				&schema,
+				&issuer,
+				issuance_date,
+				expiration_date,
+				&subject,
+				&credential_holder,
+				&signature,
+				&nonce,
+			)
 		}
 
 		// Function to update an existing credential
 		#[pallet::call_index(4)]
 		#[pallet::weight(T::WeightInfo::update_credential())]
-		pub fn update_credential(origin: OriginFor<T>, #[pallet::compact] old_credential_key: T::CredentialId, new_data: (T::Signature, VerifiableCredential<T::Moment>)) -> DispatchResult {
+		pub fn update_credential(
+			origin: OriginFor<T>,
+			#[pallet::compact] old_credential_key: T::CredentialId,
+			new_data: (T::Signature, VerifiableCredential<T::Moment>),
+		) -> DispatchResult {
 			let _ = ensure_signed(origin)?;
-			let credential_data = CredentialStore::<T>::get(&old_credential_key).ok_or(Error::<T>::UnknownCredential)?;
+			let credential_data = CredentialStore::<T>::get(&old_credential_key)
+				.ok_or(Error::<T>::UnknownCredential)?;
 			ensure!(credential_data != new_data, Error::<T>::CredentialAlreadyExists);
 			// Update the credential data
 			Self::update_verifiable_credential(&old_credential_key, &new_data)
@@ -155,18 +181,17 @@ pub mod pallet {
 		// Function to delete an existing credential
 		#[pallet::call_index(6)]
 		#[pallet::weight(T::WeightInfo::delete_credential())]
-        pub fn delete_credential(origin: OriginFor<T>, #[pallet::compact] key: T::CredentialId,) -> DispatchResult {
-            let _ = ensure_signed(origin)?;
-            ensure!(<CredentialStore<T>>::contains_key(&key), Error::<T>::UnknownCredential);
-            Self::delete_verifiable_credential(&key)
-        }
-
+		pub fn delete_credential(
+			origin: OriginFor<T>,
+			#[pallet::compact] key: T::CredentialId,
+		) -> DispatchResult {
+			let _ = ensure_signed(origin)?;
+			ensure!(<CredentialStore<T>>::contains_key(&key), Error::<T>::UnknownCredential);
+			Self::delete_verifiable_credential(&key)
+		}
 	}
 
-	impl<T: Config>
-	Credential<T::AccountId, T::Moment, T::Signature, T::CredentialId>
-	for Pallet<T>
-	{
+	impl<T: Config> Credential<T::AccountId, T::Moment, T::Signature, T::CredentialId> for Pallet<T> {
 		// create a new credential
 		fn create_verifiable_credential(
 			id: &T::CredentialId,
@@ -179,7 +204,7 @@ pub mod pallet {
 			credential_holder: &Vec<u8>,
 			signature: &T::Signature,
 			nonce: &u64,
-		) -> DispatchResult{
+		) -> DispatchResult {
 			let verifiable_credential = VerifiableCredential {
 				context: context.clone(),
 				schema: schema.clone(),
@@ -191,54 +216,65 @@ pub mod pallet {
 				nonce: nonce.clone(),
 			};
 			let binding = verifiable_credential.encode();
-   			let vc_bytes = binding.as_slice();
+			let vc_bytes = binding.as_slice();
 			let signer = Self::split_publickey_from_did(&verifiable_credential.issuer)?;
 			Self::is_valid_signer(vc_bytes, signature, &signer)?;
 			// Save the Schema data in storage
 			CredentialStore::<T>::insert(&id, (&signature, &verifiable_credential));
 			// Emit an event to indicate that the Credential was created and stored
-			Self::deposit_event(Event::CredentialCreated(id.clone(), verifiable_credential.encode()));
+			Self::deposit_event(Event::CredentialCreated(
+				id.clone(),
+				verifiable_credential.encode(),
+			));
 			Ok(())
 		}
 		// update a credential
-		fn update_verifiable_credential(old_credential_key: &T::CredentialId, new_data: &(T::Signature, VerifiableCredential<T::Moment>)) -> DispatchResult{
+		fn update_verifiable_credential(
+			old_credential_key: &T::CredentialId,
+			new_data: &(T::Signature, VerifiableCredential<T::Moment>),
+		) -> DispatchResult {
 			// Update the credential data
 			CredentialStore::<T>::insert(old_credential_key, new_data);
-			Self::deposit_event(Event::CredentialUpdated(old_credential_key.clone(), new_data.encode()));
+			Self::deposit_event(Event::CredentialUpdated(
+				old_credential_key.clone(),
+				new_data.encode(),
+			));
 			Ok(())
 		}
 		// delete a credential
-		fn delete_verifiable_credential(key: &T::CredentialId,) -> DispatchResult{
-            <CredentialStore<T>>::remove(key);
-            Self::deposit_event(Event::CredentialDeleted(key.clone()));
+		fn delete_verifiable_credential(key: &T::CredentialId) -> DispatchResult {
+			<CredentialStore<T>>::remove(key);
+			Self::deposit_event(Event::CredentialDeleted(key.clone()));
 			Ok(())
 		}
 
-		fn is_valid_signer(data: &[u8], sig: &T::Signature, from: &T::AccountId) -> DispatchResult{
+		fn is_valid_signer(data: &[u8], sig: &T::Signature, from: &T::AccountId) -> DispatchResult {
 			ensure!(sig.verify(data, from), <Error<T>>::SignatureVerifyError);
 			Ok(())
 		}
-		
-		
-		fn split_publickey_from_did(did: &Vec<u8>) -> Result<T::AccountId, DispatchError>{
-			let did_string = match sp_std::str::from_utf8(did){
-					Ok(did_str) => did_str,
-					Err(e) => {
-						log::error!("{:?}",e);
-						return Err(<Error<T>>::InvalidDID.into())
-					},
+
+		fn split_publickey_from_did(did: &Vec<u8>) -> Result<T::AccountId, DispatchError> {
+			let did_string = match sp_std::str::from_utf8(did) {
+				Ok(did_str) => did_str,
+				Err(e) => {
+					log::error!("{:?}", e);
+					return Err(<Error<T>>::InvalidDID.into());
+				},
 			};
 			let did_vec: Vec<&str> = did_string.split(":").collect();
 			let public_key_str = did_vec[2].trim();
-			match node_primitives::convert2accountid::convert_string_to_accountid(public_key_str){
+			match node_primitives::convert2accountid::convert_string_to_accountid(public_key_str) {
 				Ok(account_id) => Ok(account_id),
 				Err(e) => Err(e),
 			}
 		}
 
 		// Fetch credentials by schemaid
-		fn get_credentials_by_schemaid(schema_id: &u32) -> Vec<(T::CredentialId, VerifiableCredential<T::Moment>)> {
-			let mut credentials: Vec<(T::CredentialId, VerifiableCredential<T::Moment>)> = Vec::new();
+		fn get_credentials_by_schemaid(
+			schema_id: &u32,
+		) -> Vec<(T::CredentialId, VerifiableCredential<T::Moment>)> {
+			let mut credentials: Vec<(T::CredentialId, VerifiableCredential<T::Moment>)> =
+				Vec::new();
 			for (key, value) in CredentialStore::<T>::iter() {
 				if value.1.schema == *schema_id {
 					credentials.push((key, value.1.clone()));
@@ -248,8 +284,11 @@ pub mod pallet {
 		}
 
 		// Fetch credentials by subject
-		fn get_credentials_by_subject(subject: &Subject) -> Vec<(T::CredentialId, VerifiableCredential<T::Moment>)> {
-			let mut credentials: Vec<(T::CredentialId, VerifiableCredential<T::Moment>)> = Vec::new();
+		fn get_credentials_by_subject(
+			subject: &Subject,
+		) -> Vec<(T::CredentialId, VerifiableCredential<T::Moment>)> {
+			let mut credentials: Vec<(T::CredentialId, VerifiableCredential<T::Moment>)> =
+				Vec::new();
 			for (key, value) in CredentialStore::<T>::iter() {
 				if value.1.subject == *subject {
 					credentials.push((key, value.1.clone()));
@@ -259,8 +298,11 @@ pub mod pallet {
 		}
 
 		// Fetch credentials by holder
-		fn get_credentials_by_holder(holder: &Vec<u8>) -> Vec<(T::CredentialId, VerifiableCredential<T::Moment>)> {
-			let mut credentials: Vec<(T::CredentialId, VerifiableCredential<T::Moment>)> = Vec::new();
+		fn get_credentials_by_holder(
+			holder: &Vec<u8>,
+		) -> Vec<(T::CredentialId, VerifiableCredential<T::Moment>)> {
+			let mut credentials: Vec<(T::CredentialId, VerifiableCredential<T::Moment>)> =
+				Vec::new();
 			for (key, value) in CredentialStore::<T>::iter() {
 				if value.1.credential_holder == *holder {
 					credentials.push((key, value.1.clone()));
@@ -270,8 +312,11 @@ pub mod pallet {
 		}
 
 		// Fetch credentials by creator
-		fn get_credentials_by_creator(creator: &Vec<u8>) -> Vec<(T::CredentialId, VerifiableCredential<T::Moment>)> {
-			let mut credentials: Vec<(T::CredentialId, VerifiableCredential<T::Moment>)> = Vec::new();
+		fn get_credentials_by_creator(
+			creator: &Vec<u8>,
+		) -> Vec<(T::CredentialId, VerifiableCredential<T::Moment>)> {
+			let mut credentials: Vec<(T::CredentialId, VerifiableCredential<T::Moment>)> =
+				Vec::new();
 			for (key, value) in CredentialStore::<T>::iter() {
 				if value.1.issuer == *creator {
 					credentials.push((key, value.1.clone()));
@@ -279,8 +324,5 @@ pub mod pallet {
 			}
 			credentials
 		}
-
-
 	}
-
 }

@@ -2,12 +2,12 @@ use crate as pallet_schema;
 use frame_support::traits::OnTimestampSet;
 use frame_support::traits::{ConstU16, ConstU64};
 use frame_system as system;
-use sp_core::H256;
-use sp_core::Pair;
 use sp_core::sr25519;
+use sp_core::Pair;
+use sp_core::H256;
 use sp_runtime::{
 	testing::Header,
-	traits::{BlakeTwo256, IdentifyAccount,IdentityLookup, Verify},
+	traits::{BlakeTwo256, IdentifyAccount, IdentityLookup, Verify},
 };
 use sp_std::cell::RefCell;
 
@@ -73,14 +73,13 @@ impl pallet_timestamp::Config for Test {
 	type WeightInfo = ();
 }
 
-
 impl pallet_schema::Config for Test {
 	type RuntimeEvent = RuntimeEvent;
 	type WeightInfo = ();
-    type Public = <<sp_core::sr25519::Signature as Verify>::Signer as IdentifyAccount>::AccountId;
-    type Signature = sp_core::sr25519::Signature;
-    type Moment = Moment;
-    type Timestamp = Timestamp;
+	type Public = <<sp_core::sr25519::Signature as Verify>::Signer as IdentifyAccount>::AccountId;
+	type Signature = sp_core::sr25519::Signature;
+	type Moment = Moment;
+	type Timestamp = Timestamp;
 	type SchemaId = u32;
 }
 // Build genesis storage according to the mock runtime.
@@ -90,8 +89,5 @@ pub fn new_test_ext() -> sp_io::TestExternalities {
 }
 
 pub fn account_pair(s: &str) -> sr25519::Pair {
-    sr25519::Pair::from_string(&format!("//{}", s), None).expect("static values are valid; qed")
+	sr25519::Pair::from_string(&format!("//{}", s), None).expect("static values are valid; qed")
 }
-
-
-

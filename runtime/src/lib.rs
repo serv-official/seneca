@@ -14,34 +14,35 @@ use sp_api::impl_runtime_apis;
 use sp_consensus_aura::sr25519::AuthorityId as AuraId;
 use sp_core::{crypto::KeyTypeId, OpaqueMetadata};
 use sp_runtime::{
-	create_runtime_str, generic, impl_opaque_keys,
+	create_runtime_str, generic,
 	generic::Era,
+	impl_opaque_keys,
 	traits::{
-		AccountIdLookup, BlakeTwo256, Block as BlockT, NumberFor, Verify,
-		OpaqueKeys, SaturatedConversion, Bounded,
+		AccountIdLookup, BlakeTwo256, Block as BlockT, Bounded, NumberFor, OpaqueKeys,
+		SaturatedConversion, Verify,
 	},
-	transaction_validity::{TransactionSource, TransactionPriority, TransactionValidity},
-	ApplyExtrinsicResult, Perquintill, FixedPointNumber,
+	transaction_validity::{TransactionPriority, TransactionSource, TransactionValidity},
+	ApplyExtrinsicResult, FixedPointNumber, Perquintill,
 };
 // use hex_literal::hex;
+use frame_system::{EnsureRoot, EnsureWithSuccess};
 pub use node_primitives::Signature;
 use node_primitives::{AccountId, Balance, BlockNumber, Hash, Index, Moment};
+use pallet_im_online::sr25519::AuthorityId as ImOnlineId;
 use sp_std::prelude::*;
 #[cfg(feature = "std")]
 use sp_version::NativeVersion;
 use sp_version::RuntimeVersion;
-use frame_system::{EnsureRoot, EnsureWithSuccess};
-use pallet_im_online::sr25519::AuthorityId as ImOnlineId;
 pub mod weights;
 // A few exports that help ease life for downstream crates.
 pub use frame_support::{
-	construct_runtime, 
-	parameter_types, 
+	construct_runtime,
 	dispatch::DispatchClass,
+	parameter_types,
 	traits::{
-		ConstBool, ConstU128, ConstU32, ConstU64, ConstU8, KeyOwnerProofSystem, Randomness, StorageInfo,
-		EqualPrivilegeOnly, Nothing, EitherOfDiverse, OnUnbalanced, Currency,  Imbalance, OnRuntimeUpgrade,
-		InitializeMembers, 
+		ConstBool, ConstU128, ConstU32, ConstU64, ConstU8, Currency, EitherOfDiverse,
+		EqualPrivilegeOnly, Imbalance, InitializeMembers, KeyOwnerProofSystem, Nothing,
+		OnRuntimeUpgrade, OnUnbalanced, Randomness, StorageInfo,
 	},
 	weights::{
 		constants::{
@@ -53,17 +54,16 @@ pub use frame_support::{
 };
 pub use frame_system::Call as SystemCall;
 pub use pallet_balances::Call as BalancesCall;
-pub use pallet_timestamp::Call as TimestampCall;
 #[cfg(any(feature = "std", test))]
 pub use pallet_staking::StakerStatus;
+pub use pallet_timestamp::Call as TimestampCall;
 pub use pallet_transaction_payment::{CurrencyAdapter, Multiplier, TargetedFeeAdjustment};
 #[cfg(any(feature = "std", test))]
 pub use sp_runtime::BuildStorage;
-pub use sp_runtime::{Perbill, Permill, Percent};
+pub use sp_runtime::{Perbill, Percent, Permill};
 
 pub mod constants;
 use constants::currency::*;
-
 
 /// Opaque types. These are used by the CLI to instantiate machinery that don't need to know
 /// the specifics of the runtime. They can then be made to be agnostic over specific formats
@@ -141,7 +141,6 @@ pub const MINUTES: BlockNumber = 60_000 / (MILLISECS_PER_BLOCK as BlockNumber);
 pub const HOURS: BlockNumber = MINUTES * 60;
 pub const DAYS: BlockNumber = HOURS * 24;
 pub const WEEKS: BlockNumber = DAYS * 7;
-
 
 /// The version information used to identify this runtime when compiled natively.
 #[cfg(feature = "std")]
@@ -247,7 +246,6 @@ impl pallet_session::Config for Runtime {
 	type WeightInfo = ();
 }
 
-
 impl pallet_insecure_randomness_collective_flip::Config for Runtime {}
 
 impl pallet_aura::Config for Runtime {
@@ -257,7 +255,6 @@ impl pallet_aura::Config for Runtime {
 }
 
 impl pallet_grandpa::Config for Runtime {
-
 	type RuntimeEvent = RuntimeEvent;
 
 	type KeyOwnerProof = <() as KeyOwnerProofSystem<(KeyTypeId, GrandpaId)>>::Proof;
@@ -269,7 +266,6 @@ impl pallet_grandpa::Config for Runtime {
 	type MaxAuthorities = ConstU32<32>;
 
 	type MaxSetIdSessionEntries = ConstU64<0>;
-
 }
 
 impl pallet_timestamp::Config for Runtime {
@@ -296,7 +292,10 @@ where
 		public: <Signature as Verify>::Signer,
 		account: AccountId,
 		nonce: Index,
-	) -> Option<(RuntimeCall, <UncheckedExtrinsic as sp_runtime::traits::Extrinsic>::SignaturePayload)> {
+	) -> Option<(
+		RuntimeCall,
+		<UncheckedExtrinsic as sp_runtime::traits::Extrinsic>::SignaturePayload,
+	)> {
 		let tip = 0;
 		let period =
 			BlockHashCount::get().checked_next_power_of_two().map(|c| c / 2).unwrap_or(2) as u64;
@@ -415,7 +414,6 @@ impl pallet_collective::Config<CouncilCollective> for Runtime {
 	type MaxProposalWeight = ();
 }
 
-
 parameter_types! {
 	pub const TechnicalMotionDuration: BlockNumber = 5 * DAYS;
 	pub const TechnicalMaxProposals: u32 = 100;
@@ -504,7 +502,6 @@ impl pallet_utility::Config for Runtime {
 	type PalletsOrigin = OriginCaller;
 	type WeightInfo = pallet_utility::weights::SubstrateWeight<Runtime>;
 }
-
 
 parameter_types! {
 	pub MaximumSchedulerWeight: Weight = Perbill::from_percent(80) *
@@ -596,9 +593,9 @@ construct_runtime!(
 		Balances: pallet_balances,
 		TransactionPayment: pallet_transaction_payment,
 		ValidatorSet: validator_set,
-		Council: pallet_collective::<Instance1>,
-		TechnicalCommittee: pallet_collective::<Instance2>,
-		TechnicalMembership: pallet_membership::<Instance1>,
+		Council: pallet_collective<Instance1>,
+		TechnicalCommittee: pallet_collective<Instance2>,
+		TechnicalMembership: pallet_membership<Instance1>,
 		ImOnline: pallet_im_online,
 		Treasury: pallet_treasury,
 		Session: pallet_session,
@@ -638,7 +635,6 @@ pub type SignedPayload = generic::SignedPayload<RuntimeCall, SignedExtra>;
 
 // const COUNCIL_PREFIX: &str = "Instance1Council";
 /// Migrate from `Instance1Council` to the new pallet prefix `Council`
-
 
 /// Executive: handles dispatch to the various modules.
 pub type Executive = frame_executive::Executive<

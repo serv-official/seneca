@@ -17,8 +17,8 @@ pub mod currency {
 /// Fee-related.
 pub mod fee {
 	use frame_support::weights::{
-		WeightToFeeCoefficient, WeightToFeeCoefficients, WeightToFeePolynomial,
-		constants::ExtrinsicBaseWeight,
+		constants::ExtrinsicBaseWeight, WeightToFeeCoefficient, WeightToFeeCoefficients,
+		WeightToFeePolynomial,
 	};
 	use node_primitives::Balance;
 	use smallvec::smallvec;
@@ -39,7 +39,7 @@ pub mod fee {
 		type Balance = Balance;
 		fn polynomial() -> WeightToFeeCoefficients<Self::Balance> {
 			// in seneca, extrinsic base weight (smallest non-zero weight) is mapped to 1/10 CENT:
-			let p = super::currency::CENTS/10;
+			let p = super::currency::CENTS / 10;
 			let q = 100 * Balance::from(ExtrinsicBaseWeight::get().ref_time());
 			smallvec![WeightToFeeCoefficient {
 				degree: 1,

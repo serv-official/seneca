@@ -1,18 +1,17 @@
 //! Benchmarking setup for pallet-template
 use super::*;
+use crate::types::*;
 #[allow(unused)]
 use crate::Pallet as SchemaRegistry;
 use codec::Encode;
+use frame_benchmarking::{benchmarks, whitelisted_caller};
+use frame_support::assert_ok;
+use frame_system::RawOrigin;
+use scale_info::prelude::format;
+use scale_info::prelude::vec;
 use sp_application_crypto::sr25519::Public;
 use sp_application_crypto::RuntimePublic;
-use scale_info::prelude::format;
-use frame_benchmarking::{benchmarks, whitelisted_caller};
-use frame_system::RawOrigin;
-use scale_info::prelude::vec;
-use frame_support::assert_ok;
 use sp_runtime::traits::IdentifyAccount;
-use crate::types::*;
-
 
 benchmarks! {
 
@@ -64,7 +63,7 @@ benchmarks! {
 
 		// Encode and sign the schema message.
 	}:  _(RawOrigin::Signed(caller), schema_id.clone(), name.clone(), account_id.clone().encode(), false,
-			vec![mandatory_fields.clone()], creation_date, Some(expiration_date), vec![claim.clone()], 
+			vec![mandatory_fields.clone()], creation_date, Some(expiration_date), vec![claim.clone()],
 			vec![claim.clone()], vec![claim.clone()], b"metadata".to_vec(), sig.clone(),nonce )
 	verify {
 		//assert that the schema stored is different from the one created since the nonce is different.
@@ -129,7 +128,7 @@ benchmarks! {
 		let sig: T::Signature = keypair.sign(sp_core::testing::SR25519, &schema.encode()).unwrap().into();
 
 		assert_ok!(SchemaRegistry::<T>::create_schema(RawOrigin::Signed(caller.clone()).into(), schema_id.clone(), name, account_id.encode(), false,
-									vec![mandatory_fields], creation_date.clone(), Some(expiration_date), vec![claim.clone()], 
+									vec![mandatory_fields], creation_date.clone(), Some(expiration_date), vec![claim.clone()],
 									vec![claim.clone()], vec![claim.clone()], b"metadata".to_vec(), sig.clone(), nonce));
 	}:  _(RawOrigin::Signed(caller), schema_id.clone(), (sig.clone(), updated_schema.clone()))
 	verify {
@@ -185,7 +184,7 @@ benchmarks! {
 		let sig: T::Signature = keypair.sign(sp_core::testing::SR25519, &schema.encode()).unwrap().into();
 
 		assert_ok!(SchemaRegistry::<T>::create_schema(RawOrigin::Signed(caller.clone()).into(), schema_id.clone(), name, account_id.encode(), false,
-									vec![mandatory_fields], creation_date, Some(expiration_date), vec![claim.clone()], 
+									vec![mandatory_fields], creation_date, Some(expiration_date), vec![claim.clone()],
 									vec![claim.clone()], vec![claim.clone()], b"metadata".to_vec(), sig, nonce));
 	}:  _(RawOrigin::Signed(caller), schema_id.clone())
 	verify {
@@ -325,7 +324,7 @@ benchmarks! {
 		let sig: T::Signature = keypair.sign(sp_core::testing::SR25519, &credential.encode()).unwrap().into();
 		let sig2: T::Signature = keypair.sign(sp_core::testing::SR25519, &credential2.encode()).unwrap().into();
 
-		assert_ok!(SchemaRegistry::<T>::create_credential(RawOrigin::Signed(caller.clone()).into(), credential_id.clone(), context, schema, 
+		assert_ok!(SchemaRegistry::<T>::create_credential(RawOrigin::Signed(caller.clone()).into(), credential_id.clone(), context, schema,
 				account_id.encode(), Some(issuance_date), Some(expiration_date), subject, credential_holder, sig.clone(), nonce));
 		// Encode and sign the schema message.
 	}:  _(RawOrigin::Signed(caller.clone()), credential_id.clone(),(sig2.clone(), credential2.clone()))
@@ -389,7 +388,7 @@ benchmarks! {
 
 		let sig: T::Signature = keypair.sign(sp_core::testing::SR25519, &credential.encode()).unwrap().into();
 
-		assert_ok!(SchemaRegistry::<T>::create_credential(RawOrigin::Signed(caller.clone()).into(), credential_id, context, schema, 
+		assert_ok!(SchemaRegistry::<T>::create_credential(RawOrigin::Signed(caller.clone()).into(), credential_id, context, schema,
 				account_id.encode(), Some(issuance_date), Some(expiration_date), subject, credential_holder,sig, nonce));
 		// Encode and sign the schema message.
 	}:  _(RawOrigin::Signed(caller.clone()), credential_id.clone())

@@ -2,15 +2,14 @@ use crate as pallet_credential;
 use frame_support::traits::OnTimestampSet;
 use frame_support::traits::{ConstU16, ConstU64};
 use frame_system as system;
-use sp_core::H256;
-use sp_core::Pair;
 use sp_core::sr25519;
+use sp_core::Pair;
+use sp_core::H256;
 use sp_runtime::{
 	testing::Header,
-	traits::{BlakeTwo256, IdentifyAccount,IdentityLookup, Verify},
+	traits::{BlakeTwo256, IdentifyAccount, IdentityLookup, Verify},
 };
 use sp_std::cell::RefCell;
-
 
 type UncheckedExtrinsic = frame_system::mocking::MockUncheckedExtrinsic<Test>;
 type Block = frame_system::mocking::MockBlock<Test>;
@@ -78,20 +77,20 @@ impl pallet_timestamp::Config for Test {
 impl pallet_schemas::Config for Test {
 	type RuntimeEvent = RuntimeEvent;
 	type WeightInfo = ();
-    type Public = <<sp_core::sr25519::Signature as Verify>::Signer as IdentifyAccount>::AccountId;
-    type Signature = sp_core::sr25519::Signature;
-    type Moment = Moment;
-    type Timestamp = Timestamp;
+	type Public = <<sp_core::sr25519::Signature as Verify>::Signer as IdentifyAccount>::AccountId;
+	type Signature = sp_core::sr25519::Signature;
+	type Moment = Moment;
+	type Timestamp = Timestamp;
 	type SchemaId = u32;
 }
 
 impl pallet_credential::Config for Test {
 	type RuntimeEvent = RuntimeEvent;
 	type WeightInfo = ();
-    type Public = <<sp_core::sr25519::Signature as Verify>::Signer as IdentifyAccount>::AccountId;
-    type Signature = sp_core::sr25519::Signature;
-    type Moment = Moment;
-    type Timestamp = Timestamp;
+	type Public = <<sp_core::sr25519::Signature as Verify>::Signer as IdentifyAccount>::AccountId;
+	type Signature = sp_core::sr25519::Signature;
+	type Moment = Moment;
+	type Timestamp = Timestamp;
 	type CredentialId = u32;
 	type SchemaId = SchemaRegistry;
 }
@@ -102,8 +101,5 @@ pub fn new_test_ext() -> sp_io::TestExternalities {
 }
 
 pub fn account_pair(s: &str) -> sr25519::Pair {
-    sr25519::Pair::from_string(&format!("//{}", s), None).expect("static values are valid; qed")
+	sr25519::Pair::from_string(&format!("//{}", s), None).expect("static values are valid; qed")
 }
-
-
-

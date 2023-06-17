@@ -1,52 +1,52 @@
+use crate::mock::*;
+use crate::types::*;
 use codec::Encode;
+use frame_support::assert_ok;
+use frame_system::RawOrigin;
 use sp_core::Pair;
 use sp_runtime::traits::IdentifyAccount;
-use crate::mock::*;
-use frame_support::assert_ok;
-use crate::types::*;
-use frame_system::RawOrigin;
-
-
 
 #[test]
 fn it_works_for_create_schema() {
 	new_test_ext().execute_with(|| {
 		// Dispatch a signed extrinsic.
-		let name = b"Alice Data".to_vec();
-		let expiration_date = Timestamp::now();
-		let mandatory_fields = Attribute{
-			name: b"name".to_vec(),
-			attribute_type: AttributeType::Hex,
-		};
-		let issuance_req = IssuanceRequirement{
-			name: b"insuance".to_vec(),
-			insuance_type: IssuanceType::Int,
-		};
-		let claim = Claim{
-			property: b"property".to_vec(),
-			value: b"value".to_vec(),
-			schemaid: None,
-			claim_type: ClaimType::IssuerClaim,
-			issuance_requirement: Some(vec![issuance_req.clone()]),
-		};
 		let account_pair = account_pair("Alice");
 		let signer = account_pair.public();
-		let account_id = format!("did:seneca:{}",account_pair.public().into_account());
-		let nonce = 2u64;
-		let creation_date =  Timestamp::now();
-		// Encode and sign the schema message.
+		let account_id = format!("did:seneca:{}", account_pair.public().into_account());
+		// Encode and sign the schema struct.
 		let schema = VerifiableCredentialSchema {
-			name: name.clone(),
+			name: b"Alice Data".to_vec(),
 			creator: account_id.clone().into(),
-			public: false, 
-			creation_date: creation_date.clone(),
-			expiration_date: Some(expiration_date),
-			mandatory_fields: vec![mandatory_fields.clone()],
-			issuer_claims: vec![claim.clone()],
-			subject_claims: vec![claim.clone()],
-			credential_claims: vec![claim.clone()],
+			public: false,
+			creation_date: Timestamp::now(),
+			expiration_date: Some(1702379816u64),
+			mandatory_fields: vec![Attribute {
+				name: b"name".to_vec(),
+				attribute_type: AttributeType::Hex,
+			}],
+			issuer_claims: vec![Claim {
+				property: b"property".to_vec(),
+				value: b"value".to_vec(),
+				schemaid: None,
+				claim_type: ClaimType::IssuerClaim,
+				issuance_requirement: None,
+			}],
+			subject_claims: vec![Claim {
+				property: b"property".to_vec(),
+				value: b"value".to_vec(),
+				schemaid: None,
+				claim_type: ClaimType::SubjectClaim,
+				issuance_requirement: None,
+			}],
+			credential_claims: vec![Claim {
+				property: b"property".to_vec(),
+				value: b"value".to_vec(),
+				schemaid: None,
+				claim_type: ClaimType::CredentialClaim,
+				issuance_requirement: None,
+			}],
 			metadata: b"metadata".to_vec(),
-			nonce,
+			nonce: 2u64,
 		};
 		let schema_id = 0u32;
 		//dbg!("Schema: {:?}", schema);
@@ -54,77 +54,129 @@ fn it_works_for_create_schema() {
 		let vc_bytes = binding.as_slice();
 		let data_sig = account_pair.sign(&vc_bytes);
 		// Dispatch a signed create schema extrinsic.
-		assert_ok!(SchemaRegistry::create_schema(RawOrigin::Signed(signer).into(),  schema_id, name.clone(), account_id.clone().into(), false,  
-												vec![mandatory_fields.clone()], creation_date.clone(), Some(expiration_date), vec![claim.clone()], 
-												vec![claim.clone()], vec![claim.clone()], b"metadata".to_vec(), data_sig.clone(), nonce));
-
+		assert_ok!(SchemaRegistry::create_schema(
+			RawOrigin::Signed(signer).into(),
+			schema_id,
+			schema.name,
+			schema.creator,
+			false,
+			schema.mandatory_fields,
+			schema.creation_date,
+			schema.expiration_date,
+			schema.issuer_claims,
+			schema.subject_claims,
+			schema.credential_claims,
+			b"metadata".to_vec(),
+			data_sig,
+			schema.nonce
+		));
 	});
-
 }
 
 #[test]
 fn it_works_for_update_schema() {
 	new_test_ext().execute_with(|| {
-		// Dispatch a signed extrinsic.
-		let name = b"Alice Data".to_vec();
-		let expiration_date = Timestamp::now();
-		let mandatory_fields = Attribute{
-			name: b"name".to_vec(),
-			attribute_type: AttributeType::Hex,
-		};
-		let issuance_req = IssuanceRequirement{
-			name: b"insuance".to_vec(),
-			insuance_type: IssuanceType::Int,
-		};
-		let claim = Claim{
-			property: b"property".to_vec(),
-			value: b"value".to_vec(),
-			schemaid: None,
-			claim_type: ClaimType::IssuerClaim,
-			issuance_requirement: Some(vec![issuance_req.clone()]),
-		};
 		let account_pair = account_pair("Alice");
 		let signer = account_pair.public();
-		let account_id = format!("did:seneca:{}",account_pair.public().into_account());
-		let nonce = 2u64;
-		let creation_date = Timestamp::now();
-		// Encode and sign the schema message.
+		let account_id = format!("did:seneca:{}", account_pair.public().into_account());
+
 		let schema = VerifiableCredentialSchema {
-			name: name.clone(),
+			name: b"Alice Data".to_vec(),
 			creator: account_id.clone().into(),
 			public: false,
-			creation_date: creation_date.clone(),
-			expiration_date: Some(expiration_date),
-			mandatory_fields: vec![mandatory_fields.clone()],
-			issuer_claims: vec![claim.clone()],
-			subject_claims: vec![claim.clone()],
-			credential_claims: vec![claim.clone()],
+			creation_date: Timestamp::now(),
+			expiration_date: Some(1702379816u64),
+			mandatory_fields: vec![Attribute {
+				name: b"name".to_vec(),
+				attribute_type: AttributeType::Hex,
+			}],
+			issuer_claims: vec![Claim {
+				property: b"property".to_vec(),
+				value: b"value".to_vec(),
+				schemaid: None,
+				claim_type: ClaimType::IssuerClaim,
+				issuance_requirement: None,
+			}],
+			subject_claims: vec![Claim {
+				property: b"property".to_vec(),
+				value: b"value".to_vec(),
+				schemaid: None,
+				claim_type: ClaimType::SubjectClaim,
+				issuance_requirement: None,
+			}],
+			credential_claims: vec![Claim {
+				property: b"property".to_vec(),
+				value: b"value".to_vec(),
+				schemaid: None,
+				claim_type: ClaimType::CredentialClaim,
+				issuance_requirement: None,
+			}],
 			metadata: b"metadata".to_vec(),
-			nonce,
+			nonce: 2u64,
 		};
 		let updated_schema = VerifiableCredentialSchema {
-			name: name.clone(),
+			name: b"Alice Data".to_vec(),
 			creator: account_id.clone().into(),
 			public: false,
-			creation_date: creation_date.clone(),
-			expiration_date: Some(expiration_date),
-			mandatory_fields: vec![mandatory_fields.clone()],
-			issuer_claims: vec![claim.clone()],
-			subject_claims: vec![claim.clone()],
-			credential_claims: vec![claim.clone()],
+			creation_date: Timestamp::now(),
+			expiration_date: Some(1702379816u64),
+			mandatory_fields: vec![Attribute {
+				name: b"name".to_vec(),
+				attribute_type: AttributeType::Hex,
+			}],
+			issuer_claims: vec![Claim {
+				property: b"property".to_vec(),
+				value: b"value".to_vec(),
+				schemaid: None,
+				claim_type: ClaimType::IssuerClaim,
+				issuance_requirement: None,
+			}],
+			subject_claims: vec![Claim {
+				property: b"property".to_vec(),
+				value: b"value".to_vec(),
+				schemaid: None,
+				claim_type: ClaimType::SubjectClaim,
+				issuance_requirement: None,
+			}],
+			credential_claims: vec![Claim {
+				property: b"property".to_vec(),
+				value: b"value".to_vec(),
+				schemaid: None,
+				claim_type: ClaimType::CredentialClaim,
+				issuance_requirement: None,
+			}],
 			metadata: b"metadata2".to_vec(),
-			nonce,
+			nonce: 2u64,
 		};
 		let data_sig = account_pair.sign(&schema.encode());
 		let updated_sig = account_pair.sign(&updated_schema.encode());
 		let schema_id = 0u32;
 		// Dispatch a signed extrinsic.
-		assert_ok!(SchemaRegistry::create_schema(RawOrigin::Signed(signer).into(), schema_id, name, account_id.clone().into(), false,
-												vec![mandatory_fields], creation_date.clone(), Some(expiration_date), vec![claim.clone()], 
-												vec![claim.clone()], vec![claim.clone()], b"metadata".to_vec(), data_sig.clone(), nonce));
-		assert_ok!(SchemaRegistry::update_schema(RawOrigin::Signed(signer).into(), schema_id, (updated_sig.clone(), updated_schema.clone())));
-		assert_eq!(SchemaRegistry::schema_registry(schema_id.clone()), Some((updated_sig, updated_schema)));
-
+		assert_ok!(SchemaRegistry::create_schema(
+			RawOrigin::Signed(signer).into(),
+			schema_id,
+			schema.name,
+			schema.creator,
+			false,
+			schema.mandatory_fields,
+			schema.creation_date,
+			schema.expiration_date,
+			schema.issuer_claims,
+			schema.subject_claims,
+			schema.credential_claims,
+			b"metadata".to_vec(),
+			data_sig,
+			schema.nonce
+		));
+		assert_ok!(SchemaRegistry::update_schema(
+			RawOrigin::Signed(signer).into(),
+			schema_id,
+			(updated_sig.clone(), updated_schema.clone())
+		));
+		assert_eq!(
+			SchemaRegistry::schema_registry(schema_id.clone()),
+			Some((updated_sig, updated_schema))
+		);
 	})
 }
 
@@ -132,49 +184,67 @@ fn it_works_for_update_schema() {
 fn it_works_for_delete_schema() {
 	new_test_ext().execute_with(|| {
 		// Dispatch a signed extrinsic.
-		let name = b"Alice Data".to_vec();
-		let expiration_date = Timestamp::now();
-		let mandatory_fields = Attribute{
-			name: b"name".to_vec(),
-			attribute_type: AttributeType::Hex,
-		};
-		let issuance_req = IssuanceRequirement{
-			name: b"issuance_req".to_vec(),
-			insuance_type: IssuanceType::Text,
-		};
-		let claim = Claim{
-			property: b"property".to_vec(),
-			value: b"value".to_vec(),
-			schemaid: None,
-			claim_type: ClaimType::CredentialClaim,
-			issuance_requirement: Some(vec![issuance_req.clone()]),
-		};
 		let account_pair = account_pair("Alice");
 		let signer = account_pair.public();
-		let account_id = format!("did:seneca:{}",account_pair.public().into_account());
-		let nonce = 2u64;
-		let creation_date = Timestamp::now();
+		let account_id = format!("did:seneca:{}", account_pair.public().into_account());
 		let schema = VerifiableCredentialSchema {
-			name: name.clone(),
+			name: b"Alice Data".to_vec(),
 			creator: account_id.clone().into(),
 			public: false,
-			creation_date: creation_date.clone(),
-			expiration_date: Some(expiration_date),
-			mandatory_fields: vec![mandatory_fields.clone()],
-			issuer_claims: vec![claim.clone()],
-			subject_claims: vec![claim.clone()],
-			credential_claims: vec![claim.clone()],
+			creation_date: Timestamp::now(),
+			expiration_date: Some(1702379816u64),
+			mandatory_fields: vec![Attribute {
+				name: b"name".to_vec(),
+				attribute_type: AttributeType::Hex,
+			}],
+			issuer_claims: vec![Claim {
+				property: b"property".to_vec(),
+				value: b"value".to_vec(),
+				schemaid: None,
+				claim_type: ClaimType::IssuerClaim,
+				issuance_requirement: None,
+			}],
+			subject_claims: vec![Claim {
+				property: b"property".to_vec(),
+				value: b"value".to_vec(),
+				schemaid: None,
+				claim_type: ClaimType::SubjectClaim,
+				issuance_requirement: None,
+			}],
+			credential_claims: vec![Claim {
+				property: b"property".to_vec(),
+				value: b"value".to_vec(),
+				schemaid: None,
+				claim_type: ClaimType::CredentialClaim,
+				issuance_requirement: None,
+			}],
 			metadata: b"metadata".to_vec(),
-			nonce,
+			nonce: 2u64,
 		};
 		let data_sig = account_pair.sign(&schema.encode());
 		let schema_id = 0u32;
 		// Dispatch a signed create schema extrinsic.
-		assert_ok!(SchemaRegistry::create_schema(RawOrigin::Signed(signer).into(), schema_id, name, account_id.clone().into(), false, 
-												vec![mandatory_fields], creation_date.clone(), Some(expiration_date), vec![claim.clone()], 
-												vec![claim.clone()], vec![claim.clone()], b"metadata".to_vec(), data_sig.clone(), nonce));
+		assert_ok!(SchemaRegistry::create_schema(
+			RawOrigin::Signed(signer).into(),
+			schema_id,
+			schema.name,
+			schema.creator,
+			false,
+			schema.mandatory_fields,
+			schema.creation_date,
+			schema.expiration_date,
+			schema.issuer_claims,
+			schema.subject_claims,
+			schema.credential_claims,
+			b"metadata".to_vec(),
+			data_sig,
+			schema.nonce
+		));
 		// Dispatch a signed extrinsic.
-		assert_ok!(SchemaRegistry::delete_schema(RawOrigin::Signed(signer).into(), schema_id.clone()));
+		assert_ok!(SchemaRegistry::delete_schema(
+			RawOrigin::Signed(signer).into(),
+			schema_id.clone()
+		));
 		// Read pallet storage and assert an expected result.
 		assert_eq!(SchemaRegistry::schema_registry(schema_id.clone()), None);
 	});

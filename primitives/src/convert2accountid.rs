@@ -15,11 +15,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 use codec::{Decode, Encode};
 use sp_core::crypto::AccountId32;
-use sp_std::{str, vec, vec::Vec};
 use sp_runtime::DispatchError;
+use sp_std::{str, vec, vec::Vec};
 
 /// function converts string to accountid
 pub fn convert_string_to_accountid<AccountId>(account_str: &str) -> Result<AccountId, DispatchError>
@@ -34,11 +33,11 @@ where
 	array.copy_from_slice(bytes);
 	let account32: AccountId32 = array.into();
 	let mut to32 = AccountId32::as_ref(&account32);
-	let to_address = match AccountId::decode(&mut to32){
+	let to_address = match AccountId::decode(&mut to32) {
 		Ok(a) => a,
 		Err(e) => {
 			log::error!("{:?}", e);
-			return Err(DispatchError::Other("Error converting string to AccountId"))
+			return Err(DispatchError::Other("Error converting string to AccountId"));
 		},
 	};
 	Ok(to_address)
