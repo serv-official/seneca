@@ -26,7 +26,15 @@ where
 	AccountId: Encode + ?Sized + Decode,
 {
 	let mut output = vec![0xFF; 35];
-	bs58::decode(account_str).into(&mut output).unwrap();
+	match bs58::decode(account_str).into(&mut output) {
+		Ok(_) => {}
+		Err(err) => {
+			// Error: Handle the error here or propagate it further
+			log::error!("Error decoding: {}", err);
+			// Additional error handling logic can be added here
+			return Err(DispatchError::Other("Error decoding string"));
+		}
+	}
 	let cut_address_vec: Vec<u8> = output.drain(1..33).collect();
 	let mut array = [0; 32];
 	let bytes = &cut_address_vec[..array.len()];
@@ -36,7 +44,7 @@ where
 	let to_address = match AccountId::decode(&mut to32) {
 		Ok(a) => a,
 		Err(e) => {
-			log::error!("{:?}", e);
+			log::error!("Error decoding: {}", e);
 			return Err(DispatchError::Other("Error converting string to AccountId"));
 		},
 	};
