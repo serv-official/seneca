@@ -39,7 +39,7 @@ Use the following command to build the node and run it after build successfully:
 
 ```sh
 cargo build --release
-./target/release/seneca-node --dev
+./target/release/zeno-node --dev
 ```
 
 ### 🕸️ Multi-Node Local Testnet
@@ -87,14 +87,14 @@ Then run the following command to start a single node development chain.
 ./scripts/docker_run.sh
 ```
 
-This command will firstly compile your code, and then start a local development network. You can also replace the default command (`cargo build --release && ./target/release/seneca-node --dev --ws-external`) by appending your own. A few useful ones are as follow.
+This command will firstly compile your code, and then start a local development network. You can also replace the default command (`cargo build --release && ./target/release/zeno-node --dev --ws-external`) by appending your own. A few useful ones are as follow.
 
 ```bash
 # Run Substrate node without re-compiling
-./scripts/docker_run.sh ./target/release/seneca-node --dev --ws-external
+./scripts/docker_run.sh ./target/release/zeno-node --dev --ws-external
 
 # Purge the local dev chain
-./scripts/docker_run.sh ./target/release/seneca-node purge-chain --dev
+./scripts/docker_run.sh ./target/release/zeno-node purge-chain --dev
 
 # Check whether the code is compilable
 ./scripts/docker_run.sh cargo check
@@ -104,7 +104,7 @@ This command will firstly compile your code, and then start a local development 
 Connect as a validator
 * Start your validator node, make sure your node has discovered other peers
   ```shell
-    ./target/release/seneca-node \
+    ./target/release/zeno-node \
     --base-path  /tmp/<validator name> \
     --chain  serv-spec-raw.json \
     --bootnodes  /ip4/172.31.23.55/tcp/30333/p2p/12D3KooWCkmvmzEYwdxS7c6zkXT9K8u2PUxfPRogDShH9CrcecB4 \
@@ -121,7 +121,7 @@ Connect as a validator
   | babe      | Sr25519 |
   | imon      | Sr25519 |
   ```
-    ./target/release/seneca-node key insert \
+    ./target/release/zeno-node key insert \
     --base-path <path for this validator> \
     --chain <raw relay chainSpec> \
     --scheme <see table> \
