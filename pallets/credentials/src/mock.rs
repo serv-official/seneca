@@ -86,13 +86,10 @@ impl pallet_schemas::Config for Test {
 
 impl pallet_credential::Config for Test {
 	type RuntimeEvent = RuntimeEvent;
-	type WeightInfo = ();
+	type CredentialsWeightInfo = ();
 	type Public = <<sp_core::sr25519::Signature as Verify>::Signer as IdentifyAccount>::AccountId;
-	type Signature = sp_core::sr25519::Signature;
-	type Moment = Moment;
-	type Timestamp = Timestamp;
 	type CredentialId = u32;
-	type SchemaId = SchemaRegistry;
+	type SchemaCheck = SchemaRegistry;
 }
 // Build genesis storage according to the mock runtime.
 // Build genesis storage according to the mock runtime.

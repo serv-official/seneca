@@ -22,12 +22,12 @@ pub mod pallet {
 	use frame_support::{
 		ensure,
 		pallet_prelude::*,
-		sp_runtime::traits::{IdentifyAccount, Member, Scale, Verify},
-		traits::{IsType, Time},
+		sp_runtime::traits::{IdentifyAccount, Member, Verify},
+		traits::IsType
 	};
 	use frame_system::pallet_prelude::*;
 	use pallet_schemas::schema::SchemaInterface;
-	use scale_info::{prelude::vec::Vec, StaticTypeInfo};
+	use scale_info::prelude::vec::Vec;
 
 	#[pallet::pallet]
 	#[pallet::without_storage_info]
@@ -35,7 +35,7 @@ pub mod pallet {
 
 	/// Configure the pallet by specifying the parameters and types on which it depends.
 	#[pallet::config]
-	pub trait Config: frame_system::Config {
+	pub trait Config: frame_system::Config + pallet_schemas::Config{
 		/// Because this pallet emits events, it depends on the runtime's definition of an event.
 		type RuntimeEvent: From<Event<Self>> + IsType<<Self as frame_system::Config>::RuntimeEvent>;
 		type Public: IdentifyAccount<AccountId = Self::AccountId>
@@ -44,21 +44,7 @@ pub mod pallet {
 			+ Member
 			+ From<sp_core::sr25519::Public>
 			+ TypeInfo;
-		type Signature: Verify<Signer = Self::Public>
-			+ Member
-			+ Parameter
-			+ Decode
-			+ Encode
-			+ From<sp_core::sr25519::Signature>
-			+ TypeInfo;
-		type Moment: Parameter
-			+ Default
-			+ Scale<Self::BlockNumber, Output = Self::Moment>
-			+ Copy
-			+ MaxEncodedLen
-			+ StaticTypeInfo;
-		type Timestamp: Time<Moment = Self::Moment>;
-		type WeightInfo: WeightInfo;
+		type CredentialsWeightInfo: WeightInfo;
 		/// Identifier for the class of credential.
 		type CredentialId: Member
 			+ Parameter
@@ -70,7 +56,7 @@ pub mod pallet {
 			+ PartialOrd
 			+ MaxEncodedLen
 			+ TypeInfo;
-		type SchemaId: SchemaInterface;
+		type SchemaCheck: SchemaInterface;
 	}
 
 	#[pallet::storage]
@@ -124,7 +110,7 @@ pub mod pallet {
 	impl<T: Config> Pallet<T> {
 		/// Create a new credential item
 		#[pallet::call_index(2)]
-		#[pallet::weight(T::WeightInfo::create_credential())]
+		#[pallet::weight(T::CredentialsWeightInfo::create_credential())]
 		pub fn create_credential(
 			origin: OriginFor<T>,
 			#[pallet::compact] id: T::CredentialId,
@@ -140,10 +126,10 @@ pub mod pallet {
 		) -> DispatchResult {
 			// Ensure that the caller of the function is signed
 			let _ = ensure_signed(origin)?;
-			let converted_schema_id = T::SchemaId::to_schema_id(&schema);
+			let schema_id = T::SchemaCheck::to_schema_id(&schema);
 			//Ensure schema id exists
 			ensure!(
-				T::SchemaId::check_schema_id_exists(converted_schema_id).is_ok(),
+				T::SchemaCheck::check_schema_id_exists(schema_id).is_ok(),
 				"Schema does not exist"
 			);
 			// Ensure that the Credential does not already exist
@@ -164,7 +150,7 @@ pub mod pallet {
 
 		// Function to update an existing credential
 		#[pallet::call_index(4)]
-		#[pallet::weight(T::WeightInfo::update_credential())]
+		#[pallet::weight(T::CredentialsWeightInfo::update_credential())]
 		pub fn update_credential(
 			origin: OriginFor<T>,
 			#[pallet::compact] old_credential_key: T::CredentialId,
@@ -180,7 +166,7 @@ pub mod pallet {
 
 		// Function to delete an existing credential
 		#[pallet::call_index(6)]
-		#[pallet::weight(T::WeightInfo::delete_credential())]
+		#[pallet::weight(T::CredentialsWeightInfo::delete_credential())]
 		pub fn delete_credential(
 			origin: OriginFor<T>,
 			#[pallet::compact] key: T::CredentialId,

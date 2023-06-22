@@ -4,7 +4,6 @@ use crate::types::*;
 use crate::Pallet as CredentialRegistry;
 use pallet_schemas::Pallet as SchemaRegistry;
 use codec::Encode;
-use node_primitives::{Signature, Moment, AccountId};
 use frame_benchmarking::{benchmarks, whitelisted_caller};
 use frame_support::assert_ok;
 use frame_system::RawOrigin;
@@ -17,25 +16,6 @@ use pallet_schemas::types::{
 };
 use sp_runtime::traits::IdentifyAccount;
 
-fn create_vf_schema(id: u32,  caller: AccountId, vf_schema: VerifiableCredentialSchema<Moment>, schema_data_sig: Signature){
-	SchemaRegistry::create_schema(
-		caller,
-		id,
-		b"name".to_vec(),
-		vf_schema.creator,
-		false,
-		vf_schema.mandatory_fields,
-		vf_schema.creation_date,
-		vf_schema.expiration_date,
-		vf_schema.issuer_claims,
-		vf_schema.subject_claims,
-		vf_schema.credential_claims,
-		b"metadata".to_vec(),
-		schema_data_sig,
-		vf_schema.nonce
-	);
-	Ok(());
-}
 
 benchmarks! {
 
@@ -109,9 +89,9 @@ benchmarks! {
 		let vc_bytes = binding.as_slice();
 		let schema_data_sig = pair.sign(&vc_bytes);
 		
-		assert_ok!(create_vf_schema(
+		assert_ok!(SchemaRegistry::<T>::create_schema(
 			RawOrigin::Signed(caller.clone()).into(),
-			credential.schema,
+			credential.schema.into(),
 			b"name".to_vec(),
 			vf_schema.creator,
 			false,
@@ -122,7 +102,7 @@ benchmarks! {
 			vf_schema.subject_claims,
 			vf_schema.credential_claims,
 			b"metadata".to_vec(),
-			schema_data_sig,
+			schema_data_sig.into(),
 			vf_schema.nonce
 		));
 		// Encode and sign the schema message.
@@ -234,9 +214,9 @@ benchmarks! {
 		let vc_bytes = binding.as_slice();
 		let schema_data_sig = pair.sign(&vc_bytes);
 
-		assert_ok!(create_vf_schema(
+		assert_ok!(SchemaRegistry::<T>::create_schema(
 			RawOrigin::Signed(caller.clone()).into(),
-			credential.schema,
+			credential.schema.into(),
 			b"name".to_vec(),
 			vf_schema.creator,
 			false,
@@ -247,7 +227,7 @@ benchmarks! {
 			vf_schema.subject_claims,
 			vf_schema.credential_claims,
 			b"metadata".to_vec(),
-			schema_data_sig,
+			schema_data_sig.into(),
 			vf_schema.nonce
 		));
 
@@ -342,9 +322,9 @@ benchmarks! {
 		let vc_bytes = binding.as_slice();
 		let schema_data_sig = pair.sign(&vc_bytes);
 
-		assert_ok!(create_vf_schema(
+		assert_ok!(SchemaRegistry::<T>::create_schema(
 			RawOrigin::Signed(caller.clone()).into(),
-			credential.schema,
+			credential.schema.into(),
 			b"name".to_vec(),
 			vf_schema.creator,
 			false,
@@ -355,7 +335,7 @@ benchmarks! {
 			vf_schema.subject_claims,
 			vf_schema.credential_claims,
 			b"metadata".to_vec(),
-			schema_data_sig,
+			schema_data_sig.into(),
 			vf_schema.nonce
 		));
 
