@@ -1,12 +1,12 @@
-//! Low-level types used throughout the Substrate stencil code.
+//! Low-level types used throughout the zeno code.
 
-#![warn(missing_docs)]
 #![cfg_attr(not(feature = "std"), no_std)]
 
 use sp_runtime::{
 	traits::{IdentifyAccount, Verify},
 	MultiSignature,
 };
+pub mod convert2accountid;
 
 /// Type used for expressing timestamp.
 pub type Moment = u64;
