@@ -555,10 +555,7 @@ impl pallet_schemas::Config for Runtime {
 impl pallet_credentials::Config for Runtime {
 	type RuntimeEvent = RuntimeEvent;
 	type Public = <Signature as Verify>::Signer;
-	type Moment = Moment;
-	type Signature = Signature;
-	type Timestamp = pallet_timestamp::Pallet<Runtime>;
-	type WeightInfo = pallet_credentials::weights::CredentialRegistryWeightInfo<Runtime>;
+	type CredentialsWeightInfo = pallet_credentials::weights::CredentialRegistryWeightInfo<Runtime>;
 	type CredentialId = u32;
 	type SchemaCheck = Schemas;
 }
