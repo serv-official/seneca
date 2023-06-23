@@ -10,8 +10,8 @@ use frame_system::RawOrigin;
 use scale_info::prelude::format;
 use scale_info::prelude::vec;
 use sp_runtime::traits::IdentifyAccount;
-use sp_application_crypto::sr25519;
-use sp_core::Pair;
+use sp_application_crypto::RuntimePublic;
+use sp_application_crypto::sr25519::Public;
 
 benchmarks! {
 
@@ -20,9 +20,8 @@ benchmarks! {
 		let caller: T::AccountId = whitelisted_caller();
 		//create random schema_id
 		let schema_id: T::SchemaId = Default::default();
-		let keypair = sr25519::Pair::generate();
-		let pair = keypair.0;
-		let account_id = format!("did:seneca:{}", pair.public().into_account());
+		let keypair = Public::generate_pair(sp_core::testing::SR25519, None);
+		let account_id = format!("did:seneca:{}", keypair.into_account());
 		let schema: VerifiableCredentialSchema<T::Moment> = VerifiableCredentialSchema {
 			name: b"Alice Data".to_vec(),
 			creator: account_id.into(),
@@ -58,7 +57,7 @@ benchmarks! {
 			nonce: 2u64,
 		};
 		// sign the schema in benchmarks
-		let sig = pair.sign(&schema.encode());
+		let sig = keypair.sign(sp_core::testing::SR25519, &schema.encode()).unwrap();
 		// Encode and sign the schema message.
 	}:  _(RawOrigin::Signed(caller), 
 			schema_id.clone(),
@@ -82,9 +81,8 @@ benchmarks! {
 		let s in 0 .. 100;
 		let caller: T::AccountId = whitelisted_caller();
 		let schema_id: T::SchemaId = Default::default();
-		let keypair = sr25519::Pair::generate();
-		let pair = keypair.0;
-		let account_id = format!("did:seneca:{}", pair.public().into_account());
+		let keypair = Public::generate_pair(sp_core::testing::SR25519, None);
+		let account_id = format!("did:seneca:{}", keypair.into_account());
 		let schema: VerifiableCredentialSchema<T::Moment> = VerifiableCredentialSchema {
 			name: b"Alice Data".to_vec(),
 			creator: account_id.clone().into(),
@@ -155,7 +153,7 @@ benchmarks! {
 		};
 
 		// sign the schema in benchmarks
-		let sig = pair.sign(&schema.encode());
+		let sig = keypair.sign(sp_core::testing::SR25519, &schema.encode()).unwrap();
 
 		assert_ok!(SchemaRegistry::<T>::create_schema(
 			RawOrigin::Signed(caller.clone()).into(), 
@@ -183,9 +181,8 @@ benchmarks! {
 		let caller: T::AccountId = whitelisted_caller();
 		// Dispatch a signed extrinsic.
 		let schema_id: T::SchemaId = Default::default();
-		let keypair = sr25519::Pair::generate();
-		let pair = keypair.0;
-		let account_id = format!("did:seneca:{}", pair.public().into_account());
+		let keypair = Public::generate_pair(sp_core::testing::SR25519, None);
+		let account_id = format!("did:seneca:{}", keypair.into_account());
 		let schema: VerifiableCredentialSchema<T::Moment> = VerifiableCredentialSchema {
 			name: b"Alice Data".to_vec(),
 			creator: account_id.into(),
@@ -221,7 +218,7 @@ benchmarks! {
 			nonce: 2u64,
 		};
 
-		let sig = pair.sign(&schema.encode());
+		let sig = keypair.sign(sp_core::testing::SR25519, &schema.encode()).unwrap();
 
 		assert_ok!(SchemaRegistry::<T>::create_schema(
 			RawOrigin::Signed(caller.clone()).into(), 

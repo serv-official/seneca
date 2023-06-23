@@ -117,6 +117,9 @@ pub mod pallet {
 		SignatureVerifyError,
 		/// Error emitted when invalid DID is used
 		InvalidDID,
+		/// Error emitted when the origin and schema creator don't match
+		NotSchemaOwner
+
 	}
 
 	// Dispatchable functions allows users to interact with the pallet and invoke state changes.
@@ -144,7 +147,11 @@ pub mod pallet {
 			nonce: u64,
 		) -> DispatchResult {
 			// Ensure that the caller of the function is signed
-			let _ = ensure_signed(origin)?;
+			let origin = ensure_signed(origin)?;
+			// convert schema creator DID to account id
+			let schema_creator = Self::split_publickey_from_did(&creator)?;
+			// ensure schema creator and origin are the same
+			ensure!(schema_creator == origin, Error::<T>::NotSchemaOwner);
 			// Ensure that the Schema does not already exist
 			ensure!(!SchemaStore::<T>::contains_key(&id), "Schema already exists");
 			// Create a new Schema item
@@ -173,9 +180,14 @@ pub mod pallet {
 			#[pallet::compact] old_schema_key: T::SchemaId,
 			new_data: (T::Signature, VerifiableCredentialSchema<T::Moment>),
 		) -> DispatchResult {
-			let _ = ensure_signed(origin)?;
+
+			let origin = ensure_signed(origin)?;
+			// fetch schema from schema store
 			let schema_data =
 				SchemaStore::<T>::get(&old_schema_key).ok_or(Error::<T>::UnknownSchema)?;
+			// ensure schema creator is the one updating the schema
+			let schema_creator = Self::split_publickey_from_did(&schema_data.1.creator)?;
+			ensure!(schema_creator == origin, Error::<T>::NotSchemaOwner);
 			ensure!(schema_data != new_data, Error::<T>::SchemaAlreadyExists);
 			// Update the schema data
 			Self::update_verifiable_schema(&old_schema_key, &new_data)
@@ -188,8 +200,14 @@ pub mod pallet {
 			origin: OriginFor<T>,
 			#[pallet::compact] key: T::SchemaId,
 		) -> DispatchResult {
-			let _ = ensure_signed(origin)?;
-			ensure!(<SchemaStore<T>>::contains_key(&key), Error::<T>::UnknownSchema);
+			let origin = ensure_signed(origin)?;
+			// fetch schema from schema store
+			let schema_data =
+			SchemaStore::<T>::get(&key).ok_or(Error::<T>::UnknownSchema)?;
+			// convert schema DID to account id
+			let schema_creator = Self::split_publickey_from_did(&schema_data.1.creator)?;
+			// ensure schema creator is the one updating the schema
+			ensure!(schema_creator == origin, Error::<T>::NotSchemaOwner);
 			Self::delete_verifiable_schema(&key)
 		}
 	}
