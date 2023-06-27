@@ -69,8 +69,8 @@ pub fn authority_keys_from_seed(
 pub fn zeno_properties() -> Properties {
 	let mut p = Properties::new();
 	p.insert("ss58format".into(), 42.into());
-	p.insert("tokenDecimals".into(), 15_i16.into());
-	p.insert("tokenSymbol".into(), "DOLLARS".into());
+	p.insert("tokenDecimals".into(), 9_i16.into());
+	p.insert("tokenSymbol".into(), "ZNO".into());
 	p
 }
 
@@ -98,10 +98,10 @@ pub fn development_config() -> Result<ChainSpec, String> {
 				get_account_id_from_seed::<sr25519::Public>("Alice"),
 				// Pre-funded accounts
 				vec![
-					(get_account_id_from_seed::<sr25519::Public>("Alice"), 1_000 * DOLLARS),
-					(get_account_id_from_seed::<sr25519::Public>("Bob"), 1_000 * DOLLARS),
-					(get_account_id_from_seed::<sr25519::Public>("Alice//stash"), 1_000 * DOLLARS),
-					(get_account_id_from_seed::<sr25519::Public>("Bob//stash"), 1_000 * DOLLARS),
+					(get_account_id_from_seed::<sr25519::Public>("Alice"), 100 * DOLLARS),
+					(get_account_id_from_seed::<sr25519::Public>("Bob"), 100 * DOLLARS),
+					(get_account_id_from_seed::<sr25519::Public>("Alice//stash"), 100 * DOLLARS),
+					(get_account_id_from_seed::<sr25519::Public>("Bob//stash"), 100 * DOLLARS),
 				],
 				vec![
 					get_account_id_from_seed::<sr25519::Public>("Alice"),
@@ -144,21 +144,17 @@ pub fn local_testnet_config() -> Result<ChainSpec, String> {
 				get_account_id_from_seed::<sr25519::Public>("Alice"),
 				// Pre-funded accounts
 				vec![
-					(get_account_id_from_seed::<sr25519::Public>("Alice"), 1_000 * DOLLARS),
-					(get_account_id_from_seed::<sr25519::Public>("Bob"), 1_000 * DOLLARS),
-					(get_account_id_from_seed::<sr25519::Public>("Charlie"), 1_000 * DOLLARS),
-					(get_account_id_from_seed::<sr25519::Public>("Dave"), 1_000 * DOLLARS),
-					(get_account_id_from_seed::<sr25519::Public>("Eve"), 1_000 * DOLLARS),
-					(get_account_id_from_seed::<sr25519::Public>("Ferdie"), 1_000 * DOLLARS),
-					(get_account_id_from_seed::<sr25519::Public>("Alice//stash"), 1_000 * DOLLARS),
-					(get_account_id_from_seed::<sr25519::Public>("Bob//stash"), 1_000 * DOLLARS),
+					(get_account_id_from_seed::<sr25519::Public>("Alice"), 100 * DOLLARS),
+					(get_account_id_from_seed::<sr25519::Public>("Bob"), 100 * DOLLARS),
+					(get_account_id_from_seed::<sr25519::Public>("Alice//stash"), 100 * DOLLARS),
+					(get_account_id_from_seed::<sr25519::Public>("Bob//stash"), 100 * DOLLARS),
 					(
 						get_account_id_from_seed::<sr25519::Public>("Charlie//stash"),
-						1_000 * DOLLARS,
+						100 * DOLLARS,
 					),
-					(get_account_id_from_seed::<sr25519::Public>("Dave//stash"), 1_000 * DOLLARS),
-					(get_account_id_from_seed::<sr25519::Public>("Eve//stash"), 1_000 * DOLLARS),
-					(get_account_id_from_seed::<sr25519::Public>("Ferdie//stash"), 1_000 * DOLLARS),
+					(get_account_id_from_seed::<sr25519::Public>("Dave//stash"), 100 * DOLLARS),
+					(get_account_id_from_seed::<sr25519::Public>("Eve//stash"), 100 * DOLLARS),
+					(get_account_id_from_seed::<sr25519::Public>("Ferdie//stash"), 100 * DOLLARS),
 				],
 				vec![
 					get_account_id_from_seed::<sr25519::Public>("Alice"),
@@ -291,16 +287,16 @@ fn staging_network_config_genesis() -> GenesisConfig {
 	];
 	let multisig_controller_threshold: u16 = 3;
 
-	let mut allocations = vec![(sudo_account.clone(), 100 * DOLLARS)];
+	let mut allocations = vec![(sudo_account.clone(), 1_000 * DOLLARS)];
 	allocations.append(
 		&mut multisig_controller_accounts
 			.iter()
-			.map(|a| (a.clone(), 100 * DOLLARS))
+			.map(|a| (a.clone(), 1_000 * DOLLARS))
 			.collect(),
 	);
 	allocations.append(&mut vec![(
 		multisig_account(multisig_controller_accounts, multisig_controller_threshold),
-		500 * DOLLARS,
+		5_000 * DOLLARS,
 	)]);
 	testnet_genesis(
 		wasm_binary,

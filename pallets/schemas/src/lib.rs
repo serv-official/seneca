@@ -87,6 +87,7 @@ pub mod pallet {
 	#[pallet::getter(fn get_nonce)]
 	pub(super) type Nonce<T: Config> = StorageValue<_, u64, ValueQuery>;
 
+
 	// Pallets use events to inform users when important changes are made.
 	// https://docs.substrate.io/main-docs/build/events-errors/
 	#[pallet::event]
