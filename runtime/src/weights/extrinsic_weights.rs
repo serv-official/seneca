@@ -11,7 +11,7 @@
 //   benchmark
 //   overhead
 //   --chain
-//     dev
+//   --dev
 //   --execution=wasm
 //   --wasm-execution=compiled
 //   --weight-path=runtime/src/weights/

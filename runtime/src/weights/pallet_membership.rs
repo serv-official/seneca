@@ -11,7 +11,7 @@
 // benchmark
 // pallet
 // --chain
-// dev
+// --dev
 // --execution=wasm
 // --wasm-execution=compiled
 // --pallet

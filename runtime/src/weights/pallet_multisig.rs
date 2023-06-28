@@ -10,7 +10,7 @@
 // benchmark
 // pallet
 // --chain
-// -dev
+// --dev
 // --steps=50
 // --repeat=20
 // --no-storage-info
