@@ -136,7 +136,7 @@ std = [
 	"pallet-democracy/std",
 	"pallet-session/std",
 	"pallet-session-benchmarking?/std",
-	'validator-set/std',
+	"validator-set/std",
 	"pallet-multisig/std",
 ]
 runtime-benchmarks = [

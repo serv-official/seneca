@@ -40,4 +40,4 @@ jobs:
 
       - name: Check Build for Benchmarking
         run: >
-          cargo check --features=runtime-benchmarks --release
+          cargo build --release --features runtime-benchmarks
