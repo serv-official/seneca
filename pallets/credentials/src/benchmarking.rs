@@ -4,30 +4,31 @@ use crate::types::*;
 use crate::Pallet as CredentialRegistry;
 use pallet_schemas::Pallet as SchemaRegistry;
 use codec::Encode;
-use frame_benchmarking::{benchmarks, whitelisted_caller};
+use frame_benchmarking::benchmarks;
 use frame_support::assert_ok;
 use frame_system::RawOrigin;
 use scale_info::prelude::format;
 use scale_info::prelude::vec;
-use sp_application_crypto::sr25519;
-use sp_core::Pair;
 use pallet_schemas::types::{
 	Attribute, AttributeType, Claim, ClaimType, VerifiableCredentialSchema,
 };
-use sp_runtime::traits::IdentifyAccount;
+use sp_application_crypto::RuntimePublic;
+use sp_application_crypto::sr25519::Public;
 
 
 benchmarks! {
-
+    where_clause {
+        where T::AccountId: From<sp_core::sr25519::Public>,
+			  T::Signature : From<sp_core::sr25519::Signature>
+    }
 	create_credential{
 		let s in 0 .. 100;
-		let caller: T::AccountId = whitelisted_caller();
 		//create random schema_id
 		let schema_id = 123u32;
 		let credential_id: T::CredentialId = Default::default();
-		let keypair = sr25519::Pair::generate();
-		let pair = keypair.0;
-		let account_id = format!("did:seneca:{}", pair.public().into_account());
+		let public = Public::generate_pair(sp_core::testing::SR25519, None);
+		let caller: T::AccountId = public.into();
+		let account_id = format!("did:seneca:{:#?}", caller.clone());
 		let creation_date: T::Moment = Default::default();
 		let credential: VerifiableCredential<T::Moment> = VerifiableCredential {
 			context: b"Credential context".to_vec(),
@@ -83,11 +84,12 @@ benchmarks! {
 			metadata: b"metadata".to_vec(),
 			nonce: 2u64,
 		};
+
 		// sign the schema in benchmarks
-		let data_sig = pair.sign(&credential.encode());
+		let data_sig = public.sign(sp_core::testing::SR25519, &credential.encode()).unwrap();
 		let binding = vf_schema.encode();
 		let vc_bytes = binding.as_slice();
-		let schema_data_sig = pair.sign(&vc_bytes);
+		let schema_data_sig = public.sign(sp_core::testing::SR25519, &vc_bytes.encode()).unwrap();
 		
 		assert_ok!(SchemaRegistry::<T>::create_schema(
 			RawOrigin::Signed(caller.clone()).into(),
@@ -124,13 +126,12 @@ benchmarks! {
 	}
 	update_credential{
 		let s in 0 .. 100;
-		let caller: T::AccountId = whitelisted_caller();	
 		//create random schema_id
 		let schema_id = 123u32;
 		let credential_id: T::CredentialId = Default::default();
-		let keypair = sr25519::Pair::generate();
-		let pair = keypair.0;
-		let account_id = format!("did:seneca:{}", pair.public().into_account());
+		let public = Public::generate_pair(sp_core::testing::SR25519, None);
+		let caller: T::AccountId = public.into();
+		let account_id = format!("did:seneca:{:#?}", caller.clone());
 		let creation_date: T::Moment =  Default::default();
 		let credential: VerifiableCredential<T::Moment> = VerifiableCredential {
 			context: b"Credential context".to_vec(),
@@ -209,10 +210,10 @@ benchmarks! {
 		};
 
 		// sign the schema in benchmarks
-		let sig = pair.sign(&credential.encode());
+		let sig = public.sign(sp_core::testing::SR25519, &credential.encode()).unwrap();
 		let binding = vf_schema.encode();
 		let vc_bytes = binding.as_slice();
-		let schema_data_sig = pair.sign(&vc_bytes);
+		let schema_data_sig = public.sign(sp_core::testing::SR25519, &vc_bytes.encode()).unwrap();
 
 		assert_ok!(SchemaRegistry::<T>::create_schema(
 			RawOrigin::Signed(caller.clone()).into(),
@@ -251,16 +252,13 @@ benchmarks! {
 
 	delete_credential{
 		let s in 0 .. 100;
-		let caller: T::AccountId = whitelisted_caller();
 
 		//create random schema_id
 		let schema_id = 123u32;
 		let credential_id: T::CredentialId = Default::default();
-
-		// sign the schema in benchmarks
-		let keypair = sr25519::Pair::generate();
-		let pair = keypair.0;
-		let account_id = format!("did:seneca:{}", pair.public().into_account());
+		let public = Public::generate_pair(sp_core::testing::SR25519, None);
+		let caller: T::AccountId = public.into();
+		let account_id = format!("did:seneca:{:#?}", caller.clone());
 		let credential: VerifiableCredential<T::Moment> = VerifiableCredential {
 			context: b"Credential context".to_vec(),
 			schema: schema_id,
@@ -317,10 +315,10 @@ benchmarks! {
 		};
 
 		// sign the schema in benchmarks
-		let sig = pair.sign(&credential.encode());
+		let sig = public.sign(sp_core::testing::SR25519, &credential.encode()).unwrap();
 		let binding = vf_schema.encode();
 		let vc_bytes = binding.as_slice();
-		let schema_data_sig = pair.sign(&vc_bytes);
+		let schema_data_sig = public.sign(sp_core::testing::SR25519, &vc_bytes.encode()).unwrap();
 
 		assert_ok!(SchemaRegistry::<T>::create_schema(
 			RawOrigin::Signed(caller.clone()).into(),

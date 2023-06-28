@@ -659,7 +659,6 @@ mod benches {
 		[pallet_timestamp, Timestamp]
 		[pallet_scheduler, Scheduler]
 		[pallet_preimage, Preimage]
-		[pallet_session, SessionBench::<Runtime>]
 		[pallet_collective, Council]
 		[pallet_treasury, Treasury]
 		[pallet_multisig, Multisig]
@@ -843,7 +842,6 @@ impl_runtime_apis! {
 			use frame_benchmarking::{baseline, Benchmarking, BenchmarkList};
 			use frame_support::traits::StorageInfoTrait;
 			use frame_system_benchmarking::Pallet as SystemBench;
-			use pallet_session_benchmarking::Pallet as SessionBench;
 			use baseline::Pallet as BaselineBench;
 
 			let mut list = Vec::<BenchmarkList>::new();
@@ -853,7 +851,6 @@ impl_runtime_apis! {
 			list_benchmark!(list, extra, pallet_schemas, Schemas);
 			list_benchmark!(list, extra, pallet_credentials, Credentials);
 			list_benchmark!(list, extra, frame_benchmarking, BaselineBench::<Runtime>);
-			list_benchmark!(list, extra, pallet_session, SessionBench::<Runtime>);
 			list_benchmark!(list, extra, frame_system, SystemBench::<Runtime>);
 			list_benchmark!(list, extra, pallet_collective, Council);
 			list_benchmark!(list, extra, pallet_collective, TechnicalCommittee);
@@ -868,13 +865,11 @@ impl_runtime_apis! {
 			config: frame_benchmarking::BenchmarkConfig
 		) -> Result<Vec<frame_benchmarking::BenchmarkBatch>, sp_runtime::RuntimeString> {
 			use frame_benchmarking::{baseline, Benchmarking, BenchmarkBatch, TrackedStorageKey};
-			use pallet_session_benchmarking::Pallet as SessionBench;
 			use frame_system_benchmarking::Pallet as SystemBench;
 			use baseline::Pallet as BaselineBench;
 
 			impl frame_system_benchmarking::Config for Runtime {}
 			impl baseline::Config for Runtime {}
-			impl pallet_session_benchmarking::Config for Runtime {}
 
 			use frame_support::traits::WhitelistedStorageKeys;
 			let whitelist: Vec<TrackedStorageKey> = AllPalletsWithSystem::whitelisted_storage_keys();
@@ -887,7 +882,6 @@ impl_runtime_apis! {
 			add_benchmark!(params, batches, pallet_schemas, Schemas);
 			add_benchmark!(params, batches, pallet_credentials, Credentials);
 			add_benchmark!(params, batches, frame_benchmarking, BaselineBench::<Runtime>);
-			add_benchmark!(params, batches, pallet_session, SessionBench::<Runtime>);
 			add_benchmark!(params, batches, frame_system, SystemBench::<Runtime>);
 			add_benchmark!(params, batches, pallet_collective, Council);
 			add_benchmark!(params, batches, pallet_collective, TechnicalCommittee);

@@ -4,15 +4,13 @@ use crate::types::*;
 #[allow(unused)]
 use crate::Pallet as SchemaRegistry;
 use codec::Encode;
-use frame_benchmarking::{benchmarks, whitelisted_caller};
+use frame_benchmarking::benchmarks;
 use frame_support::assert_ok;
 use frame_system::RawOrigin;
 use scale_info::prelude::format;
 use scale_info::prelude::vec;
-use sp_runtime::traits::IdentifyAccount;
 use sp_application_crypto::RuntimePublic;
 use sp_application_crypto::sr25519::Public;
-use sp_io::crypto::{sr25519_generate, sr25519_sign};
 benchmarks! {
     where_clause {
         where T::AccountId: From<sp_core::sr25519::Public>,
@@ -24,7 +22,7 @@ benchmarks! {
 		let schema_id: T::SchemaId = Default::default();
 		let public = Public::generate_pair(sp_core::testing::SR25519, None);
 		let caller: T::AccountId = public.into();
-		let account_id = format!("did:seneca:{}", caller.clone());
+		let account_id = format!("did:seneca:{:#?}", caller.clone());
 		let schema: VerifiableCredentialSchema<T::Moment> = VerifiableCredentialSchema {
 			name: b"Alice Data".to_vec(),
 			creator: account_id.into(),
@@ -85,7 +83,7 @@ benchmarks! {
 		let schema_id: T::SchemaId = Default::default();
 		let public = Public::generate_pair(sp_core::testing::SR25519, None);
 		let caller: T::AccountId = public.into();
-		let account_id = format!("did:seneca:{}", caller.clone());
+		let account_id = format!("did:seneca:{:#?}", caller.clone());
 		let schema: VerifiableCredentialSchema<T::Moment> = VerifiableCredentialSchema {
 			name: b"Alice Data".to_vec(),
 			creator: account_id.clone().into(),
@@ -185,7 +183,7 @@ benchmarks! {
 		let schema_id: T::SchemaId = Default::default();
 		let public = Public::generate_pair(sp_core::testing::SR25519, None);
 		let caller: T::AccountId = public.into();
-		let account_id = format!("did:seneca:{}", caller.clone());
+		let account_id = format!("did:seneca:{:#?}", caller.clone());
 		let schema: VerifiableCredentialSchema<T::Moment> = VerifiableCredentialSchema {
 			name: b"Alice Data".to_vec(),
 			creator: account_id.into(),
