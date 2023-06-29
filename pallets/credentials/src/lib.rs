@@ -101,6 +101,8 @@ pub mod pallet {
 		SignatureVerifyError,
 		/// Error emitted when invalid DID is used
 		InvalidDID,
+		/// Error emitted when credential issuer and origin don't match
+		NotCredentialOwner
 	}
 
 	// Dispatchable functions allows users to interact with the pallet and invoke state changes.
@@ -125,7 +127,10 @@ pub mod pallet {
 			nonce: u64,
 		) -> DispatchResult {
 			// Ensure that the caller of the function is signed
-			let _ = ensure_signed(origin)?;
+			let origin = ensure_signed(origin)?;
+			// ensure credential issuer is the same as the origin of the extrinsic
+			let credential_creator = Self::split_publickey_from_did(&issuer)?;
+			ensure!(credential_creator == origin, Error::<T>::NotCredentialOwner);
 			let schema_id = T::SchemaCheck::to_schema_id(&schema);
 			//Ensure schema id exists
 			ensure!(
@@ -156,9 +161,13 @@ pub mod pallet {
 			#[pallet::compact] old_credential_key: T::CredentialId,
 			new_data: (T::Signature, VerifiableCredential<T::Moment>),
 		) -> DispatchResult {
-			let _ = ensure_signed(origin)?;
-			let credential_data = CredentialStore::<T>::get(&old_credential_key)
-				.ok_or(Error::<T>::UnknownCredential)?;
+			let origin = ensure_signed(origin)?;
+			// fetch credential from credential store
+			let credential_data =
+				CredentialStore::<T>::get(&old_credential_key).ok_or(Error::<T>::UnknownCredential)?;
+			// ensure credential creator is the one updating the credential
+			let credential_creator = Self::split_publickey_from_did(&credential_data.1.issuer)?;
+			ensure!(credential_creator == origin, Error::<T>::NotCredentialOwner);
 			ensure!(credential_data != new_data, Error::<T>::CredentialAlreadyExists);
 			// Update the credential data
 			Self::update_verifiable_credential(&old_credential_key, &new_data)
@@ -171,8 +180,13 @@ pub mod pallet {
 			origin: OriginFor<T>,
 			#[pallet::compact] key: T::CredentialId,
 		) -> DispatchResult {
-			let _ = ensure_signed(origin)?;
-			ensure!(<CredentialStore<T>>::contains_key(&key), Error::<T>::UnknownCredential);
+			let origin = ensure_signed(origin)?;
+			// fetch credential from credential store
+			let credential_data =
+				CredentialStore::<T>::get(&key).ok_or(Error::<T>::UnknownCredential)?;
+			// ensure credential creator is the one updating the credential
+			let credential_creator = Self::split_publickey_from_did(&credential_data.1.issuer)?;
+			ensure!(credential_creator == origin, Error::<T>::NotCredentialOwner);
 			Self::delete_verifiable_credential(&key)
 		}
 	}

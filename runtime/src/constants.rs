@@ -5,21 +5,23 @@ pub mod currency {
 	use node_primitives::Balance;
 
 	// Unit = the base number of indivisible units for balances
-	pub const MILLICENTS: Balance = 10u128.pow(9);
-	pub const CENTS: Balance = 10u128.pow(12); // assume this is worth about a cent.
-	pub const DOLLARS: Balance = 10u128.pow(15);
+	pub const UNITS: Balance = 10_000_000_000;
+	pub const DOLLARS: Balance = UNITS; // 10_000_000_000
+	pub const GRAND: Balance = DOLLARS * 1_000; // 10_000_000_000_000
+	pub const CENTS: Balance = DOLLARS / 100; // 100_000_000
+	pub const MILLICENTS: Balance = CENTS / 1_000; // 100_000
 
 	pub const fn deposit(items: u32, bytes: u32) -> Balance {
-		items as Balance * 56 * CENTS + (bytes as Balance) * 50 * MILLICENTS
+		items as Balance * 20 * DOLLARS + (bytes as Balance) * 100 * MILLICENTS
 	}
 }
 
 /// Fee-related.
 pub mod fee {
 	use frame_support::weights::{
-		constants::ExtrinsicBaseWeight, WeightToFeeCoefficient, WeightToFeeCoefficients,
-		WeightToFeePolynomial,
+		WeightToFeeCoefficient, WeightToFeeCoefficients, WeightToFeePolynomial,
 	};
+	use crate::weights::ExtrinsicBaseWeight;
 	use node_primitives::Balance;
 	use smallvec::smallvec;
 	pub use sp_runtime::Perbill;
@@ -38,9 +40,9 @@ pub mod fee {
 	impl WeightToFeePolynomial for WeightToFee {
 		type Balance = Balance;
 		fn polynomial() -> WeightToFeeCoefficients<Self::Balance> {
-			// in seneca, extrinsic base weight (smallest non-zero weight) is mapped to 1/10 CENT:
-			let p = super::currency::CENTS / 10;
-			let q = 100 * Balance::from(ExtrinsicBaseWeight::get().ref_time());
+			// in Polkadot, extrinsic base weight (smallest non-zero weight) is mapped to 1/10 CENT:
+			let p = super::currency::CENTS;
+			let q = 10 * Balance::from(ExtrinsicBaseWeight::get().ref_time());
 			smallvec![WeightToFeeCoefficient {
 				degree: 1,
 				negative: false,
