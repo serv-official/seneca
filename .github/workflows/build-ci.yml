@@ -31,7 +31,7 @@ jobs:
         rustup target add wasm32-unknown-unknown
 
       # Rust cache
-        - uses: Swatinem/rust-cache@v2
+      - uses: Swatinem/rust-cache@v2
 
       - name: Check Build
         run: |
