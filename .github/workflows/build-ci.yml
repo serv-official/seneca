@@ -27,8 +27,8 @@ jobs:
 
       - name: Install Rustup
         run: |
-        rustup update stable --no-self-update
-        rustup target add wasm32-unknown-unknown
+          rustup update stable --no-self-update
+          rustup target add wasm32-unknown-unknown
 
       # Rust cache
       - uses: Swatinem/rust-cache@v2
