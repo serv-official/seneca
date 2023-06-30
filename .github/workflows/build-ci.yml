@@ -27,10 +27,8 @@ jobs:
 
       - name: Install Rustup
         run: |
-          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-          source ~/.cargo/env
-          rustup default stable
-          rustup target add wasm32-unknown-unknown --toolchain nightly
+          rustup update stable --no-self-update
+          rustup target add wasm32-unknown-unknown
 
       # Rust cache
       - uses: Swatinem/rust-cache@v2
