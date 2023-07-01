@@ -42,6 +42,7 @@ pub mod pallet {
 			+ Decode
 			+ Member
 			+ From<sp_core::sr25519::Public>
+			+ Into<sp_core::sr25519::Public>
 			+ TypeInfo;
 		type Signature: Verify<Signer = Self::Public>
 			+ Member
@@ -49,6 +50,7 @@ pub mod pallet {
 			+ Decode
 			+ Encode
 			+ From<sp_core::sr25519::Signature>
+			+ Into<sp_core::sr25519::Signature>
 			+ TypeInfo;
 		type Moment: Parameter
 			+ Default

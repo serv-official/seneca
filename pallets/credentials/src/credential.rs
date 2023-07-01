@@ -1,6 +1,5 @@
 use crate::types::*;
 use frame_support::dispatch::DispatchResult;
-use frame_support::pallet_prelude::DispatchError;
 use scale_info::prelude::vec::Vec;
 
 pub trait Credential<AccountId, Moment, Signature, CredentialId> {
@@ -21,8 +20,6 @@ pub trait Credential<AccountId, Moment, Signature, CredentialId> {
 		new_data: &(Signature, VerifiableCredential<Moment>),
 	) -> DispatchResult;
 	fn delete_verifiable_credential(key: &CredentialId) -> DispatchResult;
-	fn is_valid_signer(data: &[u8], sig: &Signature, from: &AccountId) -> DispatchResult;
-	fn split_publickey_from_did(did: &Vec<u8>) -> Result<AccountId, DispatchError>;
 	fn get_credentials_by_schemaid(
 		schema_id: &u32,
 	) -> Vec<(CredentialId, VerifiableCredential<Moment>)>;

@@ -4424,6 +4424,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "node-commons"
+version = "2.0.0"
+dependencies = [
+ "bs58",
+ "frame-system",
+ "log",
+ "parity-scale-codec",
+ "sp-core",
+ "sp-runtime",
+ "sp-std",
+]
+
+[[package]]
 name = "node-primitives"
 version = "2.0.0"
 dependencies = [
@@ -4724,7 +4737,7 @@ dependencies = [
  "frame-system",
  "hex-literal",
  "log",
- "node-primitives",
+ "node-commons",
  "pallet-schemas",
  "pallet-session",
  "pallet-timestamp",

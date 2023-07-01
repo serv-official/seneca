@@ -22,12 +22,14 @@ pub mod pallet {
 	use frame_support::{
 		ensure,
 		pallet_prelude::*,
-		sp_runtime::traits::{IdentifyAccount, Member, Verify},
+		sp_runtime::traits::{IdentifyAccount, Member},
 		traits::IsType
 	};
+	use sp_core::crypto::AccountId32;
 	use frame_system::pallet_prelude::*;
 	use pallet_schemas::schema::SchemaInterface;
 	use scale_info::prelude::vec::Vec;
+	use node_commons::commons::*;
 
 	#[pallet::pallet]
 	#[pallet::without_storage_info]
@@ -129,7 +131,15 @@ pub mod pallet {
 			// Ensure that the caller of the function is signed
 			let origin = ensure_signed(origin)?;
 			// ensure credential issuer is the same as the origin of the extrinsic
-			let credential_creator = Self::split_publickey_from_did(&issuer)?;
+			let cred_creator = split_publickey_from_did(&issuer)?;
+			let mut to32: &[u8] = AccountId32::as_ref(&cred_creator);
+			let credential_creator = match T::AccountId::decode(&mut to32) {
+				Ok(a) => a,
+				Err(e) => {
+					log::error!("Error decoding: {}", e);
+					return Err(DispatchError::Other("Error converting string to AccountId"));
+				},
+			};
 			ensure!(credential_creator == origin, Error::<T>::NotCredentialOwner);
 			let schema_id = T::SchemaCheck::to_schema_id(&schema);
 			//Ensure schema id exists
@@ -166,7 +176,15 @@ pub mod pallet {
 			let credential_data =
 				CredentialStore::<T>::get(&old_credential_key).ok_or(Error::<T>::UnknownCredential)?;
 			// ensure credential creator is the one updating the credential
-			let credential_creator = Self::split_publickey_from_did(&credential_data.1.issuer)?;
+			let cred_creator = split_publickey_from_did(&credential_data.1.issuer)?;
+			let mut to32: &[u8] = AccountId32::as_ref(&cred_creator);
+			let credential_creator = match T::AccountId::decode(&mut to32) {
+				Ok(a) => a,
+				Err(e) => {
+					log::error!("Error decoding: {}", e);
+					return Err(DispatchError::Other("Error converting string to AccountId"));
+				},
+			};
 			ensure!(credential_creator == origin, Error::<T>::NotCredentialOwner);
 			ensure!(credential_data != new_data, Error::<T>::CredentialAlreadyExists);
 			// Update the credential data
@@ -185,7 +203,15 @@ pub mod pallet {
 			let credential_data =
 				CredentialStore::<T>::get(&key).ok_or(Error::<T>::UnknownCredential)?;
 			// ensure credential creator is the one updating the credential
-			let credential_creator = Self::split_publickey_from_did(&credential_data.1.issuer)?;
+			let cred_creator = split_publickey_from_did(&credential_data.1.issuer)?;
+			let mut to32: &[u8] = AccountId32::as_ref(&cred_creator);
+			let credential_creator = match T::AccountId::decode(&mut to32) {
+				Ok(a) => a,
+				Err(e) => {
+					log::error!("Error decoding: {}", e);
+					return Err(DispatchError::Other("Error converting string to AccountId"));
+				},
+			};
 			ensure!(credential_creator == origin, Error::<T>::NotCredentialOwner);
 			Self::delete_verifiable_credential(&key)
 		}
@@ -217,8 +243,17 @@ pub mod pallet {
 			};
 			let binding = verifiable_credential.encode();
 			let vc_bytes = binding.as_slice();
-			let signer = Self::split_publickey_from_did(&verifiable_credential.issuer)?;
-			Self::is_valid_signer(vc_bytes, signature, &signer)?;
+			let signer_acc = split_publickey_from_did(&verifiable_credential.issuer)?;
+			let mut to32: &[u8] = AccountId32::as_ref(&signer_acc);
+			let signer = match T::AccountId::decode(&mut to32) {
+				Ok(a) => a,
+				Err(e) => {
+					log::error!("Error decoding: {}", e);
+					return Err(DispatchError::Other("Error converting string to AccountId"));
+				},
+			};
+
+			is_valid_signer(vc_bytes, &signature.to_owned().into(), &signer) == true;
 			// Save the Schema data in storage
 			CredentialStore::<T>::insert(&id, (&signature, &verifiable_credential));
 			// Emit an event to indicate that the Credential was created and stored
@@ -246,27 +281,6 @@ pub mod pallet {
 			<CredentialStore<T>>::remove(key);
 			Self::deposit_event(Event::CredentialDeleted(key.clone()));
 			Ok(())
-		}
-
-		fn is_valid_signer(data: &[u8], sig: &T::Signature, from: &T::AccountId) -> DispatchResult {
-			ensure!(sig.verify(data, from), <Error<T>>::SignatureVerifyError);
-			Ok(())
-		}
-
-		fn split_publickey_from_did(did: &Vec<u8>) -> Result<T::AccountId, DispatchError> {
-			let did_string = match sp_std::str::from_utf8(did) {
-				Ok(did_str) => did_str,
-				Err(e) => {
-					log::error!("{:?}", e);
-					return Err(<Error<T>>::InvalidDID.into());
-				},
-			};
-			let did_vec: Vec<&str> = did_string.split(":").collect();
-			let public_key_str = did_vec[2].trim();
-			match node_primitives::convert2accountid::convert_string_to_accountid(public_key_str) {
-				Ok(account_id) => Ok(account_id),
-				Err(e) => Err(e),
-			}
 		}
 
 		// Fetch credentials by schemaid
